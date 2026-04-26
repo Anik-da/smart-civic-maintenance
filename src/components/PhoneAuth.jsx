@@ -56,9 +56,13 @@ export function PhoneAuth({ onLoginSuccess }) {
     setIsLoading(true);
 
     try {
+      console.log("Starting OTP process for:", phoneNumber);
+      
       // Re-init recaptcha before each attempt
       initRecaptcha();
-      await new Promise(r => setTimeout(r, 300)); // let it render
+      await new Promise(r => setTimeout(r, 500)); // let it render properly
+      
+      console.log("Recaptcha initialized and rendered");
 
       let formattedPhone = phoneNumber.replace(/[^\d+]/g, '');
       if (formattedPhone.length === 10 && !formattedPhone.startsWith('+')) {
@@ -66,15 +70,22 @@ export function PhoneAuth({ onLoginSuccess }) {
       } else if (!formattedPhone.startsWith('+')) {
         formattedPhone = `+${formattedPhone}`;
       }
+      
+      console.log("Formatted Phone:", formattedPhone);
+      console.log("Calling signInWithPhoneNumber...");
 
       const result = await signInWithPhoneNumber(auth, formattedPhone, window.recaptchaVerifier);
+      
+      console.log("signInWithPhoneNumber success!", result);
       setConfirmationResult(result);
       alert("OTP sent successfully!");
       setCooldown(30);
     } catch (err) {
-      console.error(err);
-      setError(err.message);
+      console.error("FULL ERROR OBJECT:", err);
+      setError(err.message || "Failed to send code");
+      alert("Error: " + (err.message || "Unknown error"));
     } finally {
+      console.log("OTP process finished (loading off)");
       setIsLoading(false);
     }
   };
