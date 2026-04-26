@@ -27,7 +27,7 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <div className="min-h-screen p-4 flex flex-col max-w-7xl mx-auto">
         <header className="mb-8 flex justify-between items-center py-4 px-6 rounded-2xl neu-raised">
           <div>
