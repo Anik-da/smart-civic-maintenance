@@ -1,12 +1,12 @@
 import React from 'react';
 
 export function Button({ children, variant = 'default', className = '', isLoading, ...props }) {
-  const baseClasses = 'neu-btn neu-focus py-3 px-6 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2';
+  const baseClasses = 'py-4 px-8 rounded-2xl text-base font-bold transition-all duration-300 flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed';
   
   const variants = {
-    default: 'neu-raised text-gray-600 dark:text-gray-300',
-    primary: 'text-white bg-gradient-to-br from-purple-600 to-purple-700 shadow-lg',
-    success: 'text-white bg-gradient-to-br from-green-500 to-green-600 shadow-lg',
+    default: 'glass-card text-white hover:bg-white/10',
+    primary: 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-[0_0_20px_rgba(124,58,237,0.3)] hover:shadow-[0_0_30px_rgba(124,58,237,0.5)]',
+    success: 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.3)]',
   };
 
   return (

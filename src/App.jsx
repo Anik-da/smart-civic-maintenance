@@ -28,20 +28,20 @@ function App() {
 
   return (
     <HashRouter>
-      <div className="min-h-screen p-4 flex flex-col max-w-7xl mx-auto">
-        <header className="mb-8 flex justify-between items-center py-4 px-6 rounded-2xl neu-raised">
+      <div className="min-h-screen p-6 flex flex-col max-w-7xl mx-auto">
+        <header className="mb-12 flex justify-between items-center py-6 px-10 rounded-[2.5rem] glass-card">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-purple-400">
+            <h1 className="text-3xl font-black text-white tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-300">
               CivicMaintenance
             </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Smart Emergency Response</p>
+            <p className="text-sm font-medium text-purple-300/80 uppercase tracking-widest">Smart Emergency Response</p>
           </div>
-          <nav className="flex gap-4 items-center">
+          <nav className="flex gap-8 items-center">
             {user ? (
               <>
-                <Link to="/" className="text-gray-600 hover:text-purple-600 font-medium transition-colors">Report</Link>
-                <Link to="/dashboard" className="text-gray-600 hover:text-purple-600 font-medium transition-colors">Dashboard</Link>
-                <Button onClick={() => signOut(auth)} variant="default" className="py-2 px-4 ml-4">
+                <Link to="/" className="text-purple-100 hover:text-white font-bold transition-all hover:scale-110">Report</Link>
+                <Link to="/dashboard" className="text-purple-100 hover:text-white font-bold transition-all hover:scale-110">Dashboard</Link>
+                <Button onClick={() => signOut(auth)} variant="default" className="py-2 px-6 ml-4">
                   Sign Out
                 </Button>
               </>
