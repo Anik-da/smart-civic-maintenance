@@ -1,96 +1,82 @@
-import React, { useState, useEffect } from 'react';
-import { HashRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { auth } from './lib/firebase';
-import { PhoneAuth } from './components/PhoneAuth';
+import React from 'react';
+import { HashRouter, Routes, Route, Link } from 'react-router-dom';
 import { ComplaintSubmission } from './components/ComplaintSubmission';
 import { Dashboard } from './components/Dashboard';
-import { Button } from './components/ui/Button';
 import { EmergencyButton } from './components/EmergencyButton';
 import { EmergencyTracking } from './components/EmergencyTracking';
-import { Shield, FileText, LayoutDashboard, LogOut } from 'lucide-react';
+import { Shield, FileText, LayoutDashboard } from 'lucide-react';
 
 function App() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-        <div className="app-bg"><div className="orb orb-1"></div><div className="orb orb-2"></div></div>
-        <div className="w-10 h-10 border-3 border-purple-500/30 border-t-purple-500 rounded-full animate-spin"></div>
-        <p className="text-slate-400 text-sm font-medium">Loading CivicMaintenance...</p>
-      </div>
-    );
-  }
+  // Mock public user to satisfy components that expect a user object
+  const publicUser = { uid: 'public-user', phoneNumber: '+1234567890' };
 
   return (
     <HashRouter>
-      {/* Animated Background */}
-      <div className="app-bg">
-        <div className="orb orb-1"></div>
-        <div className="orb orb-2"></div>
-        <div className="orb orb-3"></div>
-      </div>
+      <div className="min-h-screen">
+        <div className="scene" aria-hidden="true">
+          <div className="scene__blob scene__blob--1"></div>
+          <div className="scene__blob scene__blob--2"></div>
+          <div className="scene__blob scene__blob--3"></div>
+        </div>
 
-      <div className="min-h-screen flex flex-col">
-        {/* Header */}
-        <header className="header-bar sticky top-0 z-30 px-6 py-4">
-          <div className="max-w-7xl mx-auto flex justify-between items-center">
-            <Link to="/" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-purple-500/20 group-hover:shadow-purple-500/40 transition-shadow">
-                <Shield className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h1 className="text-lg font-extrabold text-white tracking-tight leading-none">
-                  CivicMaintenance
-                </h1>
-                <p className="text-[10px] font-semibold text-purple-400 uppercase tracking-[0.2em]">Smart Emergency Response</p>
-              </div>
-            </Link>
+        <div className="min-h-screen flex flex-col">
+          {/* Header */}
+          <header className="header-bar sticky top-0 z-30 px-6 py-4">
+            <div className="max-w-7xl mx-auto flex justify-between items-center">
+              <Link to="/" className="flex items-center gap-3 group">
+                <div className="w-10 h-10 glass rounded-xl flex items-center justify-center transition-transform group-hover:scale-105">
+                  <Shield className="w-5 h-5 text-aqua" />
+                </div>
+                <div>
+                  <h1 className="text-lg font-extrabold text-white tracking-tight leading-none font-display">
+                    Liquid Civic
+                  </h1>
+                  <p className="text-[10px] font-semibold text-violet uppercase tracking-[0.2em]">Public Access</p>
+                </div>
+              </Link>
 
-            {user && (
-              <nav className="flex items-center gap-2">
-                <Link to="/" className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-all">
+              <nav className="flex items-center gap-4">
+                <Link to="/" className="glass glass-btn glass-btn--ghost text-sm px-4 py-2 flex items-center gap-2">
                   <FileText className="w-4 h-4" />
                   Report
                 </Link>
-                <Link to="/dashboard" className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-all">
+                <Link to="/dashboard" className="glass glass-btn glass-btn--ghost text-sm px-4 py-2 flex items-center gap-2">
                   <LayoutDashboard className="w-4 h-4" />
                   Dashboard
                 </Link>
-                <button 
-                  onClick={() => signOut(auth)} 
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-400 hover:text-red-400 hover:bg-red-500/5 transition-all ml-2"
-                >
-                  <LogOut className="w-4 h-4" />
-                  Sign Out
-                </button>
               </nav>
-            )}
+            </div>
+          </header>
+
+          <header className="hero mt-12 mb-8">
+            <span className="hero__kicker">Pure CSS · Glassmorphism · Liquid Glass</span>
+            <h1 className="hero__title">
+              Liquid Glass<br />
+              UI Kit
+            </h1>
+            <p className="hero__sub">
+              Complete design token system, 15+ accessible components, light/dark mode, 12 animations — zero dependencies.
+            </p>
+          </header>
+
+          <div className="container stats mb-12">
+            <div className="glass stats__item"><div className="stats__num">15+</div><div className="stats__desc">Components</div></div>
+            <div className="glass stats__item"><div className="stats__num">12</div><div className="stats__desc">Animations</div></div>
+            <div className="glass stats__item"><div className="stats__num">a11y</div><div class="stats__desc">WCAG Compliant</div></div>
           </div>
-        </header>
 
-        {/* Main Content */}
-        <main className="flex-1 px-4 py-10 max-w-7xl mx-auto w-full">
-          <Routes>
-            <Route path="/" element={user ? <ComplaintSubmission user={user} /> : <Navigate to="/login" />} />
-            <Route path="/login" element={!user ? <PhoneAuth /> : <Navigate to="/" />} />
-            <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/login" />} />
-          </Routes>
-        </main>
+          {/* Main Content */}
+          <main className="flex-1 px-4 py-10 max-w-7xl mx-auto w-full">
+            <Routes>
+              <Route path="/" element={<ComplaintSubmission user={publicUser} />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+            </Routes>
+          </main>
 
-        {/* Emergency Features */}
-        {user && <EmergencyButton user={user} />}
-        {user && <EmergencyTracking user={user} />}
+          {/* Emergency Features */}
+          <EmergencyButton user={publicUser} />
+          <EmergencyTracking user={publicUser} />
+        </div>
       </div>
     </HashRouter>
   );

@@ -1,19 +1,54 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { db } from '../lib/firebase';
 import { collection, query, where, onSnapshot, orderBy, limit } from 'firebase/firestore';
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import { Card } from './ui/Card';
-import { AlertCircle, Clock, ShieldCheck } from 'lucide-react';
+import { AlertCircle, Clock, ShieldCheck, Loader2 } from 'lucide-react';
 
 const mapContainerStyle = {
   width: '100%',
-  height: '300px',
-  borderRadius: '1rem'
+  height: '350px',
+  borderRadius: '1.5rem'
 };
 
 const mapOptions = {
   disableDefaultUI: true,
-  zoomControl: true,
+  zoomControl: false,
+  styles: [
+    { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+    { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+    { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+    {
+      featureType: "administrative.locality",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#d59563" }],
+    },
+    {
+      featureType: "poi",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#d59563" }],
+    },
+    {
+      featureType: "road",
+      elementType: "geometry",
+      stylers: [{ color: "#38414e" }],
+    },
+    {
+      featureType: "road",
+      elementType: "geometry.stroke",
+      stylers: [{ color: "#212a37" }],
+    },
+    {
+      featureType: "road",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#9ca5b3" }],
+    },
+    {
+      featureType: "water",
+      elementType: "geometry",
+      stylers: [{ color: "#17263c" }],
+    },
+  ]
 };
 
 export function EmergencyTracking({ user }) {
@@ -21,24 +56,20 @@ export function EmergencyTracking({ user }) {
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: "AIzaSyBw8DmV3BAThWLFBlR5TBMO6VGC7IuOnuY"
+    googleMapsApiKey: "AIzaSyBw8DmV3BAThWLFBIR5TBMO6VGC7IuOnuY"
   });
 
   useEffect(() => {
     if (!user) return;
-
-    // Listen to the most recent emergency for the user
     const q = query(
       collection(db, 'emergencies'),
       where('userId', '==', user.uid),
       orderBy('createdAt', 'desc'),
       limit(1)
     );
-
     const unsubscribe = onSnapshot(q, (snapshot) => {
       if (!snapshot.empty) {
         const emergencyData = { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
-        // If it's been arrived/resolved for a long time, we might hide this, but for now show if active
         if (emergencyData.status !== 'Resolved') {
           setActiveEmergency(emergencyData);
         } else {
@@ -48,20 +79,35 @@ export function EmergencyTracking({ user }) {
         setActiveEmergency(null);
       }
     });
-
     return () => unsubscribe();
   }, [user]);
 
   const getStatusDisplay = (status) => {
     switch (status) {
       case 'Requested':
-        return { text: 'Locating Responders...', icon: <Clock className="w-6 h-6 text-yellow-500 animate-spin" />, color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-200' };
+        return { 
+          text: 'Establishing Signal...', 
+          icon: <Loader2 className="w-6 h-6 text-amber animate-spin" />, 
+          badge: 'glass-badge--amber'
+        };
       case 'Dispatched':
-        return { text: 'Responder Dispatched!', icon: <AlertCircle className="w-6 h-6 text-blue-500 animate-bounce" />, color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200' };
+        return { 
+          text: 'Responder En Route', 
+          icon: <AlertCircle className="w-6 h-6 text-aqua animate-pulse" />, 
+          badge: 'glass-badge--aqua'
+        };
       case 'Arrived':
-        return { text: 'Responders Arrived', icon: <ShieldCheck className="w-6 h-6 text-green-500" />, color: 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-200' };
+        return { 
+          text: 'Unit On Scene', 
+          icon: <ShieldCheck className="w-6 h-6 text-lime" />, 
+          badge: 'glass-badge--lime'
+        };
       default:
-        return { text: 'Emergency Active', icon: <AlertCircle className="w-6 h-6 text-red-500" />, color: 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-200' };
+        return { 
+          text: 'Emergency Active', 
+          icon: <AlertCircle className="w-6 h-6 text-rose" />, 
+          badge: 'glass-badge--rose'
+        };
     }
   };
 
@@ -70,45 +116,62 @@ export function EmergencyTracking({ user }) {
   const statusInfo = getStatusDisplay(activeEmergency.status);
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <Card className="w-full max-w-lg shadow-2xl animate-in fade-in zoom-in" title="Live Emergency Tracking">
-        <div className={`flex items-center gap-4 p-4 rounded-xl mb-6 ${statusInfo.color}`}>
-          {statusInfo.icon}
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-in fade-in duration-500">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+         <div className="scene__blob scene__blob--1 opacity-20"></div>
+         <div className="scene__blob scene__blob--2 opacity-20"></div>
+      </div>
+
+      <Card className="w-full max-w-xl glass border-rose/30 shadow-[0_0_100px_rgba(247,168,196,0.2)] animate-in zoom-in-95 duration-700" title="SOS TRACKING">
+        <div className="flex flex-col items-center gap-6 mb-8 text-center">
+          <div className="w-20 h-20 rounded-full glass flex items-center justify-center border-rose/30 relative">
+             <div className="absolute inset-0 bg-rose/10 animate-ping rounded-full"></div>
+             {statusInfo.icon}
+          </div>
           <div>
-            <h3 className="font-bold text-lg">{statusInfo.text}</h3>
-            <p className="text-sm opacity-80">Do not close this window. Help is on the way.</p>
+            <span className={`glass-badge ${statusInfo.badge} mb-2`}>{activeEmergency.status}</span>
+            <h3 className="hero__title" style={{ fontSize: '2.4rem', marginBottom: '0.25rem' }}>{statusInfo.text}</h3>
+            <p className="text-sm opacity-50 font-medium">Keep this interface open. Your GPS coordinates are being broadcast to emergency services.</p>
           </div>
         </div>
 
-        {isLoaded && activeEmergency.location ? (
-          <div className="neu-inset rounded-xl p-2 mb-4">
+        <div className="glass rounded-3xl overflow-hidden border-white/5 shadow-inner">
+          {isLoaded && activeEmergency.location ? (
             <GoogleMap
               mapContainerStyle={mapContainerStyle}
               center={activeEmergency.location}
-              zoom={15}
+              zoom={16}
               options={mapOptions}
             >
-              <Marker position={activeEmergency.location} />
-              
-              {/* Optional: Add a simulated responder marker if status is Dispatched */}
-              {activeEmergency.status === 'Dispatched' && (
-                <Marker 
-                  position={{
-                    lat: activeEmergency.location.lat + 0.005, // simulated offset
-                    lng: activeEmergency.location.lng + 0.005
-                  }}
-                  icon={{
-                    url: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png'
-                  }}
-                />
-              )}
+              <Marker 
+                position={activeEmergency.location}
+                icon={{
+                  path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z",
+                  fillColor: "#f7a8c4",
+                  fillOpacity: 1,
+                  strokeWeight: 2,
+                  strokeColor: "#fff",
+                  scale: 2
+                }}
+              />
             </GoogleMap>
-          </div>
-        ) : (
-          <div className="w-full h-[300px] rounded-xl neu-inset flex items-center justify-center text-gray-500">
-            Loading Map...
-          </div>
-        )}
+          ) : (
+            <div className="w-full h-[350px] flex flex-col items-center justify-center gap-4 opacity-40 font-bold tracking-widest text-[10px]">
+              <Loader2 className="w-8 h-8 animate-spin" />
+              SYNCHRONIZING ORBITAL DATA...
+            </div>
+          )}
+        </div>
+        
+        <div className="mt-8 pt-6 border-t border-white/5 flex justify-between items-center px-2">
+           <div>
+              <p className="text-[10px] font-bold opacity-30 uppercase tracking-widest">Target Location</p>
+              <p className="text-xs font-mono text-aqua">{activeEmergency.location?.lat.toFixed(6)}, {activeEmergency.location?.lng.toFixed(6)}</p>
+           </div>
+           <button className="glass glass-btn glass-btn--sm border-rose/20 text-rose" style={{ color: '#f7a8c4' }}>
+              CANCEL ALERT
+           </button>
+        </div>
       </Card>
     </div>
   );

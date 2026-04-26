@@ -1,0 +1,23 @@
+<USER_REQUEST>
+change the UI like this type 
+<div class="scene" aria-hidden="true">
+  <div class="scene__blob scene__blob--1"></div>
+  <div class="scene__blob scene__blob--2"></div>
+  <div class="scene__blob scene__blob--3"></div>
+</div>
+
+<!-- Theme toggle -->
+<button class="glass glass-btn theme-toggle-btn" id="theme-toggle" aria-label="Toggle colour scheme" title="Toggle light / dark mode">
+  <span class="icon-dark" aria-hidden="true">☀️</span>
+  <span class="icon-light" aria-hidden="true">🌙</span>
+</button>
+
+<!-- Toast region (ARIA live) -->
+<div class="glass-toast-region" id="toast-region" role="region" aria-label="Notifications" aria-live="polite"></div>
+
+<main class="page">
+
+  <!-- ─── HERO ─────────────────────────────────────────────────────────── -->
+  <header class="hero">
+    <span class="hero__kicker">Pure CSS · Glassmorphism · Liquid Glass</span>
+<truncated 126020 bytes>

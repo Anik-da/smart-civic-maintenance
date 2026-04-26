@@ -3,7 +3,7 @@ import { db } from '../lib/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
-import { X, Save, MessageSquare, User, Activity } from 'lucide-react';
+import { X, Save, MessageSquare, User, Activity, ExternalLink } from 'lucide-react';
 
 export function ComplaintModal({ complaint, onClose }) {
   const [status, setStatus] = useState(complaint.status || 'Pending');
@@ -30,88 +30,96 @@ export function ComplaintModal({ complaint, onClose }) {
     }
   };
 
-  const selectClasses = "w-full px-4 py-3 rounded-xl text-sm bg-white/5 border border-white/10 text-white outline-none focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all";
-  const inputClasses = "w-full px-4 py-3 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder-slate-500 outline-none focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all";
+  const getPriorityBadge = (priority) => {
+    switch (priority) {
+      case 'High': return 'glass-badge--rose';
+      case 'Medium': return 'glass-badge--amber';
+      case 'Low': return 'glass-badge--aqua';
+      default: return '';
+    }
+  };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md overflow-y-auto">
-      <Card className="w-full max-w-2xl relative my-8" title="Manage Complaint">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-in fade-in duration-300">
+      <Card className="w-full max-w-3xl relative animate-in zoom-in-95 duration-500" title="REPORT MANAGEMENT">
         <button 
           onClick={onClose}
-          className="absolute top-7 right-7 text-slate-500 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/10"
+          className="absolute top-6 right-6 glass p-2 rounded-full hover:bg-white/10 transition-all border-white/10 z-10"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4" />
         </button>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Details */}
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Original Report</h3>
-              <p className="text-slate-200 bg-white/5 border border-white/5 p-4 rounded-xl text-sm leading-relaxed">
-                {complaint.description}
-              </p>
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 mt-4">
+          {/* Details Section (3 cols) */}
+          <div className="lg:col-span-3 space-y-6">
+            <div className="space-y-2">
+              <span className="text-[10px] font-bold opacity-30 uppercase tracking-widest">TRANSMITTED CONTENT</span>
+              <div className="glass p-5 rounded-2xl border-white/5 bg-white/5 text-sm leading-relaxed italic opacity-90">
+                "{complaint.description}"
+              </div>
             </div>
             
             {complaint.imageUrl && (
-              <a href={complaint.imageUrl} target="_blank" rel="noreferrer">
-                <img src={complaint.imageUrl} alt="Issue" className="w-full h-40 object-cover rounded-xl border border-white/10 hover:border-purple-500/30 transition-all" />
-              </a>
+              <div className="space-y-2">
+                <div className="flex justify-between items-end">
+                  <span className="text-[10px] font-bold opacity-30 uppercase tracking-widest">VISUAL EVIDENCE</span>
+                  <a href={complaint.imageUrl} target="_blank" rel="noreferrer" className="text-[10px] text-aqua font-bold flex items-center gap-1 hover:underline">
+                    VIEW FULLRES <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+                <div className="rounded-2xl overflow-hidden glass border-white/10 group h-64 relative">
+                  <img src={complaint.imageUrl} alt="Issue" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                  <div className="absolute top-4 left-4 flex gap-2">
+                     <span className="glass-badge glass-badge--violet">{complaint.category}</span>
+                     <span className={`glass-badge ${getPriorityBadge(complaint.priority)}`}>{complaint.priority}</span>
+                  </div>
+                </div>
+              </div>
             )}
-
-            <div className="flex gap-2 text-sm">
-              <span className="px-3 py-1 bg-purple-500/15 text-purple-300 rounded-full capitalize font-semibold border border-purple-500/20 text-xs">
-                {complaint.category || 'Uncategorized'}
-              </span>
-              <span className={`px-3 py-1 rounded-full font-semibold border text-xs ${
-                complaint.priority === 'High' ? 'bg-red-500/15 text-red-300 border-red-500/20' :
-                complaint.priority === 'Medium' ? 'bg-amber-500/15 text-amber-300 border-amber-500/20' :
-                'bg-blue-500/15 text-blue-300 border-blue-500/20'
-              }`}>
-                {complaint.priority || 'Low'}
-              </span>
-            </div>
           </div>
 
-          {/* Actions */}
-          <div className="space-y-5">
+          {/* Actions Section (2 cols) */}
+          <div className="lg:col-span-2 space-y-6">
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
-                <Activity className="w-3.5 h-3.5" /> Status
+              <label className="text-[10px] font-bold opacity-30 uppercase tracking-widest flex items-center gap-2">
+                <Activity className="w-3 h-3" /> CURRENT STATUS
               </label>
-              <select value={status} onChange={(e) => setStatus(e.target.value)} className={selectClasses}>
-                <option value="Pending">Pending</option>
-                <option value="Dispatched">Dispatched</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Resolved">Resolved</option>
+              <select value={status} onChange={(e) => setStatus(e.target.value)} className="glass-input">
+                <option value="Pending">Pending Audit</option>
+                <option value="Dispatched">Unit Dispatched</option>
+                <option value="In Progress">Actively Repairing</option>
+                <option value="Resolved">Incident Resolved</option>
               </select>
             </div>
 
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
-                <User className="w-3.5 h-3.5" /> Assign To
+              <label className="text-[10px] font-bold opacity-30 uppercase tracking-widest flex items-center gap-2">
+                <User className="w-3 h-3" /> ASSIGNMENT
               </label>
               <input 
-                type="text" placeholder="e.g. Team Alpha, John Doe"
+                type="text" placeholder="Assignee ID or Team"
                 value={assignedTo} onChange={(e) => setAssignedTo(e.target.value)}
-                className={inputClasses}
+                className="glass-input"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
-                <MessageSquare className="w-3.5 h-3.5" /> Feedback to User
+              <label className="text-[10px] font-bold opacity-30 uppercase tracking-widest flex items-center gap-2">
+                <MessageSquare className="w-3 h-3" /> OPERATOR FEEDBACK
               </label>
               <textarea 
-                placeholder="Message the reporter (they will receive a push notification)"
+                placeholder="Log internal notes or messages..."
                 value={feedback} onChange={(e) => setFeedback(e.target.value)}
-                className={`${inputClasses} resize-none h-24`}
+                className="glass-textarea"
+                style={{ minHeight: '140px' }}
               />
             </div>
 
-            <Button onClick={handleSave} isLoading={isSaving} variant="primary" className="w-full">
-              <Save className="w-4 h-4" /> Save Updates
-            </Button>
+            <div className="pt-2">
+              <Button onClick={handleSave} isLoading={isSaving} variant="primary" className="w-full h-14">
+                <Save className="w-4 h-4 mr-2" /> COMMIT CHANGES
+              </Button>
+            </div>
           </div>
         </div>
       </Card>

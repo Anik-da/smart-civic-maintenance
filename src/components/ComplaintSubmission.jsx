@@ -5,7 +5,7 @@ import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import { Card } from './ui/Card';
-import { MapPin, Camera, Send, Sparkles, ImagePlus } from 'lucide-react';
+import { MapPin, Send, Sparkles, ImagePlus, Loader2 } from 'lucide-react';
 import { analyzeComplaintText } from '../lib/ai';
 
 export function ComplaintSubmission({ user }) {
@@ -103,77 +103,109 @@ export function ComplaintSubmission({ user }) {
   };
 
   return (
-    <Card className="max-w-xl w-full mx-auto" title="Report an Issue">
-      <form onSubmit={handleSubmit} className="space-y-6">
+    <Card className="max-w-2xl w-full mx-auto" title="Report Issue">
+      <form onSubmit={handleSubmit} className="space-y-8">
         
-        {/* Image Upload */}
+        {/* Image Upload Area */}
         <div 
-          className="border-2 border-dashed border-purple-500/20 rounded-2xl p-6 text-center cursor-pointer transition-all hover:border-purple-500/40 hover:bg-purple-500/5 relative min-h-[180px] flex flex-col justify-center items-center overflow-hidden group"
+          className="glass rounded-2xl p-8 text-center cursor-pointer transition-all hover:bg-white/10 border-dashed border-2 border-white/20 relative min-h-[220px] flex flex-col justify-center items-center overflow-hidden group"
           onClick={() => fileInputRef.current.click()}
         >
           <input type="file" ref={fileInputRef} onChange={handleImageChange} className="hidden" accept="image/*" capture="environment" />
           {imagePreview ? (
-            <img src={imagePreview} alt="Preview" className="absolute inset-0 w-full h-full object-cover rounded-2xl" />
-          ) : (
             <>
-              <div className="w-14 h-14 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                <ImagePlus className="w-7 h-7 text-purple-400" />
+              <img src={imagePreview} alt="Preview" className="absolute inset-0 w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <span className="glass-badge glass-badge--aqua">Change Photo</span>
               </div>
-              <p className="text-sm font-medium text-slate-400">Tap to take a photo or upload</p>
-              <p className="text-xs text-slate-500 mt-1">JPG, PNG up to 10MB</p>
             </>
-          )}
-        </div>
-
-        {/* Description + AI */}
-        <div className="flex flex-col gap-2">
-          <div className="flex justify-between items-center">
-            <label className="text-sm font-semibold text-purple-300 ml-1">Description</label>
-            <Button type="button" onClick={handleEnhanceWithAI} variant="default" isLoading={isEnhancing} className="py-1.5 px-3 text-xs rounded-xl">
-              <Sparkles className="w-3 h-3 text-purple-400" />
-              AI Enhance
-            </Button>
-          </div>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Describe the issue (e.g. huge pothole near main road, cars swerving)"
-            className="w-full px-5 py-4 rounded-2xl text-base text-white placeholder-slate-500 bg-white/5 border border-white/10 focus:outline-none focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 resize-none h-28 transition-all"
-            required
-          />
-          {(category || aiUrgency) && (
-            <div className="flex gap-2 mt-1">
-              {category && <span className="px-3 py-1 bg-purple-500/15 text-purple-300 text-xs rounded-full font-semibold capitalize border border-purple-500/20">📂 {category}</span>}
-              {aiUrgency && <span className="px-3 py-1 bg-blue-500/15 text-blue-300 text-xs rounded-full font-semibold border border-blue-500/20">⚡ {aiUrgency}</span>}
+          ) : (
+            <div className="animate-in fade-in zoom-in">
+              <div className="w-16 h-16 rounded-full bg-aqua/10 flex items-center justify-center mb-4 mx-auto border border-aqua/20 group-hover:scale-110 transition-transform">
+                <ImagePlus className="w-8 h-8 text-aqua" />
+              </div>
+              <h4 className="font-bold text-lg mb-1">Visual Evidence</h4>
+              <p className="text-sm opacity-50">Tap to capture or upload the maintenance issue</p>
             </div>
           )}
         </div>
 
-        {/* Location */}
-        <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/3 border border-white/5">
-          <Button type="button" onClick={getLocation} variant="default" isLoading={isLocating}>
-            <MapPin className="w-4 h-4 text-purple-400" />
-            {location ? '✅ Location Captured' : 'Get GPS Location'}
-          </Button>
-          {location && (
-            <span className="text-xs text-emerald-400 font-mono truncate flex-1">
-              {location.lat.toFixed(4)}, {location.lng.toFixed(4)}
-            </span>
+        {/* Description Section */}
+        <div className="space-y-3">
+          <div className="flex justify-between items-center px-1">
+            <span className="text-sm font-bold opacity-60">SITUATION DETAILS</span>
+            <button 
+              type="button" 
+              onClick={handleEnhanceWithAI} 
+              disabled={isEnhancing}
+              className="glass glass-btn glass-btn--sm gap-2"
+              style={{ padding: '6px 12px' }}
+            >
+              {isEnhancing ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3 text-aqua" />}
+              <span className="text-[10px] uppercase font-bold tracking-widest">AI Enhance</span>
+            </button>
+          </div>
+          
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Provide details about the issue..."
+            className="glass-textarea"
+            required
+          />
+
+          {(category || aiUrgency) && (
+            <div className="flex flex-wrap gap-3 animate-in slide-in-from-top-2">
+              {category && <span className="glass-badge glass-badge--violet">📂 {category}</span>}
+              {aiUrgency && <span className="glass-badge glass-badge--amber">⚡ {aiUrgency}</span>}
+            </div>
           )}
         </div>
 
-        {/* Progress */}
-        {isSubmitting && (
-          <div className="h-2 rounded-full overflow-hidden bg-white/5">
-            <div className="h-full rounded-full progress-fill" style={{ width: `${progress}%` }}></div>
+        {/* Geolocation Section */}
+        <div className="glass p-5 rounded-2xl flex items-center justify-between gap-4 border-aqua/10">
+          <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${location ? 'bg-aqua/20' : 'bg-white/5'}`}>
+              <MapPin className={`w-5 h-5 ${location ? 'text-aqua' : 'opacity-30'}`} />
+            </div>
+            <div>
+              <p className="text-xs font-bold opacity-40 uppercase tracking-tighter">Location Status</p>
+              <p className="text-sm font-medium">
+                {location ? 'Precise Coordinates Locked' : 'GPS Required for Verification'}
+              </p>
+            </div>
           </div>
-        )}
+          
+          <Button 
+            type="button" 
+            onClick={getLocation} 
+            variant={location ? 'default' : 'primary'}
+            isLoading={isLocating}
+            className="whitespace-nowrap"
+          >
+            {location ? 'Relocate' : 'Capture GPS'}
+          </Button>
+        </div>
 
-        {/* Submit */}
-        <Button type="submit" variant="primary" className="w-full" isLoading={isSubmitting}>
-          <Send className="w-4 h-4" />
-          Submit Complaint
-        </Button>
+        {/* Submission Area */}
+        <div className="pt-4">
+          {isSubmitting && (
+            <div className="mb-4 space-y-2">
+              <div className="flex justify-between text-[10px] font-bold opacity-50 px-1">
+                <span>UPLOADING REPORT...</span>
+                <span>{Math.round(progress)}%</span>
+              </div>
+              <div className="h-1.5 glass rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-aqua to-violet transition-all duration-300" style={{ width: `${progress}%` }}></div>
+              </div>
+            </div>
+          )}
+
+          <Button type="submit" variant="primary" className="w-full h-14 text-lg" isLoading={isSubmitting}>
+            <Send className="w-5 h-5 mr-1" />
+            Finalize & Submit
+          </Button>
+        </div>
       </form>
     </Card>
   );
