@@ -11,50 +11,49 @@ export function PhoneAuth({ onLoginSuccess }) {
   const [verificationCode, setVerificationCode] = useState('');
   const [confirmationResult, setConfirmationResult] = useState(null);
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
 
   useEffect(() => {
-    // Clear old verifier to avoid "reCAPTCHA client element has been removed" error in React (especially during development/HMR)
+    let timer;
+    if (cooldown > 0) {
+      timer = setTimeout(() => setCooldown(cooldown - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [cooldown]);
+
+  const initRecaptcha = () => {
     if (window.recaptchaVerifier) {
       try {
         window.recaptchaVerifier.clear();
-      } catch(e) {}
-      window.recaptchaVerifier = null;
+      } catch (e) {}
     }
-
     window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-      'size': 'normal',
-      'callback': (response) => {
-        // reCAPTCHA solved
-      },
-      'expired-callback': () => {
-        // Response expired. Ask user to solve reCAPTCHA again.
-      }
+      'size': 'normal'
     });
-    
-    // Explicitly render it
-    window.recaptchaVerifier.render()
-      .then(() => {
-        console.log("recaptcha ready");
-      })
-      .catch(console.error);
+  };
 
+  useEffect(() => {
+    initRecaptcha();
     return () => {
       if (window.recaptchaVerifier) {
         try {
           window.recaptchaVerifier.clear();
-        } catch(e) {}
-        window.recaptchaVerifier = null;
+        } catch (e) {}
       }
     };
   }, []);
 
   const handleSendCode = async (e) => {
     e.preventDefault();
+    if (cooldown > 0 || isLoading) return;
+    
     setError('');
     setIsLoading(true);
+
     try {
-      // Auto-format to ensure +91 is present for Indian numbers
+      // reset old verifier (prevents silent failures)
+      initRecaptcha();
+
       let formattedPhone = phoneNumber.replace(/[^\d+]/g, '');
       if (formattedPhone.length === 10 && !formattedPhone.startsWith('+')) {
         formattedPhone = `+91${formattedPhone}`;
@@ -62,18 +61,16 @@ export function PhoneAuth({ onLoginSuccess }) {
         formattedPhone = `+${formattedPhone}`;
       }
 
-      // Using exactly what you requested but with the formatted phone:
       const result = await signInWithPhoneNumber(auth, formattedPhone, window.recaptchaVerifier);
       setConfirmationResult(result);
+      alert("OTP sent");
+      
+      // cooldown (avoid spam → avoids block)
+      setCooldown(30);
     } catch (err) {
       console.error(err);
-      setError('Failed to send verification code. ' + err.message);
-      // Reset reCAPTCHA on error so they can try again
-      if (window.recaptchaVerifier) {
-         window.recaptchaVerifier.render().then(widgetId => {
-           window.grecaptcha.reset(widgetId);
-         });
-      }
+      setError(err.message);
+      alert(err.message);
     } finally {
       setIsLoading(false);
     }
@@ -85,13 +82,14 @@ export function PhoneAuth({ onLoginSuccess }) {
     setIsLoading(true);
     try {
       const result = await confirmationResult.confirm(verificationCode);
-      const user = result.user;
+      alert("Login success");
       if (onLoginSuccess) {
-        onLoginSuccess(user);
+        onLoginSuccess(result.user);
       }
     } catch (err) {
       console.error(err);
-      setError('Invalid verification code. ' + err.message);
+      setError("Invalid OTP");
+      alert("Invalid OTP");
     } finally {
       setIsLoading(false);
     }
@@ -112,9 +110,9 @@ export function PhoneAuth({ onLoginSuccess }) {
           />
           {/* Visible recaptcha container */}
           <div id="recaptcha-container" className="flex justify-center my-4"></div>
-          <Button type="submit" variant="primary" className="w-full" isLoading={isLoading}>
+          <Button type="submit" variant="primary" className="w-full" isLoading={isLoading} disabled={cooldown > 0}>
             <Phone className="w-4 h-4" />
-            Send Code
+            {cooldown > 0 ? `Wait ${cooldown}s` : 'Send Code'}
           </Button>
         </form>
       ) : (
