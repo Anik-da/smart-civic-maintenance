@@ -10,7 +10,6 @@ export function EmergencyButton({ user }) {
   const handleEmergency = async () => {
     if (isRequesting) return;
     
-    // 1. Request Notification Permissions so they can be alerted
     if (user) {
       await requestNotificationPermission(user.uid);
     }
@@ -21,19 +20,13 @@ export function EmergencyButton({ user }) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           try {
-            const location = {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude,
-            };
-
             await addDoc(collection(db, 'emergencies'), {
               userId: user.uid,
               phone: user.phoneNumber,
-              location,
+              location: { lat: position.coords.latitude, lng: position.coords.longitude },
               status: 'Requested',
               createdAt: serverTimestamp()
             });
-
             alert('Emergency services have been requested and notified of your location!');
           } catch (error) {
             console.error('Failed to trigger emergency:', error);
@@ -59,10 +52,10 @@ export function EmergencyButton({ user }) {
     <button
       onClick={handleEmergency}
       disabled={isRequesting}
-      className="fixed bottom-8 right-8 w-20 h-20 bg-gradient-to-br from-red-500 to-red-700 rounded-full shadow-[0_10px_25px_rgba(239,68,68,0.5)] flex flex-col items-center justify-center text-white font-bold text-sm border-4 border-red-400 hover:scale-105 active:scale-95 transition-all z-50 animate-pulse disabled:opacity-50 disabled:animate-none"
+      className="fixed bottom-8 right-8 w-20 h-20 bg-gradient-to-br from-red-500 to-rose-700 rounded-full flex flex-col items-center justify-center text-white font-extrabold text-xs border-2 border-red-400/50 hover:scale-110 active:scale-95 transition-all z-50 pulse-glow disabled:opacity-50 disabled:animate-none cursor-pointer"
     >
-      <AlertTriangle className="w-8 h-8 mb-1" />
-      HELP
+      <AlertTriangle className="w-7 h-7 mb-0.5" />
+      SOS
     </button>
   );
 }

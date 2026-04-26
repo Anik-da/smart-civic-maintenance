@@ -8,7 +8,7 @@ import { Dashboard } from './components/Dashboard';
 import { Button } from './components/ui/Button';
 import { EmergencyButton } from './components/EmergencyButton';
 import { EmergencyTracking } from './components/EmergencyTracking';
-
+import { Shield, FileText, LayoutDashboard, LogOut } from 'lucide-react';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -23,50 +23,72 @@ function App() {
   }, []);
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center text-gray-500">Loading...</div>;
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+        <div className="app-bg"><div className="orb orb-1"></div><div className="orb orb-2"></div></div>
+        <div className="w-10 h-10 border-3 border-purple-500/30 border-t-purple-500 rounded-full animate-spin"></div>
+        <p className="text-slate-400 text-sm font-medium">Loading CivicMaintenance...</p>
+      </div>
+    );
   }
 
   return (
     <HashRouter>
-      <div className="min-h-screen p-6 flex flex-col max-w-7xl mx-auto">
-        <header className="mb-12 flex justify-between items-center py-6 px-10 rounded-[2.5rem] glass-card">
-          <div>
-            <h1 className="text-3xl font-black text-white tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-300">
-              CivicMaintenance
-            </h1>
-            <p className="text-sm font-medium text-purple-300/80 uppercase tracking-widest">Smart Emergency Response</p>
-          </div>
-          <nav className="flex gap-8 items-center">
-            {user ? (
-              <>
-                <Link to="/" className="text-purple-100 hover:text-white font-bold transition-all hover:scale-110">Report</Link>
-                <Link to="/dashboard" className="text-purple-100 hover:text-white font-bold transition-all hover:scale-110">Dashboard</Link>
-                <Button onClick={() => signOut(auth)} variant="default" className="py-2 px-6 ml-4">
+      {/* Animated Background */}
+      <div className="app-bg">
+        <div className="orb orb-1"></div>
+        <div className="orb orb-2"></div>
+        <div className="orb orb-3"></div>
+      </div>
+
+      <div className="min-h-screen flex flex-col">
+        {/* Header */}
+        <header className="header-bar sticky top-0 z-30 px-6 py-4">
+          <div className="max-w-7xl mx-auto flex justify-between items-center">
+            <Link to="/" className="flex items-center gap-3 group">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-purple-500/20 group-hover:shadow-purple-500/40 transition-shadow">
+                <Shield className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h1 className="text-lg font-extrabold text-white tracking-tight leading-none">
+                  CivicMaintenance
+                </h1>
+                <p className="text-[10px] font-semibold text-purple-400 uppercase tracking-[0.2em]">Smart Emergency Response</p>
+              </div>
+            </Link>
+
+            {user && (
+              <nav className="flex items-center gap-2">
+                <Link to="/" className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-all">
+                  <FileText className="w-4 h-4" />
+                  Report
+                </Link>
+                <Link to="/dashboard" className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-all">
+                  <LayoutDashboard className="w-4 h-4" />
+                  Dashboard
+                </Link>
+                <button 
+                  onClick={() => signOut(auth)} 
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-400 hover:text-red-400 hover:bg-red-500/5 transition-all ml-2"
+                >
+                  <LogOut className="w-4 h-4" />
                   Sign Out
-                </Button>
-              </>
-            ) : null}
-          </nav>
+                </button>
+              </nav>
+            )}
+          </div>
         </header>
 
-        <main className="flex-1 relative">
+        {/* Main Content */}
+        <main className="flex-1 px-4 py-10 max-w-7xl mx-auto w-full">
           <Routes>
-            <Route 
-              path="/" 
-              element={user ? <ComplaintSubmission user={user} /> : <Navigate to="/login" />} 
-            />
-            <Route 
-              path="/login" 
-              element={!user ? <PhoneAuth /> : <Navigate to="/" />} 
-            />
-            <Route 
-              path="/dashboard" 
-              element={user ? <Dashboard /> : <Navigate to="/login" />} 
-            />
+            <Route path="/" element={user ? <ComplaintSubmission user={user} /> : <Navigate to="/login" />} />
+            <Route path="/login" element={!user ? <PhoneAuth /> : <Navigate to="/" />} />
+            <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/login" />} />
           </Routes>
         </main>
-        
-        {/* Global Emergency Features */}
+
+        {/* Emergency Features */}
         {user && <EmergencyButton user={user} />}
         {user && <EmergencyTracking user={user} />}
       </div>
