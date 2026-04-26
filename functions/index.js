@@ -6,6 +6,9 @@ admin.initializeApp();
 
 const client = new vision.ImageAnnotatorClient();
 
+// Helper for delays in functions (only for short periods)
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
 exports.analyzeComplaintImage = functions.firestore
   .document('complaints/{complaintId}')
   .onCreate(async (snap, context) => {
@@ -18,12 +21,9 @@ exports.analyzeComplaintImage = functions.firestore
     }
 
     try {
-      // Analyze the image using Google Cloud Vision
       const [result] = await client.labelDetection(imageUrl);
       const labels = result.labelAnnotations.map(label => label.description.toLowerCase());
       
-      console.log('Detected labels:', labels);
-
       let priority = 'Low';
       const highPriorityKeywords = ['fire', 'accident', 'blood', 'crash', 'danger', 'hazard', 'smoke', 'flood'];
       const mediumPriorityKeywords = ['pothole', 'broken', 'trash', 'garbage', 'damage', 'spill', 'graffiti'];
@@ -34,14 +34,12 @@ exports.analyzeComplaintImage = functions.firestore
         priority = 'Medium';
       }
 
-      // Update the Firestore document with labels and priority
       return snap.ref.update({
-        priority: priority,
-        labels: labels,
+        priority,
+        labels,
         aiAnalyzed: true,
         aiAnalyzedAt: admin.firestore.FieldValue.serverTimestamp()
       });
-
     } catch (error) {
       console.error('Vision API error:', error);
       return snap.ref.update({
@@ -52,16 +50,12 @@ exports.analyzeComplaintImage = functions.firestore
     }
   });
 
-// Simulated Emergency Responder
 exports.handleEmergencyRequest = functions.firestore
   .document('emergencies/{emergencyId}')
   .onCreate(async (snap, context) => {
     const data = snap.data();
     const userId = data.userId;
 
-    console.log(`Emergency received for user ${userId}. Dispatching simulated responders.`);
-
-    // 1. In a real app, send FCM to responder topic here.
     const userDoc = await admin.firestore().collection('users').doc(userId).get();
     if (userDoc.exists && userDoc.data().fcmToken) {
       const fcmToken = userDoc.data().fcmToken;
@@ -70,7 +64,7 @@ exports.handleEmergencyRequest = functions.firestore
           token: fcmToken,
           notification: {
             title: 'Emergency Help Requested',
-            body: 'Responders have been alerted and are analyzing your location.'
+            body: 'Responders have been alerted.'
           }
         });
       } catch (err) {
@@ -78,26 +72,10 @@ exports.handleEmergencyRequest = functions.firestore
       }
     }
 
-    // 2. Simulate dispatch delay (e.g. 5 seconds for demo)
-    setTimeout(async () => {
-      await snap.ref.update({ status: 'Dispatched' });
-      
-      if (userDoc.exists && userDoc.data().fcmToken) {
-         admin.messaging().send({
-           token: userDoc.data().fcmToken,
-           notification: {
-             title: 'Responders Dispatched',
-             body: 'Help is on the way to your exact location.'
-           }
-         }).catch(console.error);
-      }
-    }, 10000); // 10 seconds
-
-    // 3. Simulate arrival delay
-    setTimeout(async () => {
-      await snap.ref.update({ status: 'Arrived' });
-    }, 25000); // 25 seconds
-
+    // Short delay for simulation
+    await delay(5000);
+    await snap.ref.update({ status: 'Dispatched' });
+    
     return null;
   });
 
