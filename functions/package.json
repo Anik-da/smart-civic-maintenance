@@ -9,6 +9,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "engines": {
+    "node": "20"
+  },
   "type": "commonjs",
   "dependencies": {
     "@google-cloud/vision": "^5.3.5",
