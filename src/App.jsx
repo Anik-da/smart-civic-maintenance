@@ -1,0 +1,77 @@
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { auth } from './lib/firebase';
+import { PhoneAuth } from './components/PhoneAuth';
+import { ComplaintSubmission } from './components/ComplaintSubmission';
+import { Dashboard } from './components/Dashboard';
+import { Button } from './components/ui/Button';
+import { EmergencyButton } from './components/EmergencyButton';
+import { EmergencyTracking } from './components/EmergencyTracking';
+
+
+function App() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center text-gray-500">Loading...</div>;
+  }
+
+  return (
+    <BrowserRouter>
+      <div className="min-h-screen p-4 flex flex-col max-w-7xl mx-auto">
+        <header className="mb-8 flex justify-between items-center py-4 px-6 rounded-2xl neu-raised">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-purple-400">
+              CivicMaintenance
+            </h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Smart Emergency Response</p>
+          </div>
+          <nav className="flex gap-4 items-center">
+            {user ? (
+              <>
+                <Link to="/" className="text-gray-600 hover:text-purple-600 font-medium transition-colors">Report</Link>
+                <Link to="/dashboard" className="text-gray-600 hover:text-purple-600 font-medium transition-colors">Dashboard</Link>
+                <Button onClick={() => signOut(auth)} variant="default" className="py-2 px-4 ml-4">
+                  Sign Out
+                </Button>
+              </>
+            ) : null}
+          </nav>
+        </header>
+
+        <main className="flex-1 relative">
+          <Routes>
+            <Route 
+              path="/" 
+              element={user ? <ComplaintSubmission user={user} /> : <Navigate to="/login" />} 
+            />
+            <Route 
+              path="/login" 
+              element={!user ? <PhoneAuth /> : <Navigate to="/" />} 
+            />
+            <Route 
+              path="/dashboard" 
+              element={user ? <Dashboard /> : <Navigate to="/login" />} 
+            />
+          </Routes>
+        </main>
+        
+        {/* Global Emergency Features */}
+        {user && <EmergencyButton user={user} />}
+        {user && <EmergencyTracking user={user} />}
+      </div>
+    </BrowserRouter>
+  );
+}
+
+export default App;

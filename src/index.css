@@ -1,0 +1,148 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", system-ui, sans-serif;
+  --color-primary: #7c3aed;
+  --color-primary-dark: #6d28d9;
+}
+
+/* CSS Custom Properties */
+@layer base {
+  :root {
+    --neu-bg-primary: #e6e9ef;
+    --neu-bg-secondary: #d1d5db;
+    --neu-shadow-dark: #b8bcc2;
+    --neu-shadow-light: #ffffff;
+    --neu-primary: #7c3aed;
+    --neu-primary-dark: #6d28d9;
+    --transition-fast: 150ms;
+    --transition-normal: 300ms;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --neu-bg-primary: #374151;
+      --neu-bg-secondary: #1f2937;
+      --neu-shadow-dark: #111827;
+      --neu-shadow-light: #4b5563;
+    }
+  }
+
+  body {
+    background: linear-gradient(145deg, var(--neu-bg-primary), var(--neu-bg-secondary));
+    min-height: 100vh;
+    transition: background 0.5s ease;
+    @apply text-gray-700 dark:text-gray-200;
+  }
+}
+
+@layer components {
+  /* Neuromorphic Surfaces */
+  .neu-raised {
+    background: linear-gradient(145deg, var(--neu-bg-primary), var(--neu-bg-secondary));
+    box-shadow:
+      8px 8px 16px var(--neu-shadow-dark),
+      -8px -8px 16px var(--neu-shadow-light);
+  }
+
+  .neu-raised-sm {
+    box-shadow:
+      4px 4px 8px var(--neu-shadow-dark),
+      -4px -4px 8px var(--neu-shadow-light);
+  }
+
+  .neu-inset {
+    background: linear-gradient(145deg, var(--neu-bg-secondary), var(--neu-bg-primary));
+    box-shadow:
+      inset 4px 4px 8px var(--neu-shadow-dark),
+      inset -4px -4px 8px var(--neu-shadow-light);
+  }
+
+  .neu-flat {
+    background: linear-gradient(145deg, var(--neu-bg-primary), var(--neu-bg-secondary));
+  }
+
+  /* Button States */
+  .neu-btn {
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  }
+
+  .neu-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+  }
+
+  .neu-btn:active:not(:disabled) {
+    transform: translateY(1px);
+    box-shadow:
+      inset 2px 2px 4px var(--neu-shadow-dark),
+      inset -2px -2px 4px var(--neu-shadow-light);
+  }
+
+  .neu-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* Focus Styles */
+  .neu-focus:focus {
+    outline: none;
+  }
+
+  .neu-focus:focus-visible {
+    outline: 3px solid var(--neu-primary);
+    outline-offset: 2px;
+  }
+  
+  /* Progress Bar */
+  .progress-fill {
+    background: linear-gradient(90deg, #7c3aed, #a855f7);
+    transition: width 0.3s ease;
+  }
+}
+
+@layer utilities {
+  /* Shimmer Animation */
+  @keyframes shimmer {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(100%);
+    }
+  }
+
+  .shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shimmer::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg,
+        transparent,
+        rgba(255, 255, 255, 0.4),
+        transparent);
+    animation: shimmer 1.5s infinite;
+  }
+
+  /* Custom Scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: var(--neu-bg-secondary);
+    border-radius: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: linear-gradient(145deg, var(--neu-shadow-dark), #9ca0a6);
+    border-radius: 4px;
+  }
+}

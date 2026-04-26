@@ -1,0 +1,96 @@
+import React, { useMemo } from 'react';
+import { GoogleMap, useJsApiLoader, HeatmapLayer, Marker } from '@react-google-maps/api';
+
+const containerStyle = {
+  width: '100%',
+  height: '600px',
+  borderRadius: '1rem'
+};
+
+const defaultCenter = {
+  lat: 40.7128, // Default to a city if no complaints exist
+  lng: -74.0060
+};
+
+const libraries = ['visualization'];
+
+export function DashboardMap({ complaints, onComplaintClick }) {
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: "AIzaSyBw8DmV3BAThWLFBlR5TBMO6VGC7IuOnuY",
+    libraries: libraries
+  });
+
+  const center = useMemo(() => {
+    if (complaints.length > 0 && complaints[0].location) {
+      return complaints[0].location;
+    }
+    return defaultCenter;
+  }, [complaints]);
+
+  const heatmapData = useMemo(() => {
+    if (!isLoaded || !window.google) return [];
+    return complaints
+      .filter(c => c.location && c.location.lat && c.location.lng)
+      .map(c => ({
+        location: new window.google.maps.LatLng(c.location.lat, c.location.lng),
+        weight: c.priority === 'High' ? 3 : c.priority === 'Medium' ? 2 : 1
+      }));
+  }, [complaints, isLoaded]);
+
+  if (!isLoaded) return <div className="h-[600px] flex items-center justify-center rounded-xl neu-inset">Loading Map...</div>;
+
+  return (
+    <div className="neu-inset rounded-xl p-2 h-[600px]">
+      <GoogleMap
+        mapContainerStyle={containerStyle}
+        center={center}
+        zoom={12}
+        options={{ disableDefaultUI: false }}
+      >
+        {heatmapData.length > 0 && (
+          <HeatmapLayer
+            data={heatmapData}
+            options={{
+              radius: 40,
+              opacity: 0.6,
+              gradient: [
+                'rgba(0, 255, 255, 0)',
+                'rgba(0, 255, 255, 1)',
+                'rgba(0, 191, 255, 1)',
+                'rgba(0, 127, 255, 1)',
+                'rgba(0, 63, 255, 1)',
+                'rgba(0, 0, 255, 1)',
+                'rgba(0, 0, 223, 1)',
+                'rgba(0, 0, 191, 1)',
+                'rgba(0, 0, 159, 1)',
+                'rgba(0, 0, 127, 1)',
+                'rgba(63, 0, 91, 1)',
+                'rgba(127, 0, 63, 1)',
+                'rgba(191, 0, 31, 1)',
+                'rgba(255, 0, 0, 1)'
+              ]
+            }}
+          />
+        )}
+        
+        {complaints.map(complaint => (
+          complaint.location && complaint.location.lat ? (
+            <Marker
+              key={complaint.id}
+              position={complaint.location}
+              onClick={() => onComplaintClick(complaint)}
+              icon={{
+                url: complaint.priority === 'High' 
+                  ? 'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
+                  : complaint.priority === 'Medium'
+                  ? 'https://maps.google.com/mapfiles/ms/icons/yellow-dot.png'
+                  : 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png'
+              }}
+            />
+          ) : null
+        ))}
+      </GoogleMap>
+    </div>
+  );
+}
