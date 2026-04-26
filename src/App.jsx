@@ -1,14 +1,33 @@
-import React from 'react';
-import { HashRouter, Routes, Route, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { HashRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { ComplaintSubmission } from './components/ComplaintSubmission';
 import { Dashboard } from './components/Dashboard';
 import { EmergencyButton } from './components/EmergencyButton';
 import { EmergencyTracking } from './components/EmergencyTracking';
-import { Shield, FileText, LayoutDashboard } from 'lucide-react';
+import { PhoneAuth } from './components/PhoneAuth';
+import { AIChatBot } from './components/AIChatBot';
+import { Shield, FileText, LayoutDashboard, LogOut, Bot } from 'lucide-react';
 
 function App() {
-  // Mock public user to satisfy components that expect a user object
-  const publicUser = { uid: 'public-user', phoneNumber: '+1234567890' };
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem('civic_user');
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+  }, []);
+
+  const handleLogin = (phoneNumber) => {
+    const newUser = { uid: `user-${Date.now()}`, phoneNumber };
+    localStorage.setItem('civic_user', JSON.stringify(newUser));
+    setUser(newUser);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('civic_user');
+    setUser(null);
+  };
 
   return (
     <HashRouter>
@@ -29,53 +48,69 @@ function App() {
                 </div>
                 <div>
                   <h1 className="text-lg font-extrabold text-white tracking-tight leading-none font-display">
-                    Liquid Civic
+                    Smart Civic
                   </h1>
-                  <p className="text-[10px] font-semibold text-violet uppercase tracking-[0.2em]">Public Access</p>
+                  <p className="text-[10px] font-semibold text-violet uppercase tracking-[0.2em]">Maintenance Portal</p>
                 </div>
               </Link>
 
-              <nav className="flex items-center gap-4">
-                <Link to="/" className="glass glass-btn glass-btn--ghost text-sm px-4 py-2 flex items-center gap-2">
-                  <FileText className="w-4 h-4" />
-                  Report
-                </Link>
-                <Link to="/dashboard" className="glass glass-btn glass-btn--ghost text-sm px-4 py-2 flex items-center gap-2">
-                  <LayoutDashboard className="w-4 h-4" />
-                  Dashboard
-                </Link>
-              </nav>
+              {user && (
+                <nav className="flex items-center gap-3 flex-wrap">
+                  <Link to="/" className="glass glass-btn glass-btn--ghost text-sm px-4 py-2 flex items-center gap-2">
+                    <FileText className="w-4 h-4" />
+                    Report
+                  </Link>
+                  <Link to="/dashboard" className="glass glass-btn glass-btn--ghost text-sm px-4 py-2 flex items-center gap-2">
+                    <LayoutDashboard className="w-4 h-4" />
+                    Dashboard
+                  </Link>
+                  <Link to="/ai-assistant" className="glass glass-btn glass-btn--ghost text-sm px-4 py-2 flex items-center gap-2">
+                    <Bot className="w-4 h-4" />
+                    AI Bot
+                  </Link>
+                  <button onClick={handleLogout} className="glass glass-btn glass-btn--ghost text-sm px-4 py-2 flex items-center gap-2 text-rose">
+                    <LogOut className="w-4 h-4" />
+                    Logout
+                  </button>
+                </nav>
+              )}
             </div>
           </header>
 
-          <header className="hero mt-12 mb-8">
-            <span className="hero__kicker">Pure CSS · Glassmorphism · Liquid Glass</span>
-            <h1 className="hero__title">
-              Liquid Glass<br />
-              UI Kit
-            </h1>
-            <p className="hero__sub">
-              Complete design token system, 15+ accessible components, light/dark mode, 12 animations — zero dependencies.
-            </p>
-          </header>
+          {!user && (
+            <>
+              <header className="hero mt-12 mb-8">
+                <span className="hero__kicker">AI-Powered · Real-Time · Smart City</span>
+                <h1 className="hero__title">
+                  Smart Civic<br />
+                  Maintenance
+                </h1>
+                <p className="hero__sub">
+                  Report infrastructure issues, track repairs in real-time, and get AI-powered assistance — all from one intelligent civic platform.
+                </p>
+              </header>
 
-          <div className="container stats mb-12">
-            <div className="glass stats__item"><div className="stats__num">15+</div><div className="stats__desc">Components</div></div>
-            <div className="glass stats__item"><div className="stats__num">12</div><div className="stats__desc">Animations</div></div>
-            <div className="glass stats__item"><div className="stats__num">a11y</div><div class="stats__desc">WCAG Compliant</div></div>
-          </div>
+              <div className="container stats mb-12">
+                <div className="glass stats__item"><div className="stats__num">24/7</div><div className="stats__desc">Live Tracking</div></div>
+                <div className="glass stats__item"><div className="stats__num">AI</div><div className="stats__desc">Smart Analysis</div></div>
+                <div className="glass stats__item"><div className="stats__num">GPS</div><div className="stats__desc">Geo Located</div></div>
+              </div>
+            </>
+          )}
 
           {/* Main Content */}
           <main className="flex-1 px-4 py-10 max-w-7xl mx-auto w-full">
             <Routes>
-              <Route path="/" element={<ComplaintSubmission user={publicUser} />} />
-              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/" element={user ? <ComplaintSubmission user={user} /> : <Navigate to="/login" />} />
+              <Route path="/login" element={!user ? <PhoneAuth onLogin={handleLogin} /> : <Navigate to="/" />} />
+              <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/login" />} />
+              <Route path="/ai-assistant" element={user ? <AIChatBot user={user} /> : <Navigate to="/login" />} />
             </Routes>
           </main>
 
           {/* Emergency Features */}
-          <EmergencyButton user={publicUser} />
-          <EmergencyTracking user={publicUser} />
+          {user && <EmergencyButton user={user} />}
+          {user && <EmergencyTracking user={user} />}
         </div>
       </div>
     </HashRouter>

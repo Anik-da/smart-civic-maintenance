@@ -17,7 +17,7 @@ const libraries = ['visualization'];
 export function DashboardMap({ complaints, onComplaintClick }) {
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: "AIzaSyBw8DmV3BAThWLFBIR5TBMO6VGC7IuOnuY",
+    googleMapsApiKey: "AIzaSyBw8DmV3BAThWLFBlR5TBMO6VGC7IuOnuY",
     libraries: libraries
   });
 
