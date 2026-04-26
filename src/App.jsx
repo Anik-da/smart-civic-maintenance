@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from './lib/firebase';
 import { PhoneAuth } from './components/PhoneAuth';
@@ -27,7 +27,7 @@ function App() {
   }
 
   return (
-    <BrowserRouter basename={import.meta.env.BASE_URL}>
+    <HashRouter>
       <div className="min-h-screen p-4 flex flex-col max-w-7xl mx-auto">
         <header className="mb-8 flex justify-between items-center py-4 px-6 rounded-2xl neu-raised">
           <div>
@@ -70,7 +70,7 @@ function App() {
         {user && <EmergencyButton user={user} />}
         {user && <EmergencyTracking user={user} />}
       </div>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 
