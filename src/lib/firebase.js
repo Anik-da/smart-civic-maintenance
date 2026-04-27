@@ -5,7 +5,7 @@ import { getStorage } from "firebase/storage";
 import { getMessaging } from "firebase/messaging";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCMbsmPE2vhp_VKlzWtmo239Pp-K2eKWHk",
+  apiKey: "AIzaSyB7qemx31vboXKguwrPP2rtp9YsNgkWFNk",
   authDomain: "smart-maintenance-494503.firebaseapp.com",
   projectId: "smart-maintenance-494503",
   storageBucket: "smart-maintenance-494503.firebasestorage.app",
