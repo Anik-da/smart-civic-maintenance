@@ -1,4 +1,5 @@
-const functions = require('firebase-functions/v1');
+const functions = require('firebase-functions');
+const { firestore } = require('firebase-functions/v1');
 const admin = require('firebase-admin');
 const vision = require('@google-cloud/vision');
 
@@ -6,10 +7,9 @@ admin.initializeApp();
 
 const client = new vision.ImageAnnotatorClient();
 
-// Helper for delays in functions (only for short periods)
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-exports.analyzeComplaintImage = functions.firestore
+exports.analyzeComplaintImage = firestore
   .document('complaints/{complaintId}')
   .onCreate(async (snap, context) => {
     const data = snap.data();
@@ -50,7 +50,7 @@ exports.analyzeComplaintImage = functions.firestore
     }
   });
 
-exports.handleEmergencyRequest = functions.firestore
+exports.handleEmergencyRequest = firestore
   .document('emergencies/{emergencyId}')
   .onCreate(async (snap, context) => {
     const data = snap.data();
@@ -72,21 +72,18 @@ exports.handleEmergencyRequest = functions.firestore
       }
     }
 
-    // Short delay for simulation
     await delay(5000);
     await snap.ref.update({ status: 'Dispatched' });
     
     return null;
   });
 
-// Send FCM notification when Operator adds Feedback
-exports.handleComplaintUpdate = functions.firestore
+exports.handleComplaintUpdate = firestore
   .document('complaints/{complaintId}')
   .onUpdate(async (change, context) => {
     const beforeData = change.before.data();
     const afterData = change.after.data();
 
-    // Check if feedback was added or changed
     if (afterData.operatorFeedback && beforeData.operatorFeedback !== afterData.operatorFeedback) {
       const userId = afterData.userId;
       
@@ -100,7 +97,6 @@ exports.handleComplaintUpdate = functions.firestore
               body: `Operator Feedback: ${afterData.operatorFeedback}`
             }
           });
-          console.log(`Feedback notification sent to user ${userId}`);
         } catch (err) {
           console.error('Failed to send feedback FCM:', err);
         }
@@ -108,4 +104,3 @@ exports.handleComplaintUpdate = functions.firestore
     }
     return null;
   });
-

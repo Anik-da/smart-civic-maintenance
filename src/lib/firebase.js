@@ -11,7 +11,8 @@ const firebaseConfig = {
   storageBucket: "smart-maintenance-494503.firebasestorage.app",
   messagingSenderId: "812446110775",
   appId: "1:812446110775:web:55cf4badd4dc7c19829bb2",
-  measurementId: "G-B34JEHQYYY"
+  measurementId: "G-B34JEHQYYY",
+  databaseURL: "https://smart-maintenance-494503-default-rtdb.firebaseio.com"
 };
 
 const app = initializeApp(firebaseConfig);
