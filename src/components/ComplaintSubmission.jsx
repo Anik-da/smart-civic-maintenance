@@ -1,9 +1,8 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { db, storage } from '../lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { Button } from './ui/Button';
-import { Input } from './ui/Input';
 import { Card } from './ui/Card';
 import { MapPin, Send, Sparkles, ImagePlus, Loader2 } from 'lucide-react';
 import { analyzeComplaintText } from '../lib/ai';

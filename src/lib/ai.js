@@ -59,6 +59,6 @@ Return ONLY valid JSON. Do not include any other text or markdown formatting.<en
     return parsed;
   } catch (error) {
     console.error('AI Analysis failed:', error);
-    throw new Error('Failed to analyze text using AI. Please try again.');
+    throw new Error('Failed to analyze text using AI. Please try again.', { cause: error });
   }
 };

@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { db } from '../lib/firebase';
 import { collection, query, where, onSnapshot, orderBy, limit } from 'firebase/firestore';
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import { Card } from './ui/Card';
-import { AlertCircle, Clock, ShieldCheck, Loader2 } from 'lucide-react';
+import { AlertCircle, ShieldCheck, Loader2 } from 'lucide-react';
 
 const mapContainerStyle = {
   width: '100%',

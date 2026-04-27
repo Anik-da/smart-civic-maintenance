@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, cloneElement } from 'react';
 import { db } from '../lib/firebase';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { ComplaintModal } from './ComplaintModal';
-import { Card } from './ui/Card';
 import { DashboardMap } from './DashboardMap';
 import { 
   BarChart3, 
@@ -87,7 +86,7 @@ export function Dashboard() {
     let timeoutId;
     let isSubscribed = true;
 
-    const useFallback = () => {
+    const activateFallback = () => {
       if (!isSubscribed) return;
       console.log('Using Dashboard Demo Data Fallback');
       setComplaints(DEMO_COMPLAINTS);
@@ -99,7 +98,7 @@ export function Dashboard() {
     // Set a timeout to fallback if Firestore doesn't respond in 3 seconds
     timeoutId = setTimeout(() => {
       if (loading) {
-        useFallback();
+        activateFallback();
       }
     }, 3000);
 
@@ -114,19 +113,19 @@ export function Dashboard() {
           setStats(calculateStats(data));
           setUsingDemo(false);
         } else {
-          useFallback();
+          activateFallback();
         }
         setLoading(false);
       }, (error) => {
         if (!isSubscribed) return;
         console.warn('Firestore Error:', error.message);
         clearTimeout(timeoutId);
-        useFallback();
+        activateFallback();
       });
     } catch (err) {
       console.warn('Sync Firestore Error:', err);
       clearTimeout(timeoutId);
-      useFallback();
+      activateFallback();
     }
 
     return () => {
@@ -134,7 +133,7 @@ export function Dashboard() {
       if (unsubscribe) unsubscribe();
       clearTimeout(timeoutId);
     };
-  }, []);
+  }, [loading]);
 
   const filteredComplaints = (complaints || []).filter(c => {
     if (!searchTerm) return true;
@@ -287,7 +286,7 @@ function StatCard({ label, value, icon, color, subtitle }) {
   return (
     <div className={`glass-card p-6 bg-gradient-to-br ${themes[color]} flex flex-col justify-between hover:translate-y-[-4px] transition-all duration-500 rounded-3xl border-white/5`}>
       <div className="flex justify-between items-center">
-        <div className="opacity-40">{React.cloneElement(icon, { size: 18 })}</div>
+        <div className="opacity-40">{cloneElement(icon, { size: 18 })}</div>
         <div className="w-8 h-1 rounded-full bg-white/5"></div>
       </div>
       <div className="mt-8">

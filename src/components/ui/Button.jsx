@@ -1,4 +1,3 @@
-import React from 'react';
 
 export function Button({ children, variant = 'default', className = '', isLoading, ...props }) {
   const baseClasses = 'glass glass-btn';

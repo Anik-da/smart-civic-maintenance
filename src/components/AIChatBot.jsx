@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
-import { Bot, Send, Sparkles, User, Loader2, Lightbulb, Wrench, MapPin, AlertTriangle } from 'lucide-react';
+import { Bot, Send, Sparkles, User, Lightbulb, Wrench, MapPin, AlertTriangle } from 'lucide-react';
 
 const CIVIC_KNOWLEDGE = {
   greetings: [

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { GoogleMap, useJsApiLoader, HeatmapLayer, Marker } from '@react-google-maps/api';
 
 const containerStyle = {
