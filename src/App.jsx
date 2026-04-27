@@ -10,13 +10,21 @@ import { Shield, FileText, LayoutDashboard, LogOut, Bot, AlertTriangle, RefreshC
 import { ErrorBoundary } from './components/ErrorBoundary';
 
 
+import { Landing } from './components/Landing';
+import { DashboardGate } from './components/DashboardGate';
+
 function App() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('civic_user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
+    try {
+      const savedUser = localStorage.getItem('civic_user');
+      if (savedUser) {
+        setUser(JSON.parse(savedUser));
+      }
+    } catch (err) {
+      console.error('Failed to parse user from local storage:', err);
+      localStorage.removeItem('civic_user');
     }
   }, []);
 
@@ -41,6 +49,15 @@ function App() {
             <div className="scene__blob scene__blob--3"></div>
           </div>
 
+          {/* Theme toggle */}
+          <button className="glass glass-btn theme-toggle-btn fixed top-4 right-4 z-[200] w-12 h-12 p-0 flex items-center justify-center rounded-full" id="theme-toggle" aria-label="Toggle colour scheme" title="Toggle light / dark mode" onClick={() => document.documentElement.classList.toggle('dark')}>
+            <span className="icon-dark dark:hidden" aria-hidden="true">☀️</span>
+            <span className="icon-light hidden dark:block" aria-hidden="true">🌙</span>
+          </button>
+
+          {/* Toast region (ARIA live) */}
+          <div className="glass-toast-region" id="toast-region" role="region" aria-label="Notifications" aria-live="polite"></div>
+
           <div className="min-h-screen flex flex-col relative z-10">
             {/* Navigation Header */}
             <header className="header-bar sticky top-0 z-[100] px-6 py-4">
@@ -53,51 +70,34 @@ function App() {
                     <h1 className="text-lg font-black text-white tracking-tighter leading-none font-display uppercase">
                       Smart Civic
                     </h1>
-                    <p className="text-[9px] font-black text-violet uppercase tracking-[0.3em] mt-1 opacity-60">Maintenance 2.0</p>
+                    <p className="text-[9px] font-black text-violet uppercase tracking-[0.3em] mt-1 opacity-60">Operations</p>
                   </div>
                 </Link>
 
-                {user && (
-                  <nav className="flex items-center gap-2">
-                    <NavLink to="/" icon={<FileText />} label="Report" />
-                    <NavLink to="/dashboard" icon={<LayoutDashboard />} label="Dashboard" />
-                    <NavLink to="/ai-assistant" icon={<Bot />} label="AI Bot" />
+                <nav className="flex items-center gap-2">
+                  {user && <NavLink to="/report" icon={<FileText />} label="Report" />}
+                  <NavLink to="/dashboard" icon={<LayoutDashboard />} label="Dashboard" />
+                  {user && <NavLink to="/ai-assistant" icon={<Bot />} label="AI Bot" />}
+                  
+                  {user && (
                     <button 
                       onClick={handleLogout} 
-                      className="glass glass-btn glass-btn--ghost text-[10px] font-bold px-4 h-10 flex items-center gap-2 text-rose border-rose/20 hover:bg-rose/5"
+                      className="glass glass-btn glass-btn--ghost text-[10px] font-bold px-4 h-10 flex items-center gap-2 text-rose border-rose/20 hover:bg-rose/5 ml-2"
                     >
                       <LogOut className="w-3.5 h-3.5" /> LOGOUT
                     </button>
-                  </nav>
-                )}
+                  )}
+                </nav>
               </div>
             </header>
 
-            {!user && (
-              <header className="hero mt-20 mb-8 animate-in fade-in slide-in-from-top-4 duration-1000">
-                <span className="hero__kicker">AI-Integrated · Civic Infrastructure</span>
-                <h1 className="hero__title">
-                  Intelligent City<br />
-                  Maintenance
-                </h1>
-                <p className="hero__sub max-w-xl mx-auto">
-                  The next generation of civic responsibility. Report infrastructure failures, track repair progress in real-time, and interact with our AI maintenance assistant.
-                </p>
-
-                <div className="container stats mt-12 grid grid-cols-3 gap-4 max-w-2xl">
-                  <StatMini num="24/7" desc="LIVE COMMAND" />
-                  <StatMini num="AI" desc="SMART ANALYSIS" />
-                  <StatMini num="REAL" desc="TIME TRACKING" />
-                </div>
-              </header>
-            )}
-
             {/* Main Application Routes */}
-            <main className="flex-1 px-4 py-6 max-w-7xl mx-auto w-full flex flex-col items-center justify-center">
+            <main className="flex-1 px-4 py-6 max-w-7xl mx-auto w-full flex flex-col items-center">
               <Routes>
-                <Route path="/" element={user ? <ComplaintSubmission user={user} /> : <Navigate to="/login" />} />
-                <Route path="/login" element={!user ? <PhoneAuth onLogin={handleLogin} /> : <Navigate to="/" />} />
-                <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/login" />} />
+                <Route path="/" element={<Landing />} />
+                <Route path="/report" element={user ? <ComplaintSubmission user={user} /> : <Navigate to="/login" />} />
+                <Route path="/login" element={!user ? <PhoneAuth onLogin={handleLogin} /> : <Navigate to="/report" />} />
+                <Route path="/dashboard" element={<DashboardGate><Dashboard /></DashboardGate>} />
                 <Route path="/ai-assistant" element={user ? <AIChatBot user={user} /> : <Navigate to="/login" />} />
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>

@@ -10,8 +10,13 @@ export function EmergencyButton({ user }) {
   const handleEmergency = async () => {
     if (isRequesting) return;
     
+    // Attempt to request notification permission if user is logged in
     if (user) {
-      await requestNotificationPermission(user.uid);
+      try {
+        await requestNotificationPermission(user.uid);
+      } catch (e) {
+        console.warn("FCM permission denied or failed:", e);
+      }
     }
 
     setIsRequesting(true);
@@ -20,30 +25,45 @@ export function EmergencyButton({ user }) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           try {
-            await addDoc(collection(db, 'emergencies'), {
-              userId: user.uid,
-              phone: user.phoneNumber,
-              location: { lat: position.coords.latitude, lng: position.coords.longitude },
+            const emergencyDoc = {
+              userId: user?.uid || 'anonymous',
+              phone: user?.phoneNumber || 'not provided',
+              location: { 
+                lat: position.coords.latitude, 
+                lng: position.coords.longitude 
+              },
               status: 'Requested',
-              createdAt: serverTimestamp()
-            });
-            alert('Emergency services have been requested and notified of your location!');
+              createdAt: serverTimestamp(),
+              priority: 'Critical',
+              type: 'SOS'
+            };
+
+            await addDoc(collection(db, 'emergencies'), emergencyDoc);
+            
+            // Create a local notification/alert
+            alert('🚨 EMERGENCY ALERT BROADCAST! Emergency services have been notified of your precise location. Please stay where you are.');
           } catch (error) {
-            console.warn('Failed to trigger emergency via Firebase, simulating success:', error);
-            alert('Emergency simulation: Request sent successfully! (Local Mode)');
+            console.error('Failed to trigger emergency via Firebase:', error);
+            alert('⚠️ Connection Error: Emergency signal could not be broadcast. Please call local emergency services immediately.');
           } finally {
             setIsRequesting(false);
           }
         },
         (error) => {
           console.error("Location error:", error);
-          alert("We need your location for emergencies. Please allow location access.");
+          let msg = "We need your location for emergencies. Please enable GPS.";
+          if (error.code === 1) msg = "Location access denied. Please enable it in browser settings for emergencies.";
+          alert(msg);
           setIsRequesting(false);
         },
-        { enableHighAccuracy: true }
+        { 
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
       );
     } else {
-      alert("Geolocation is not supported by your browser.");
+      alert("Geolocation is not supported by your browser. Please call emergency services directly.");
       setIsRequesting(false);
     }
   };

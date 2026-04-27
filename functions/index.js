@@ -1,23 +1,26 @@
-const functions = require('firebase-functions');
-const { firestore } = require('firebase-functions/v1');
+const { onDocumentCreated, onDocumentUpdated } = require('firebase-functions/v2/firestore');
+const { setGlobalOptions } = require('firebase-functions/v2');
 const admin = require('firebase-admin');
 const vision = require('@google-cloud/vision');
 
 admin.initializeApp();
 
+setGlobalOptions({ region: 'asia-south1' });
+
 const client = new vision.ImageAnnotatorClient();
 
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-exports.analyzeComplaintImage = firestore
-  .document('complaints/{complaintId}')
-  .onCreate(async (snap, context) => {
+exports.analyzeComplaintImage = onDocumentCreated('complaints/{complaintId}', async (event) => {
+    const snap = event.data;
+    if (!snap) return;
+    
     const data = snap.data();
     const imageUrl = data.imageUrl;
 
     if (!imageUrl) {
       console.log('No image URL provided');
-      return null;
+      return;
     }
 
     try {
@@ -34,7 +37,7 @@ exports.analyzeComplaintImage = firestore
         priority = 'Medium';
       }
 
-      return snap.ref.update({
+      await snap.ref.update({
         priority,
         labels,
         aiAnalyzed: true,
@@ -42,17 +45,18 @@ exports.analyzeComplaintImage = firestore
       });
     } catch (error) {
       console.error('Vision API error:', error);
-      return snap.ref.update({
+      await snap.ref.update({
         priority: 'Manual Review Needed',
         aiAnalyzed: false,
         aiError: error.message
       });
     }
-  });
+});
 
-exports.handleEmergencyRequest = firestore
-  .document('emergencies/{emergencyId}')
-  .onCreate(async (snap, context) => {
+exports.handleEmergencyRequest = onDocumentCreated('emergencies/{emergencyId}', async (event) => {
+    const snap = event.data;
+    if (!snap) return;
+    
     const data = snap.data();
     const userId = data.userId;
 
@@ -74,15 +78,11 @@ exports.handleEmergencyRequest = firestore
 
     await delay(5000);
     await snap.ref.update({ status: 'Dispatched' });
-    
-    return null;
-  });
+});
 
-exports.handleComplaintUpdate = firestore
-  .document('complaints/{complaintId}')
-  .onUpdate(async (change, context) => {
-    const beforeData = change.before.data();
-    const afterData = change.after.data();
+exports.handleComplaintUpdate = onDocumentUpdated('complaints/{complaintId}', async (event) => {
+    const beforeData = event.data.before.data();
+    const afterData = event.data.after.data();
 
     if (afterData.operatorFeedback && beforeData.operatorFeedback !== afterData.operatorFeedback) {
       const userId = afterData.userId;
@@ -102,5 +102,4 @@ exports.handleComplaintUpdate = firestore
         }
       }
     }
-    return null;
-  });
+});

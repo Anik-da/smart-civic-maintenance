@@ -1,64 +1,69 @@
-const HF_TOKEN = import.meta.env.VITE_HF_TOKEN;
-const MODEL_URL = 'https://api-inference.huggingface.co/models/google/gemma-1.1-2b-it';
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+
+let genAI = null;
+let model = null;
+
+function getModel() {
+  if (!GEMINI_API_KEY) return null;
+  if (!genAI) {
+    genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+    model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  }
+  return model;
+}
 
 export const analyzeComplaintText = async (rawText) => {
-  const prompt = `<bos><start_of_turn>user
-You are an AI assistant that structures civic complaints. 
+  const aiModel = getModel();
+
+  // If no API key, return a smart local fallback
+  if (!aiModel) {
+    const lower = rawText.toLowerCase();
+    let category = "other";
+    let urgency = "Medium";
+
+    if (lower.match(/road|pothole|crack|street|footpath|pavement/)) category = "road";
+    else if (lower.match(/garbage|waste|trash|dump|bin|litter/)) category = "garbage";
+    else if (lower.match(/electric|light|power|wire|outage|streetlight/)) category = "electricity";
+    else if (lower.match(/water|pipe|drain|flood|leak|sewage/)) category = "water";
+    else if (lower.match(/accident|emergency|fire|danger|urgent/)) { category = "other"; urgency = "High"; }
+
+    if (lower.match(/urgent|danger|emergency|immediately|critical|serious/)) urgency = "High";
+    else if (lower.match(/minor|small|little|slight/)) urgency = "Low";
+
+    return {
+      category,
+      urgency,
+      structuredText: rawText.charAt(0).toUpperCase() + rawText.slice(1),
+    };
+  }
+
+  const prompt = `You are an AI assistant that structures civic complaints for a Smart City Maintenance system.
 Analyze the following complaint text and return a JSON object with exactly three keys:
-1. "category": Must be one of ["road", "garbage", "electricity", "accident", "other"].
+1. "category": Must be one of ["road", "garbage", "electricity", "water", "accident", "other"].
 2. "urgency": Must be one of ["Low", "Medium", "High"].
-3. "structuredText": A clean, formal, and clear version of the complaint.
+3. "structuredText": A clean, formal, and clear version of the complaint in 1-2 sentences.
 
 Complaint text: "${rawText}"
 
-Return ONLY valid JSON. Do not include any other text or markdown formatting.<end_of_turn>
-<start_of_turn>model
-{`;
+Return ONLY valid JSON. No markdown, no backticks, no extra text.`;
 
   try {
-    const response = await fetch(MODEL_URL, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${HF_TOKEN}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        inputs: prompt,
-        parameters: {
-          max_new_tokens: 150,
-          temperature: 0.1,
-          return_full_text: false,
-        }
-      })
-    });
+    const result = await aiModel.generateContent(prompt);
+    const text = result.response.text().trim();
 
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    let generatedText = data[0].generated_text;
-    
-    // Because we prompt with `{`, the model might not include the opening brace.
-    // Let's ensure it's a valid JSON string.
-    let jsonString = '{' + generatedText;
-    
-    // Clean up any trailing markdown or text
-    const endBraceIndex = jsonString.lastIndexOf('}');
-    if (endBraceIndex !== -1) {
-      jsonString = jsonString.substring(0, endBraceIndex + 1);
-    }
-
+    // Strip any accidental markdown fences
+    const jsonString = text.replace(/^```json\n?/, "").replace(/\n?```$/, "").trim();
     const parsed = JSON.parse(jsonString);
-    
-    // Basic validation
+
     if (!parsed.category || !parsed.urgency || !parsed.structuredText) {
       throw new Error("Missing required fields in JSON output");
     }
 
     return parsed;
   } catch (error) {
-    console.error('AI Analysis failed:', error);
-    throw new Error('Failed to analyze text using AI. Please try again.', { cause: error });
+    console.error("Gemini AI Analysis failed:", error);
+    throw new Error("Failed to analyze complaint with AI. Please try again.");
   }
 };

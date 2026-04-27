@@ -82,7 +82,8 @@ export function Dashboard() {
   };
 
   useEffect(() => {
-    let unsubscribe;
+    let unsubscribeComplaints;
+    let unsubscribeEmergencies;
     let timeoutId;
     let isSubscribed = true;
 
@@ -95,7 +96,6 @@ export function Dashboard() {
       setLoading(false);
     };
 
-    // Set a timeout to fallback if Firestore doesn't respond in 3 seconds
     timeoutId = setTimeout(() => {
       if (loading) {
         activateFallback();
@@ -103,24 +103,44 @@ export function Dashboard() {
     }, 3000);
 
     try {
-      const q = query(collection(db, 'complaints'), orderBy('createdAt', 'desc'));
-      unsubscribe = onSnapshot(q, (snapshot) => {
+      let currentComplaints = [];
+      let currentEmergencies = [];
+
+      const updateMerged = () => {
         if (!isSubscribed) return;
-        clearTimeout(timeoutId);
-        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        if (data.length > 0) {
-          setComplaints(data);
-          setStats(calculateStats(data));
+        const merged = [...currentComplaints, ...currentEmergencies].sort((a, b) => {
+          const timeA = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : 0;
+          const timeB = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : 0;
+          return timeB - timeA;
+        });
+
+        if (merged.length > 0) {
+          setComplaints(merged);
+          setStats(calculateStats(merged));
           setUsingDemo(false);
         } else {
           activateFallback();
         }
         setLoading(false);
+      };
+
+      const qC = query(collection(db, 'complaints'), orderBy('createdAt', 'desc'));
+      unsubscribeComplaints = onSnapshot(qC, (snapshot) => {
+        clearTimeout(timeoutId);
+        currentComplaints = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        updateMerged();
       }, (error) => {
-        if (!isSubscribed) return;
-        console.warn('Firestore Error:', error.message);
+        console.warn('Firestore Complaints Error:', error.message);
         clearTimeout(timeoutId);
         activateFallback();
+      });
+
+      const qE = query(collection(db, 'emergencies'), orderBy('createdAt', 'desc'));
+      unsubscribeEmergencies = onSnapshot(qE, (snapshot) => {
+        currentEmergencies = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), category: doc.data().type || 'Emergency SOS', description: `Emergency signal received from ${doc.data().phone || 'unknown user'}. Immediate attention required.` }));
+        updateMerged();
+      }, (error) => {
+        console.warn('Firestore Emergencies Error:', error.message);
       });
     } catch (err) {
       console.warn('Sync Firestore Error:', err);
@@ -130,19 +150,24 @@ export function Dashboard() {
 
     return () => {
       isSubscribed = false;
-      if (unsubscribe) unsubscribe();
+      if (unsubscribeComplaints) unsubscribeComplaints();
+      if (unsubscribeEmergencies) unsubscribeEmergencies();
       clearTimeout(timeoutId);
     };
   }, [loading]);
 
+  const [statusFilter, setStatusFilter] = useState('All');
+
   const filteredComplaints = (complaints || []).filter(c => {
-    if (!searchTerm) return true;
-    const term = searchTerm.toLowerCase();
-    return (
-      c.category?.toLowerCase().includes(term) || 
-      c.description?.toLowerCase().includes(term) || 
-      c.status?.toLowerCase().includes(term)
+    const matchesSearch = !searchTerm || (
+      c.category?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      c.description?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      c.status?.toLowerCase().includes(searchTerm.toLowerCase())
     );
+    
+    const matchesStatus = statusFilter === 'All' || c.status?.toLowerCase() === statusFilter.toLowerCase();
+    
+    return matchesSearch && matchesStatus;
   });
 
   if (loading) {
@@ -158,7 +183,7 @@ export function Dashboard() {
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-1000 pb-20">
+    <div className="space-y-8 animate-in fade-in duration-1000 pb-20 w-full">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/5 pb-6">
         <div>
@@ -183,10 +208,18 @@ export function Dashboard() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Active Reports" value={stats.total} icon={<BarChart3 />} color="aqua" subtitle="TOTAL SUBMITTED" />
-        <StatCard label="Awaiting Action" value={stats.pending} icon={<Clock />} color="amber" subtitle="PENDING REVIEW" />
-        <StatCard label="Crews On-Site" value={stats.inProgress} icon={<AlertCircle />} color="violet" subtitle="IN PROGRESS" />
-        <StatCard label="Issue Resolved" value={stats.resolved} icon={<CheckCircle2 />} color="lime" subtitle="SUCCESSFULLY FIXED" />
+        <div onClick={() => setStatusFilter('All')} className="cursor-pointer">
+          <StatCard label="Active Reports" value={stats.total} icon={<BarChart3 />} color="aqua" subtitle="TOTAL SUBMITTED" active={statusFilter === 'All'} />
+        </div>
+        <div onClick={() => setStatusFilter('Pending')} className="cursor-pointer">
+          <StatCard label="Awaiting Action" value={stats.pending} icon={<Clock />} color="amber" subtitle="PENDING REVIEW" active={statusFilter === 'Pending'} />
+        </div>
+        <div onClick={() => setStatusFilter('In Progress')} className="cursor-pointer">
+          <StatCard label="Crews On-Site" value={stats.inProgress} icon={<AlertCircle />} color="violet" subtitle="IN PROGRESS" active={statusFilter === 'In Progress'} />
+        </div>
+        <div onClick={() => setStatusFilter('Resolved')} className="cursor-pointer">
+          <StatCard label="Issue Resolved" value={stats.resolved} icon={<CheckCircle2 />} color="lime" subtitle="SUCCESSFULLY FIXED" active={statusFilter === 'Resolved'} />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -196,7 +229,7 @@ export function Dashboard() {
             <MapIcon className="w-4 h-4 text-aqua" />
             <h3 className="font-display text-lg uppercase tracking-wider">Geospatial Distribution</h3>
           </div>
-          <div className="glass-card p-1 h-[500px] rounded-3xl overflow-hidden relative border-white/10 shadow-2xl">
+          <div className="glass-card p-1 h-[550px] rounded-3xl overflow-hidden relative border-white/10 shadow-2xl">
             <DashboardMap 
               complaints={filteredComplaints} 
               onComplaintClick={(c) => setSelectedComplaint(c)} 
@@ -211,16 +244,16 @@ export function Dashboard() {
               <TrendingUp className="w-4 h-4 text-violet" />
               <h3 className="font-display text-lg uppercase tracking-wider">Live Incident Feed</h3>
             </div>
-            <span className="glass px-2 py-0.5 rounded text-[9px] font-bold opacity-40">{filteredComplaints.length} INCIDENTS</span>
+            <span className="glass px-2 py-0.5 rounded text-[9px] font-bold opacity-40">{filteredComplaints.length} {statusFilter.toUpperCase()} INCIDENTS</span>
           </div>
           
-          <div className="glass-card flex flex-col h-[500px] p-0 rounded-3xl overflow-hidden border-white/10">
+          <div className="glass-card flex flex-col h-[550px] p-0 rounded-3xl overflow-hidden border-white/10">
              <div className="p-4 bg-white/5 border-b border-white/5">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 opacity-30" />
                   <input 
                     type="text" 
-                    placeholder="Search by category, description or status..." 
+                    placeholder="Search incidents..." 
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full bg-black/40 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-xs outline-none focus:border-aqua/40 transition-all placeholder:opacity-30" 
@@ -232,14 +265,14 @@ export function Dashboard() {
                 {filteredComplaints.length === 0 ? (
                   <div className="h-full flex flex-col items-center justify-center opacity-20 italic text-xs gap-2">
                     <Search className="w-8 h-8" />
-                    No matching records
+                    No {statusFilter !== 'All' ? statusFilter : ''} records found
                   </div>
                 ) : (
                   filteredComplaints.map((c) => (
                     <div 
                       key={c.id} 
                       onClick={() => setSelectedComplaint(c)}
-                      className="glass p-4 rounded-2xl border-white/5 hover:border-aqua/20 hover:bg-aqua/5 cursor-pointer transition-all duration-300 group relative overflow-hidden"
+                      className={`glass p-4 rounded-2xl border-white/5 hover:border-aqua/20 hover:bg-aqua/5 cursor-pointer transition-all duration-300 group relative overflow-hidden ${c.status?.toLowerCase() === 'resolved' ? 'opacity-70' : ''}`}
                     >
                       <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-aqua/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                       <div className="flex justify-between items-start mb-3">

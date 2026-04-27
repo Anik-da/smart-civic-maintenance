@@ -1,67 +1,69 @@
 import { useState, useRef, useEffect } from 'react';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { Bot, Send, Sparkles, User, Lightbulb, Wrench, MapPin, AlertTriangle } from 'lucide-react';
 
-const CIVIC_KNOWLEDGE = {
-  greetings: [
-    "Hello! I'm your Smart Civic AI Assistant. I can help you with infrastructure issues, maintenance queries, and civic services. How can I help you today?",
-  ],
-  road: "**Road Maintenance:**\n\nFor road-related issues like potholes, cracks, or damaged surfaces:\n1. 📸 Take a clear photo of the damage\n2. 📍 Use the GPS locator in the Report section\n3. 📝 Describe the severity and exact location\n4. ⚡ Our AI will auto-classify the urgency\n\nTypical response time: **24-72 hours** for assessment, repairs scheduled within **1-2 weeks** for non-critical issues.",
-  garbage: "**Garbage & Waste Management:**\n\nFor waste collection issues:\n1. Report overflowing bins or illegal dumping via the Report tab\n2. Include photos for faster verification\n3. Specify if it's hazardous waste (chemicals, medical waste)\n\n♻️ Regular collection schedule: Mon/Wed/Fri\n🚛 Bulk waste pickup: Submit request 48hrs in advance",
-  electricity: "**Electrical Infrastructure:**\n\nFor electrical issues (streetlights, exposed wiring, power outages):\n1. ⚠️ **Do NOT touch** any exposed wiring — report immediately\n2. Use the **SOS button** for dangerous situations\n3. Note the pole number or transformer ID if visible\n\n⚡ Emergency electrical issues are prioritized within **4 hours**",
-  water: "**Water Supply & Drainage:**\n\nFor water-related issues:\n1. 🚰 Broken pipes or leaks — report with exact location\n2. 🌊 Flooding or drainage blockage — include photos\n3. 💧 Water quality concerns — specify the nature of contamination\n\nWater emergencies get **priority response** within **2-6 hours**.",
-  emergency: "**Emergency Services:**\n\n🆘 For life-threatening situations:\n1. Use the **red SOS button** at the bottom-right corner\n2. Your GPS location will be automatically shared\n3. Emergency responders will be notified immediately\n\n📞 You can also call: **112** (National Emergency) or **100** (Police)",
-  status: "**Tracking Your Complaints:**\n\nGo to the **Dashboard** to:\n- View all submitted reports and their current status\n- See real-time updates on the map\n- Check complaint resolution progress\n\nStatus codes:\n- 🟡 **Pending** — Awaiting review\n- 🟣 **Dispatched** — Team assigned\n- 🔵 **In Progress** — Work underway\n- 🟢 **Resolved** — Issue fixed",
-  about: "**About Smart Civic Maintenance:**\n\nThis is an AI-powered civic infrastructure management platform that enables citizens to:\n\n✅ Report maintenance issues with photos & GPS\n✅ Track repair progress in real-time on a live map\n✅ Get AI-powered complaint analysis and prioritization\n✅ Access emergency SOS services\n✅ Communicate with an AI assistant (that's me! 🤖)\n\nBuilt with ❤️ using React, Firebase, and Google Maps API."
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+
+const SYSTEM_PROMPT = `You are a helpful Smart Civic Maintenance AI Assistant for an Indian city portal.
+Your job is to help citizens report and track civic issues like road potholes, garbage, electricity outages, water pipe leaks, and emergencies.
+Keep responses concise, friendly, and practical.
+Use emojis sparingly for clarity.
+Always guide users to use the "Report" tab to submit complaints and the "Dashboard" to track them.
+For life-threatening emergencies, always tell them to use the SOS button or call 112.
+If asked about non-civic topics, politely redirect to civic maintenance topics.`;
+
+const FALLBACK_RESPONSES = {
+  greet: "Hello! I'm your Smart Civic AI Assistant. I can help you report infrastructure issues, track complaints, and guide you through our services. What's the problem you're facing?",
+  road: "**Road Maintenance:**\n\nFor potholes, cracks, or damaged surfaces:\n1. 📸 Take a photo of the damage\n2. Go to the **Report** tab\n3. Describe the location and severity\n4. Our AI will auto-classify the urgency\n\nTypical response: **24–72 hrs** assessment, repairs within **1–2 weeks**.",
+  garbage: "**Garbage & Waste:**\n\nFor overflowing bins or illegal dumping:\n1. Go to **Report** tab\n2. Upload a photo\n3. Mark the GPS location\n\n♻️ Regular collection: Mon/Wed/Fri\n🚛 Bulk waste pickup: Request 48hrs in advance",
+  electricity: "**Electrical Issues:**\n\n⚠️ Do NOT touch exposed wiring.\n1. Note the pole number if visible\n2. Go to **Report** tab → select Electricity\n3. For dangerous situations, use the **SOS button**\n\n⚡ Emergency electrical issues: **4 hour** priority response",
+  emergency: "🆘 **Emergency Services:**\n\n1. Tap the **red SOS button** (bottom-right corner)\n2. Your GPS location is shared automatically\n3. Responders are notified immediately\n\nAlso call:\n📞 **112** — National Emergency\n📞 **100** — Police",
+  default: "I can help you with:\n\n🛣️ **Road issues** — potholes, cracks\n🗑️ **Garbage** — waste collection\n⚡ **Electricity** — lights, outages\n💧 **Water** — pipes, drainage\n🆘 **Emergency** — SOS services\n📊 **Status** — track complaints\n\nWhat would you like to know?",
 };
 
-function getAIResponse(message) {
+function getLocalResponse(message) {
   const lower = message.toLowerCase();
-  
-  if (lower.match(/^(hi|hello|hey|good morning|good evening|namaste)/)) {
-    return CIVIC_KNOWLEDGE.greetings[0];
-  }
-  if (lower.match(/road|pothole|crack|street|highway|path|footpath|sidewalk/)) {
-    return CIVIC_KNOWLEDGE.road;
-  }
-  if (lower.match(/garbage|waste|trash|dump|bin|clean|litter|rubbish/)) {
-    return CIVIC_KNOWLEDGE.garbage;
-  }
-  if (lower.match(/electric|light|power|wire|pole|outage|streetlight|bulb/)) {
-    return CIVIC_KNOWLEDGE.electricity;
-  }
-  if (lower.match(/water|pipe|drain|flood|leak|sewage|supply|tap/)) {
-    return CIVIC_KNOWLEDGE.water;
-  }
-  if (lower.match(/emergency|sos|urgent|danger|accident|fire|help me/)) {
-    return CIVIC_KNOWLEDGE.emergency;
-  }
-  if (lower.match(/status|track|complaint|report|progress|update|where|when/)) {
-    return CIVIC_KNOWLEDGE.status;
-  }
-  if (lower.match(/about|what is|who|how does|features|purpose/)) {
-    return CIVIC_KNOWLEDGE.about;
-  }
-  if (lower.match(/thank|thanks|ok|great|good/)) {
-    return "You're welcome! 😊 Is there anything else I can help you with regarding civic maintenance?";
-  }
-
-  return `I understand you're asking about: **"${message}"**\n\nI can help you with the following civic maintenance topics:\n\n🛣️ **Road issues** — potholes, cracks, damaged surfaces\n🗑️ **Garbage** — waste collection, illegal dumping\n⚡ **Electricity** — streetlights, wiring, outages\n💧 **Water** — pipes, drainage, flooding\n🆘 **Emergency** — SOS services, urgent help\n📊 **Status** — track your complaints\nℹ️ **About** — platform features\n\nTry asking about any of these topics!`;
+  if (lower.match(/^(hi|hello|hey|good|namaste)/)) return FALLBACK_RESPONSES.greet;
+  if (lower.match(/road|pothole|crack|street|pavement/)) return FALLBACK_RESPONSES.road;
+  if (lower.match(/garbage|waste|trash|dump|bin|litter/)) return FALLBACK_RESPONSES.garbage;
+  if (lower.match(/electric|light|power|wire|outage/)) return FALLBACK_RESPONSES.electricity;
+  if (lower.match(/emergency|sos|urgent|danger|accident|fire/)) return FALLBACK_RESPONSES.emergency;
+  return FALLBACK_RESPONSES.default;
 }
 
 export function AIChatBot({ user }) {
   const [messages, setMessages] = useState([
     {
       role: 'bot',
-      content: `Welcome, ${user?.phoneNumber || 'Citizen'}! 👋\n\nI'm your **Smart Civic AI Assistant**. I can help you with:\n\n🛣️ Road & infrastructure issues\n🗑️ Waste management queries\n⚡ Electrical complaints\n💧 Water & drainage problems\n🆘 Emergency guidance\n📊 Complaint tracking help\n\nWhat would you like to know?`,
+      content: `Welcome, ${user?.phoneNumber || 'Citizen'}! 👋\n\nI'm your **Smart Civic AI Assistant**${GEMINI_API_KEY ? ' powered by Gemini' : ''}. I can help you with:\n\n🛣️ Road & infrastructure issues\n🗑️ Waste management queries\n⚡ Electrical complaints\n💧 Water & drainage problems\n🆘 Emergency guidance\n📊 Complaint tracking\n\nWhat would you like to know?`,
       time: new Date()
     }
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [chatSession, setChatSession] = useState(null);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+
+  // Initialize Gemini chat session once
+  useEffect(() => {
+    if (GEMINI_API_KEY) {
+      try {
+        const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+        const geminiModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        const session = geminiModel.startChat({
+          history: [],
+          generationConfig: { maxOutputTokens: 512, temperature: 0.7 },
+          systemInstruction: SYSTEM_PROMPT,
+        });
+        setChatSession(session);
+      } catch (err) {
+        console.error('Failed to init Gemini chat:', err);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -76,26 +78,39 @@ export function AIChatBot({ user }) {
     setInput('');
     setIsTyping(true);
 
-    // Simulate AI thinking delay
-    setTimeout(() => {
-      const response = getAIResponse(userMessage.content);
-      setMessages(prev => [...prev, { role: 'bot', content: response, time: new Date() }]);
+    try {
+      let responseText;
+
+      if (chatSession) {
+        // Real Gemini API call
+        const result = await chatSession.sendMessage(userMessage.content);
+        responseText = result.response.text();
+      } else {
+        // Local fallback with simulated delay
+        await new Promise(r => setTimeout(r, 800 + Math.random() * 800));
+        responseText = getLocalResponse(userMessage.content);
+      }
+
+      setMessages(prev => [...prev, { role: 'bot', content: responseText, time: new Date() }]);
+    } catch (err) {
+      console.error('Chat error:', err);
+      const fallback = getLocalResponse(userMessage.content);
+      setMessages(prev => [...prev, { role: 'bot', content: fallback, time: new Date() }]);
+    } finally {
       setIsTyping(false);
-    }, 800 + Math.random() * 1200);
+    }
   };
 
   const quickActions = [
     { label: 'Road Issue', icon: <Wrench className="w-3 h-3" />, msg: 'How do I report a road pothole?' },
     { label: 'Track Status', icon: <MapPin className="w-3 h-3" />, msg: 'How do I track my complaint status?' },
     { label: 'Emergency', icon: <AlertTriangle className="w-3 h-3" />, msg: 'How do I use emergency services?' },
-    { label: 'About', icon: <Lightbulb className="w-3 h-3" />, msg: 'What is Smart Civic Maintenance?' },
+    { label: 'About', icon: <Lightbulb className="w-3 h-3" />, msg: 'What can this app do?' },
   ];
 
   const handleQuickAction = (msg) => {
     setInput(msg);
-    setTimeout(() => {
-      inputRef.current?.form?.requestSubmit();
-    }, 50);
+    setTimeout(() => inputRef.current?.form?.requestSubmit(), 50);
   };
 
   return (
@@ -106,7 +121,9 @@ export function AIChatBot({ user }) {
           <h1 className="hero__title" style={{ fontSize: '2.5rem', textAlign: 'left', marginBottom: 0 }}>
             Civic AI Bot
           </h1>
-          <p className="text-slate-400 text-sm mt-2">Ask me anything about civic maintenance, report issues, or get help.</p>
+          <p className="text-slate-400 text-sm mt-2">
+            {GEMINI_API_KEY ? '✨ Powered by Gemini 1.5 Flash' : 'Ask me anything about civic maintenance.'}
+          </p>
         </div>
         <div className="glass px-4 py-2 rounded-2xl flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-lime animate-pulse shadow-[0_0_10px_#a8f08a]"></div>
@@ -176,7 +193,7 @@ export function AIChatBot({ user }) {
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask about roads, garbage, electricity, water..."
+                placeholder={GEMINI_API_KEY ? "Ask Gemini anything about your city..." : "Ask about roads, garbage, electricity, water..."}
                 className="glass-input pl-12 w-full"
                 disabled={isTyping}
               />
