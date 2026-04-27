@@ -48,6 +48,11 @@ const mapOptions = {
       elementType: "geometry",
       stylers: [{ color: "#17263c" }],
     },
+    {
+      featureType: "administrative",
+      elementType: "geometry.stroke",
+      stylers: [{ color: "#2d3844" }]
+    }
   ]
 };
 
@@ -56,7 +61,8 @@ export function EmergencyTracking({ user }) {
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: "AIzaSyBw8DmV3BAThWLFBlR5TBMO6VGC7IuOnuY"
+    googleMapsApiKey: "AIzaSyBw8DmV3BAThWLFBlR5TBMO6VGC7IuOnuY",
+    libraries: ['visualization']
   });
 
   useEffect(() => {
@@ -64,7 +70,6 @@ export function EmergencyTracking({ user }) {
     const q = query(
       collection(db, 'emergencies'),
       where('userId', '==', user.uid),
-      orderBy('createdAt', 'desc'),
       limit(1)
     );
     const unsubscribe = onSnapshot(q, (snapshot) => {
