@@ -8,8 +8,53 @@ const containerStyle = {
 };
 
 const defaultCenter = {
-  lat: 40.7128, // Default to a city if no complaints exist
-  lng: -74.0060
+  lat: 12.9716, // Default to Bangalore (context)
+  lng: 77.5946
+};
+
+const mapOptions = {
+  disableDefaultUI: true,
+  zoomControl: false,
+  styles: [
+    { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+    { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+    { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+    {
+      featureType: "administrative.locality",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#d59563" }],
+    },
+    {
+      featureType: "poi",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#d59563" }],
+    },
+    {
+      featureType: "road",
+      elementType: "geometry",
+      stylers: [{ color: "#38414e" }],
+    },
+    {
+      featureType: "road",
+      elementType: "geometry.stroke",
+      stylers: [{ color: "#212a37" }],
+    },
+    {
+      featureType: "road",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#9ca5b3" }],
+    },
+    {
+      featureType: "water",
+      elementType: "geometry",
+      stylers: [{ color: "#17263c" }],
+    },
+    {
+      featureType: "administrative",
+      elementType: "geometry.stroke",
+      stylers: [{ color: "#2d3844" }]
+    }
+  ]
 };
 
 const libraries = ['visualization'];
@@ -46,7 +91,7 @@ export function DashboardMap({ complaints, onComplaintClick }) {
         mapContainerStyle={containerStyle}
         center={center}
         zoom={12}
-        options={{ disableDefaultUI: false }}
+        options={mapOptions}
       >
         {heatmapData.length > 0 && (
           <HeatmapLayer
