@@ -435,7 +435,7 @@ export function Dashboard({ user, onLogout }) {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="staff-grid">
               {staff.length === 0 ? (
                  <div className="col-span-full h-64 flex flex-col items-center justify-center opacity-20 italic gap-4">
                     <Users className="w-16 h-16" />

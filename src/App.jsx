@@ -95,7 +95,7 @@ function App() {
             )}
 
             {/* Main Application Routes */}
-            <main className={`flex-1 w-full ${isDashboard ? 'p-0' : 'px-4 py-6 max-w-7xl mx-auto flex flex-col items-center'}`}>
+            <main className={`flex-1 w-full ${isDashboard ? 'dashboard-main p-0' : 'px-4 py-6 max-w-7xl mx-auto flex flex-col items-center'}`}>
               <Routes>
                 <Route path="/" element={<Landing />} />
                 <Route path="/report" element={user ? <ComplaintSubmission user={user} /> : <Navigate to="/login" />} />
