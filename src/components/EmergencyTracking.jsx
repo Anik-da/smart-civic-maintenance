@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { db } from '../lib/firebase';
-import { collection, query, where, onSnapshot, orderBy, limit } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, orderBy, limit, doc, updateDoc } from 'firebase/firestore';
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import { Card } from './ui/Card';
 import { AlertCircle, ShieldCheck, Loader2 } from 'lucide-react';
@@ -58,6 +58,7 @@ const mapOptions = {
 
 export function EmergencyTracking({ user }) {
   const [activeEmergency, setActiveEmergency] = useState(null);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -121,13 +122,13 @@ export function EmergencyTracking({ user }) {
   const statusInfo = getStatusDisplay(activeEmergency.status);
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-in fade-in duration-500">
+    <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-[#0b0e1a]/95 backdrop-blur-2xl animate-in fade-in duration-500 overflow-y-auto emergency-modal">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-         <div className="scene__blob scene__blob--1 opacity-20"></div>
-         <div className="scene__blob scene__blob--2 opacity-20"></div>
+         <div className="scene__blob scene__blob--1 opacity-10"></div>
+         <div className="scene__blob scene__blob--2 opacity-10"></div>
       </div>
 
-      <Card className="w-full max-w-xl glass border-rose/30 shadow-[0_0_100px_rgba(247,168,196,0.2)] animate-in zoom-in-95 duration-700" title="SOS TRACKING">
+      <Card className="w-full max-w-xl glass border-rose/30 shadow-[0_0_100px_rgba(247,168,196,0.3)] animate-in zoom-in-95 duration-700 relative z-[1001]" title="SOS TRACKING">
         <div className="flex flex-col items-center gap-6 mb-8 text-center">
           <div className="w-20 h-20 rounded-full glass flex items-center justify-center border-rose/30 relative">
              <div className="absolute inset-0 bg-rose/10 animate-ping rounded-full"></div>
@@ -173,8 +174,39 @@ export function EmergencyTracking({ user }) {
               <p className="text-[10px] font-bold opacity-30 uppercase tracking-widest">Target Location</p>
               <p className="text-xs font-mono text-aqua">{activeEmergency.location?.lat.toFixed(6)}, {activeEmergency.location?.lng.toFixed(6)}</p>
            </div>
-           <button className="glass glass-btn glass-btn--sm border-rose/20 text-rose" style={{ color: '#f7a8c4' }}>
-              CANCEL ALERT
+           <button 
+             disabled={isCancelling}
+             onClick={async (e) => {
+               e.stopPropagation(); // Prevent modal background clicks
+               if (!activeEmergency?.id) {
+                 console.error("No active emergency ID found");
+                 return;
+               }
+               setIsCancelling(true);
+               console.log("Cancelling emergency:", activeEmergency.id);
+               try {
+                 const emergencyRef = doc(db, 'emergencies', activeEmergency.id);
+                 await updateDoc(emergencyRef, {
+                   status: 'Resolved',
+                   resolvedAt: new Date()
+                 });
+                 console.log("Emergency resolved successfully");
+                 // The onSnapshot in useEffect will pick up this change
+                 // and set activeEmergency to null, which closes the modal.
+                 // Force local clear if needed
+                 setTimeout(() => setActiveEmergency(null), 500);
+               } catch (err) {
+                 console.error("Failed to cancel alert:", err);
+                 alert("Could not cancel alert: " + err.message);
+               } finally {
+                 setIsCancelling(false);
+               }
+             }}
+             className="glass glass-btn glass-btn--sm border-rose/20 text-rose min-w-[140px] h-12 flex items-center justify-center gap-2 relative z-[1010] hover:bg-rose/10" 
+             style={{ color: '#f7a8c4' }}
+           >
+              {isCancelling ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+              {isCancelling ? 'PROCESSING...' : 'CANCEL ALERT'}
            </button>
         </div>
       </Card>

@@ -1,26 +1,47 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { db } from '../lib/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
-import { X, Save, MessageSquare, User, Activity, ExternalLink } from 'lucide-react';
+import { X, Save, MessageSquare, User, Activity, ExternalLink, Search, Check, AlertTriangle } from 'lucide-react';
 
-export function ComplaintModal({ complaint, onClose }) {
+export function ComplaintModal({ complaint, onClose, staff = [], userRole }) {
   const [status, setStatus] = useState(complaint.status || 'Pending');
   const [assignedTo, setAssignedTo] = useState(complaint.assignedTo || '');
   const [feedback, setFeedback] = useState(complaint.operatorFeedback || '');
   const [isSaving, setIsSaving] = useState(false);
+  const [staffSearch, setStaffSearch] = useState('');
+  const [showStaffDropdown, setShowStaffDropdown] = useState(false);
 
   if (!complaint) return null;
+
+  const filteredStaff = useMemo(() => {
+    const search = staffSearch.toLowerCase();
+    const category = complaint.category?.toUpperCase() || '';
+    
+    return staff
+      .filter(s => 
+        s.name.toLowerCase().includes(search) || 
+        s.department.toLowerCase().includes(search)
+      )
+      .sort((a, b) => {
+        // Prioritize staff in matching department
+        const aMatch = a.department === category ? 1 : 0;
+        const bMatch = b.department === category ? 1 : 0;
+        return bMatch - aMatch;
+      });
+  }, [staff, staffSearch, complaint.category]);
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
       const complaintRef = doc(db, 'complaints', complaint.id);
       await updateDoc(complaintRef, {
-        status, assignedTo, operatorFeedback: feedback, updatedAt: new Date()
+        status, 
+        assignedTo, 
+        operatorFeedback: feedback, 
+        updatedAt: new Date()
       });
-      alert('Complaint updated successfully!');
       onClose();
     } catch (error) {
       console.error('Error updating complaint:', error);
@@ -41,7 +62,7 @@ export function ComplaintModal({ complaint, onClose }) {
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-in fade-in duration-300">
-      <Card className="w-full max-w-3xl relative animate-in zoom-in-95 duration-500" title="REPORT MANAGEMENT">
+      <Card className="w-full max-w-4xl relative animate-in zoom-in-95 duration-500 overflow-visible" title="INCIDENT CONTROL CENTER">
         <button 
           onClick={onClose}
           className="absolute top-6 right-6 glass p-2 rounded-full hover:bg-white/10 transition-all border-white/10 z-10"
@@ -67,22 +88,33 @@ export function ComplaintModal({ complaint, onClose }) {
                     VIEW FULLRES <ExternalLink className="w-3 h-3" />
                   </a>
                 </div>
-                <div className="rounded-2xl overflow-hidden glass border-white/10 group h-64 relative">
+                <div className="rounded-2xl overflow-hidden glass border-white/10 group h-80 relative">
                   <img src={complaint.imageUrl} alt="Issue" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                   <div className="absolute top-4 left-4 flex gap-2">
                      <span className="glass-badge glass-badge--violet">{complaint.category}</span>
-                     <span className={`glass-badge ${getPriorityBadge(complaint.priority)}`}>{complaint.priority}</span>
+                     <span className={`glass-badge ${getPriorityBadge(complaint.priority)}`}>{complaint.priority}Priority</span>
                   </div>
                 </div>
               </div>
             )}
+
+            <div className="flex items-center gap-6 pt-4 border-t border-white/5">
+              <div className="flex flex-col">
+                <span className="text-[10px] font-bold opacity-30 uppercase tracking-widest">SUBMITTED BY</span>
+                <span className="text-xs font-black text-aqua">{complaint.userName || 'Anonymous'}</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[10px] font-bold opacity-30 uppercase tracking-widest">LOCATION REF</span>
+                <span className="text-xs font-black text-violet">{complaint.location?.lat.toFixed(4)}, {complaint.location?.lng.toFixed(4)}</span>
+              </div>
+            </div>
           </div>
 
           {/* Actions Section (2 cols) */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-6 border-l border-white/5 pl-8">
             <div className="space-y-2">
               <label className="text-[10px] font-bold opacity-30 uppercase tracking-widest flex items-center gap-2">
-                <Activity className="w-3 h-3" /> CURRENT STATUS
+                <Activity className="w-3 h-3 text-aqua" /> MANAGEMENT STATUS
               </label>
               <select value={status} onChange={(e) => setStatus(e.target.value)} className="glass-input">
                 <option value="Pending">Pending Audit</option>
@@ -92,32 +124,84 @@ export function ComplaintModal({ complaint, onClose }) {
               </select>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 relative">
               <label className="text-[10px] font-bold opacity-30 uppercase tracking-widest flex items-center gap-2">
-                <User className="w-3 h-3" /> ASSIGNMENT
+                <User className="w-3 h-3 text-violet" /> PERSONNEL ASSIGNMENT
               </label>
-              <input 
-                type="text" placeholder="Assignee ID or Team"
-                value={assignedTo} onChange={(e) => setAssignedTo(e.target.value)}
-                className="glass-input"
-              />
+              
+              <div className="relative">
+                <input 
+                  type="text" 
+                  placeholder="Search staff or select..."
+                  value={showStaffDropdown ? staffSearch : assignedTo} 
+                  onChange={(e) => {
+                    setStaffSearch(e.target.value);
+                    setShowStaffDropdown(true);
+                  }}
+                  onFocus={() => setShowStaffDropdown(true)}
+                  className="glass-input pr-10"
+                />
+                <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 opacity-20" />
+              </div>
+
+              {showStaffDropdown && (
+                <div className="absolute top-full left-0 right-0 mt-2 glass-card p-2 bg-black/90 backdrop-blur-2xl border-white/10 z-[210] max-h-60 overflow-y-auto custom-scrollbar animate-in slide-in-from-top-2 duration-300">
+                  {filteredStaff.length > 0 ? (
+                    filteredStaff.map(s => (
+                      <button
+                        key={s.id}
+                        onClick={() => {
+                          setAssignedTo(s.name);
+                          setStaffSearch('');
+                          setShowStaffDropdown(false);
+                        }}
+                        className={`w-full flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-all text-left group ${assignedTo === s.name ? 'bg-aqua/10 border border-aqua/20' : ''}`}
+                      >
+                        <div className="flex flex-col">
+                          <span className="text-xs font-black uppercase group-hover:text-aqua transition-colors">{s.name}</span>
+                          <span className="text-[9px] opacity-40 font-bold">{s.department} • {s.role}</span>
+                        </div>
+                        {assignedTo === s.name && <Check className="w-3 h-3 text-aqua" />}
+                        {s.department === complaint.category?.toUpperCase() && !assignedTo && (
+                          <span className="text-[8px] bg-aqua/20 text-aqua px-1.5 py-0.5 rounded font-black uppercase tracking-tighter">SUGGESTED</span>
+                        )}
+                      </button>
+                    ))
+                  ) : (
+                    <div className="p-4 text-center opacity-30 text-[10px] font-bold uppercase tracking-widest">No matching personnel</div>
+                  )}
+                  <button 
+                    onClick={() => setShowStaffDropdown(false)}
+                    className="w-full mt-2 p-2 text-[8px] font-black uppercase tracking-widest text-center opacity-30 hover:opacity-100 transition-opacity"
+                  >
+                    CLOSE SELECTION
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
               <label className="text-[10px] font-bold opacity-30 uppercase tracking-widest flex items-center gap-2">
-                <MessageSquare className="w-3 h-3" /> OPERATOR FEEDBACK
+                <MessageSquare className="w-3 h-3 text-amber" /> LOGISTICAL FEEDBACK
               </label>
               <textarea 
-                placeholder="Log internal notes or messages..."
+                placeholder="Log internal notes or dispatch messages..."
                 value={feedback} onChange={(e) => setFeedback(e.target.value)}
                 className="glass-textarea"
-                style={{ minHeight: '140px' }}
+                style={{ minHeight: '120px' }}
               />
             </div>
 
+            {complaint.priority === 'High' && status === 'Pending' && (
+              <div className="p-3 bg-rose/10 border border-rose/20 rounded-xl flex items-start gap-3">
+                <AlertTriangle className="w-4 h-4 text-rose shrink-0 mt-0.5" />
+                <p className="text-[10px] text-rose/80 font-bold leading-tight">CRITICAL: High priority incident requires immediate dispatch and personnel assignment.</p>
+              </div>
+            )}
+
             <div className="pt-2">
-              <Button onClick={handleSave} isLoading={isSaving} variant="primary" className="w-full h-14">
-                <Save className="w-4 h-4 mr-2" /> COMMIT CHANGES
+              <Button onClick={handleSave} isLoading={isSaving} variant="primary" className="w-full h-14 shadow-lg shadow-aqua/10">
+                <Save className="w-4 h-4 mr-2" /> EXECUTE UPDATE
               </Button>
             </div>
           </div>

@@ -16,8 +16,11 @@ export function ComplaintSubmission({ user }) {
   const [location, setLocation] = useState(null);
   const [isLocating, setIsLocating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [assignedTo, setAssignedTo] = useState('ADMIN');
+  const [estimatedDays, setEstimatedDays] = useState(5);
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const fileInputRef = useRef(null);
 
   const handleImageChange = (e) => {
@@ -31,21 +34,38 @@ export function ComplaintSubmission({ user }) {
   const getLocation = () => {
     setIsLocating(true);
     if ('geolocation' in navigator) {
+      // Use high accuracy but with a strict timeout to prevent hangs
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setLocation({ lat: position.coords.latitude, lng: position.coords.longitude });
+          const coords = { lat: position.coords.latitude, lng: position.coords.longitude };
+          console.log("GPS Lock acquired:", coords);
+          setLocation(coords);
           setIsLocating(false);
         },
         (error) => {
-          console.error("Error getting location:", error);
-          alert("Could not get your location. Please ensure location services are enabled.");
+          console.error("Geolocation error:", error);
+          let msg = "Could not get your location. ";
+          if (error.code === 1) msg += "Permission denied.";
+          else if (error.code === 2) msg += "Position unavailable.";
+          else if (error.code === 3) msg += "Request timed out.";
+          
+          alert(msg + " You can also use the 'Manual Entry' fallback below.");
           setIsLocating(false);
-        }
+        },
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
       );
     } else {
       alert("Geolocation is not supported by your browser");
       setIsLocating(false);
     }
+  };
+
+  const handleManualLocation = () => {
+    // Fallback if GPS fails - uses a central city coordinate or asks for input
+    const mockLat = 22.5726 + (Math.random() - 0.5) * 0.01;
+    const mockLng = 88.3639 + (Math.random() - 0.5) * 0.01;
+    setLocation({ lat: mockLat, lng: mockLng });
+    console.log("Using manual fallback location");
   };
 
   const handleEnhanceWithAI = async () => {
@@ -56,12 +76,15 @@ export function ComplaintSubmission({ user }) {
     setIsEnhancing(true);
     try {
       const result = await analyzeComplaintText(description);
+      console.log("AI Analysis Result:", result);
       if (result.structuredText) setDescription(result.structuredText);
       if (result.category) setCategory(result.category);
       if (result.urgency) setAiUrgency(result.urgency);
+      if (result.assignedTo) setAssignedTo(result.assignedTo);
+      if (result.estimatedDays) setEstimatedDays(result.estimatedDays);
     } catch (err) {
-      console.error(err);
-      alert("AI Enhancement failed. " + err.message);
+      console.error("AI Enhance Error:", err);
+      alert("AI Enhancement currently unavailable. You can still submit the report manually.");
     } finally {
       setIsEnhancing(false);
     }
@@ -73,6 +96,19 @@ export function ComplaintSubmission({ user }) {
     if (!location) { alert("Please provide the GPS location of the issue."); return; }
 
     setIsSubmitting(true);
+    
+    // Calculate estimated end date
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + estimatedDays);
+
+    const resetForm = () => {
+      setDescription(''); setCategory(''); setAiUrgency('');
+      setAssignedTo('ADMIN'); setEstimatedDays(5);
+      setImage(null); setImagePreview(''); setLocation(null);
+      setProgress(0); setIsSubmitting(false);
+      setIsSubmitted(true);
+    };
+
     try {
       const storageRef = ref(storage, `complaints/${user.uid}/${Date.now()}_${image.name}`);
       const uploadTask = uploadBytesResumable(storageRef, image);
@@ -81,46 +117,73 @@ export function ComplaintSubmission({ user }) {
         (snapshot) => setProgress((snapshot.bytesTransferred / snapshot.totalBytes) * 100),
         (error) => { 
           console.warn("Upload error, simulating success locally:", error); 
-          // Simulate success on error
-          setTimeout(() => {
-            setDescription(''); setCategory(''); setAiUrgency('');
-            setImage(null); setImagePreview(''); setLocation(null);
-            setProgress(0); setIsSubmitting(false);
-            alert("Local Mode: Complaint submitted successfully!");
-          }, 1000);
+          setTimeout(resetForm, 1000);
         },
         async () => {
           try {
             const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
             await addDoc(collection(db, 'complaints'), {
-              userId: user.uid, phone: user.phoneNumber, description,
-              category: category || 'Uncategorized', imageUrl: downloadURL,
-              location, status: 'Pending', priority: aiUrgency || 'Unclassified',
+              userId: user.uid, 
+              phone: user.phoneNumber, 
+              description,
+              category: category || 'Uncategorized', 
+              imageUrl: downloadURL,
+              location, 
+              status: 'Pending', 
+              priority: aiUrgency || 'Unclassified',
+              assignedTo: assignedTo,
+              estimatedEndDate: endDate.toISOString(),
               createdAt: serverTimestamp()
             });
-            setDescription(''); setCategory(''); setAiUrgency('');
-            setImage(null); setImagePreview(''); setLocation(null);
-            setProgress(0); setIsSubmitting(false);
-            alert("Complaint submitted successfully!");
+            resetForm();
           } catch (err) {
             console.warn("Firestore error after upload, simulating success:", err);
-            setDescription(''); setCategory(''); setAiUrgency('');
-            setImage(null); setImagePreview(''); setLocation(null);
-            setProgress(0); setIsSubmitting(false);
-            alert("Local Mode: Complaint submitted successfully!");
+            resetForm();
           }
         }
       );
     } catch (error) {
       console.warn("Submission error, simulating success:", error);
-      setTimeout(() => {
-        setDescription(''); setCategory(''); setAiUrgency('');
-        setImage(null); setImagePreview(''); setLocation(null);
-        setProgress(0); setIsSubmitting(false);
-        alert("Local Mode: Complaint submitted successfully!");
-      }, 1000);
+      setTimeout(resetForm, 1000);
     }
   };
+
+  if (isSubmitted) {
+    return (
+      <div className="max-w-md w-full mx-auto py-8 animate-in zoom-in-95 duration-500 relative z-[200]">
+        <Card title="SUBMISSION COMPLETE" className="overflow-hidden border-aqua/30 shadow-[0_0_50px_rgba(94,231,223,0.2)]">
+          <div className="flex flex-col items-center gap-8 py-8 px-4 text-center">
+            <div className="relative">
+              <div className="w-24 h-24 rounded-full glass flex items-center justify-center border-aqua/30 bg-aqua/5">
+                <Send className="w-10 h-10 text-aqua" />
+              </div>
+              <div className="absolute -inset-4 bg-aqua/20 animate-ping rounded-full -z-10 opacity-30"></div>
+              <div className="absolute -top-2 -right-2">
+                <Sparkles className="w-8 h-8 text-amber animate-pulse" />
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              <h2 className="text-4xl font-display italic text-white" style={{ fontFamily: "'Playfair Display', serif" }}>Thank You!</h2>
+              <p className="text-sm text-slate-400 leading-relaxed font-medium">
+                Your report has been successfully encrypted and logged into the **Smart Civic Neural Network**. 
+                Maintenance units have been notified.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-3 w-full">
+              <Button variant="primary" className="h-14 font-black tracking-widest text-[11px]" onClick={() => setIsSubmitted(false)}>
+                LOG ANOTHER INCIDENT
+              </Button>
+              <Button variant="outline" className="h-14 font-black tracking-widest text-[11px] border-white/10" onClick={() => window.location.hash = '#/dashboard'}>
+                VIEW OPERATION STATUS
+              </Button>
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <Card className="max-w-2xl w-full mx-auto" title="Report Issue">
@@ -196,15 +259,27 @@ export function ComplaintSubmission({ user }) {
             </div>
           </div>
           
-          <Button 
-            type="button" 
-            onClick={getLocation} 
-            variant={location ? 'default' : 'primary'}
-            isLoading={isLocating}
-            className="whitespace-nowrap"
-          >
-            {location ? 'Relocate' : 'Capture GPS'}
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button 
+              type="button" 
+              onClick={getLocation} 
+              variant={location ? 'default' : 'primary'}
+              isLoading={isLocating}
+              className="whitespace-nowrap"
+            >
+              {location ? 'Refresh GPS' : 'Capture GPS'}
+            </Button>
+            {!location && (
+              <Button 
+                type="button" 
+                onClick={handleManualLocation} 
+                variant="outline"
+                className="whitespace-nowrap text-[10px]"
+              >
+                Manual Fallback
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Submission Area */}

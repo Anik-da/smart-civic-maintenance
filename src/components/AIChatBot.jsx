@@ -6,13 +6,15 @@ import { Bot, Send, Sparkles, User, Lightbulb, Wrench, MapPin, AlertTriangle } f
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
-const SYSTEM_PROMPT = `You are a helpful Smart Civic Maintenance AI Assistant for an Indian city portal.
-Your job is to help citizens report and track civic issues like road potholes, garbage, electricity outages, water pipe leaks, and emergencies.
-Keep responses concise, friendly, and practical.
-Use emojis sparingly for clarity.
-Always guide users to use the "Report" tab to submit complaints and the "Dashboard" to track them.
-For life-threatening emergencies, always tell them to use the SOS button or call 112.
-If asked about non-civic topics, politely redirect to civic maintenance topics.`;
+const SYSTEM_PROMPT = `You are a highly intelligent, versatile AI Assistant. 
+You are part of the Smart Civic portal, but you are NOT limited to civic topics.
+
+Your mission:
+1. Answer ANY question the user asks (Web development, History, Science, Coding, Math, etc.).
+2. If the user asks about civic maintenance (roads, garbage, etc.), provide specialized advice.
+3. Remind users that for civic issues, they can use the "Report" tab.
+4. For emergencies, mention the SOS button.
+5. Be helpful, professional, and friendly. Never say "I can only answer civic questions".`;
 
 const FALLBACK_RESPONSES = {
   greet: "Hello! I'm your Smart Civic AI Assistant. I can help you report infrastructure issues, track complaints, and guide you through our services. What's the problem you're facing?",
@@ -37,7 +39,7 @@ export function AIChatBot({ user }) {
   const [messages, setMessages] = useState([
     {
       role: 'bot',
-      content: `Welcome, ${user?.phoneNumber || 'Citizen'}! 👋\n\nI'm your **Smart Civic AI Assistant**${GEMINI_API_KEY ? ' powered by Gemini' : ''}. I can help you with:\n\n🛣️ Road & infrastructure issues\n🗑️ Waste management queries\n⚡ Electrical complaints\n💧 Water & drainage problems\n🆘 Emergency guidance\n📊 Complaint tracking\n\nWhat would you like to know?`,
+      content: `Welcome, ${user?.phoneNumber || 'Citizen'}! 👋\n\nI'm your **Universal AI Assistant**${GEMINI_API_KEY ? ' powered by Gemini' : ''}. \n\nI specialize in **Civic Maintenance**, but I can answer **ANY** questions you have about technology, web development, history, or anything else! \n\nHow can I help you today?`,
       time: new Date()
     }
   ]);
@@ -52,11 +54,13 @@ export function AIChatBot({ user }) {
     if (GEMINI_API_KEY) {
       try {
         const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-        const geminiModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        const geminiModel = genAI.getGenerativeModel({ 
+          model: 'gemini-1.5-flash',
+          systemInstruction: SYSTEM_PROMPT,
+        });
         const session = geminiModel.startChat({
           history: [],
-          generationConfig: { maxOutputTokens: 512, temperature: 0.7 },
-          systemInstruction: SYSTEM_PROMPT,
+          generationConfig: { maxOutputTokens: 1024, temperature: 0.7 },
         });
         setChatSession(session);
       } catch (err) {
