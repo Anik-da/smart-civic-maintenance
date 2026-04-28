@@ -3,7 +3,7 @@ import { Shield, FileText, LayoutDashboard, ArrowRight } from 'lucide-react';
 
 export function Landing() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[90vh] w-full px-6 text-center py-20 overflow-hidden">
+    <div className="flex flex-col items-center justify-center min-h-screen w-full px-6 text-center py-20 overflow-hidden">
       {/* Central Iconic Shield */}
       <div className="w-24 h-24 md:w-32 md:h-32 professional-surface flex items-center justify-center border-white/10 mb-10 shadow-lg relative group">
         <div className="absolute inset-0 bg-blue-600/5 blur-3xl rounded-full opacity-50 group-hover:opacity-80 transition-opacity duration-1000"></div>
