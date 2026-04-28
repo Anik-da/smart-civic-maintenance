@@ -7,7 +7,7 @@ import { AlertCircle, ShieldCheck, Loader2 } from 'lucide-react';
 
 const mapContainerStyle = {
   width: '100%',
-  height: '350px',
+  height: '450px',
   borderRadius: '1.5rem'
 };
 
@@ -128,16 +128,16 @@ export function EmergencyTracking({ user }) {
          <div className="scene__blob scene__blob--2 opacity-10"></div>
       </div>
 
-      <Card className="w-full max-w-xl glass border-rose/30 shadow-[0_0_100px_rgba(247,168,196,0.3)] animate-in zoom-in-95 duration-700 relative z-[1001]" title="SOS TRACKING">
+      <Card className="w-full max-w-2xl glass border-rose/30 shadow-[0_0_100px_rgba(247,168,196,0.3)] animate-in zoom-in-95 duration-700 relative z-[1001]" title="SOS TRACKING">
         <div className="flex flex-col items-center gap-6 mb-8 text-center">
           <div className="w-20 h-20 rounded-full glass flex items-center justify-center border-rose/30 relative">
              <div className="absolute inset-0 bg-rose/10 animate-ping rounded-full"></div>
              {statusInfo.icon}
           </div>
           <div>
-            <span className={`glass-badge ${statusInfo.badge} mb-2`}>{activeEmergency.status}</span>
-            <h3 className="hero__title" style={{ fontSize: '2.4rem', marginBottom: '0.25rem' }}>{statusInfo.text}</h3>
-            <p className="text-sm opacity-50 font-medium">Keep this interface open. Your GPS coordinates are being broadcast to emergency services.</p>
+            <span className={`glass-badge ${statusInfo.badge} mb-3 text-sm px-4 py-1.5`}>{activeEmergency.status}</span>
+            <h3 className="hero__title" style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>{statusInfo.text}</h3>
+            <p className="text-base opacity-70 font-medium">Keep this interface open. Your GPS coordinates are being broadcast to emergency services.</p>
           </div>
         </div>
 
@@ -162,8 +162,8 @@ export function EmergencyTracking({ user }) {
               />
             </GoogleMap>
           ) : (
-            <div className="w-full h-[350px] flex flex-col items-center justify-center gap-4 opacity-40 font-bold tracking-widest text-[10px]">
-              <Loader2 className="w-8 h-8 animate-spin" />
+            <div className="w-full h-[450px] flex flex-col items-center justify-center gap-4 opacity-40 font-bold tracking-widest text-[12px]">
+              <Loader2 className="w-10 h-10 animate-spin" />
               SYNCHRONIZING ORBITAL DATA...
             </div>
           )}
@@ -171,8 +171,8 @@ export function EmergencyTracking({ user }) {
         
         <div className="mt-8 pt-6 border-t border-white/5 flex justify-between items-center px-2">
            <div>
-              <p className="text-[10px] font-bold opacity-30 uppercase tracking-widest">Target Location</p>
-              <p className="text-xs font-mono text-aqua">{activeEmergency.location?.lat.toFixed(6)}, {activeEmergency.location?.lng.toFixed(6)}</p>
+              <p className="text-xs font-bold opacity-40 uppercase tracking-widest mb-1">Target Location</p>
+              <p className="text-sm font-mono text-aqua">{activeEmergency.location?.lat.toFixed(6)}, {activeEmergency.location?.lng.toFixed(6)}</p>
            </div>
            <button 
              disabled={isCancelling}
@@ -202,10 +202,10 @@ export function EmergencyTracking({ user }) {
                  setIsCancelling(false);
                }
              }}
-             className="glass glass-btn glass-btn--sm border-rose/20 text-rose min-w-[140px] h-12 flex items-center justify-center gap-2 relative z-[1010] hover:bg-rose/10" 
+             className="glass glass-btn glass-btn--sm border-rose/20 text-rose min-w-[160px] h-14 text-sm font-bold tracking-widest flex items-center justify-center gap-2 relative z-[1010] hover:bg-rose/10" 
              style={{ color: '#f7a8c4' }}
            >
-              {isCancelling ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+              {isCancelling ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
               {isCancelling ? 'PROCESSING...' : 'CANCEL ALERT'}
            </button>
         </div>

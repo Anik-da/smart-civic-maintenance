@@ -1,11 +1,11 @@
 import { useState, useEffect, cloneElement } from 'react';
-import { HashRouter, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
+import { HashRouter, Routes, Route, Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { ComplaintSubmission } from './components/ComplaintSubmission';
 import { Dashboard } from './components/Dashboard';
 import { EmergencyButton } from './components/EmergencyButton';
 import { EmergencyTracking } from './components/EmergencyTracking';
 import { PhoneAuth } from './components/PhoneAuth';
-import { Shield, FileText, LogOut } from 'lucide-react';
+import { Shield, FileText, LogOut, ArrowLeft } from 'lucide-react';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
 import { Landing } from './components/Landing';
@@ -14,10 +14,13 @@ import { DashboardGate } from './components/DashboardGate';
 function AppShell() {
   const [user, setUser] = useState(null);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const isDashboard = location.pathname === '/dashboard';
   const isLanding = location.pathname === '/';
   const isLogin = location.pathname === '/login';
+  
+  const canGoBack = location.pathname !== '/';
 
   useEffect(() => {
     try {
@@ -56,10 +59,21 @@ function AppShell() {
       <div className="glass-toast-region" id="toast-region" role="region" aria-label="Notifications" aria-live="polite"></div>
 
       <div className="min-h-screen flex flex-col relative z-10">
+        {/* Global Back Button */}
+        {canGoBack && (
+          <button
+            onClick={() => navigate(-1)}
+            className="fixed top-4 left-4 sm:top-6 sm:left-6 z-[200] glass glass-btn glass-btn--ghost w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full border-white/10 hover:border-white/30 hover:bg-white/5 transition-all shadow-xl bg-black/20 backdrop-blur-md"
+            aria-label="Go back"
+          >
+            <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+          </button>
+        )}
+
         {/* Navigation Header - Only on inner pages */}
         {showHeader && (
           <header className="header-bar sticky top-0 z-[100] px-6 py-4">
-            <div className="max-w-7xl mx-auto flex justify-between items-center">
+            <div className="max-w-7xl mx-auto flex justify-between items-center pl-14 sm:pl-16">
               <Link to="/" className="flex items-center gap-3 group">
                 <div className="relative flex items-center justify-center">
                   <div className="w-11 h-11 glass rounded-2xl flex items-center justify-center border-white/10 group-hover:border-aqua/50 transition-all shadow-xl bg-white/5 relative z-10">
