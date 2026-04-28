@@ -6,7 +6,7 @@ export function Card({ children, className = '', title, icon: Icon }) {
         <div className="mb-6">
           <div className="glass-card__label flex items-center gap-2">
             {Icon && <Icon className="w-4 h-4" />}
-            {title ? "CIVICMAINTENANCE · COMPONENT" : "COMPONENT"}
+            {title || "COMPONENT"}
           </div>
           {title && <h3 className="glass-card__title">{title}</h3>}
         </div>

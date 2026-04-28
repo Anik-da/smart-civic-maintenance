@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
-import { Phone, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { Phone, ShieldCheck, CheckCircle2, XCircle } from 'lucide-react';
 import { auth } from '../lib/firebase';
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 
@@ -16,10 +16,15 @@ export function PhoneAuth({ onLogin }) {
   const confirmationResultRef = useRef(null);
 
   useEffect(() => {
+    const isFirebaseDomain = window.location.hostname.endsWith('web.app') || 
+                           window.location.hostname.endsWith('firebaseapp.com');
+    
     if (!window.recaptchaVerifier) {
       try {
-        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-          'size': 'normal',
+        const containerId = isFirebaseDomain ? 'recaptcha-container-invisible' : 'recaptcha-container';
+        
+        window.recaptchaVerifier = new RecaptchaVerifier(auth, containerId, {
+          'size': isFirebaseDomain ? 'invisible' : 'normal',
           'callback': (response) => {
             setCaptchaStatus('verified');
             console.log("reCAPTCHA verified");
@@ -29,7 +34,12 @@ export function PhoneAuth({ onLogin }) {
             setError('reCAPTCHA expired. Please try again.');
           }
         });
-        window.recaptchaVerifier.render();
+
+        window.recaptchaVerifier.render().then(() => {
+          if (isFirebaseDomain) {
+            setCaptchaStatus('verified'); // Invisible mode is ready
+          }
+        });
       } catch (err) {
         console.error("Recaptcha setup error:", err);
       }
@@ -89,9 +99,9 @@ export function PhoneAuth({ onLogin }) {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[70vh] px-4 pb-20 w-full">
+    <div className={`flex flex-col items-center justify-center min-h-[70vh] px-4 pb-20 w-full ${window.location.hostname.includes('web.app') ? 'hide-recaptcha' : ''}`}>
       <div className="w-full max-w-md relative group">
-        <div className="absolute -inset-1 bg-gradient-to-r from-aqua/20 to-violet/20 rounded-[2.2rem] blur opacity-30 group-hover:opacity-100 transition duration-1000"></div>
+        <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 to-blue-600/20 rounded-[2.2rem] blur opacity-30 group-hover:opacity-100 transition duration-1000"></div>
         
         <Card className="relative w-full animate-in fade-in zoom-in-95 duration-700" title="CITIZEN LOGIN">
           {!showOtp ? (
@@ -115,9 +125,13 @@ export function PhoneAuth({ onLogin }) {
                 </div>
               </div>
               
-              <div className="flex justify-center py-4">
-                <div id="recaptcha-container" className="rounded-xl overflow-hidden border border-white/10 shadow-lg"></div>
-              </div>
+              <div id="recaptcha-container-invisible"></div>
+              
+              {!(window.location.hostname.endsWith('web.app') || window.location.hostname.endsWith('firebaseapp.com')) && (
+                <div className="flex justify-center py-4">
+                  <div id="recaptcha-container" className="rounded-xl overflow-hidden border border-white/10 shadow-lg"></div>
+                </div>
+              )}
 
               {error && (
                 <div className="p-4 rounded-xl bg-rose/10 border border-rose/20 text-rose text-[11px] font-bold leading-relaxed flex items-center gap-2">
@@ -125,7 +139,13 @@ export function PhoneAuth({ onLogin }) {
                 </div>
               )}
 
-              <Button type="submit" variant="primary" className="w-full h-16 text-sm" isLoading={isLoading} disabled={captchaStatus !== 'verified'}>
+              <Button 
+                type="submit" 
+                variant="primary" 
+                className="w-full h-16 text-sm bg-blue-600 hover:bg-blue-500 border-blue-400/30" 
+                isLoading={isLoading} 
+                disabled={captchaStatus !== 'verified' && !(window.location.hostname.endsWith('web.app') || window.location.hostname.endsWith('firebaseapp.com'))}
+              >
                 SEND VERIFICATION CODE
               </Button>
             </form>

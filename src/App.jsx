@@ -15,6 +15,8 @@ import { DashboardGate } from './components/DashboardGate';
 
 function App() {
   const [user, setUser] = useState(null);
+  const isFirebaseDomain = window.location.hostname.endsWith('web.app') || 
+                           window.location.hostname.endsWith('firebaseapp.com');
 
   useEffect(() => {
     try {
@@ -39,15 +41,13 @@ function App() {
     setUser(null);
   };
 
+  const isDashboard = window.location.hash.includes('/dashboard');
+
   return (
     <HashRouter>
       <ErrorBoundary>
-        <div className="min-h-screen">
-          <div className="scene" aria-hidden="true">
-            <div className="scene__blob scene__blob--1"></div>
-            <div className="scene__blob scene__blob--2"></div>
-            <div className="scene__blob scene__blob--3"></div>
-          </div>
+        <div className={`min-h-screen ${isFirebaseDomain ? 'hide-recaptcha' : ''}`}>
+          <div className="scene" aria-hidden="true"></div>
 
           {/* Theme toggle */}
           <button className="glass glass-btn theme-toggle-btn fixed top-4 right-4 z-[200] w-12 h-12 p-0 flex items-center justify-center rounded-full" id="theme-toggle" aria-label="Toggle colour scheme" title="Toggle light / dark mode" onClick={() => document.documentElement.classList.toggle('dark')}>
@@ -59,51 +59,49 @@ function App() {
           <div className="glass-toast-region" id="toast-region" role="region" aria-label="Notifications" aria-live="polite"></div>
 
           <div className="min-h-screen flex flex-col relative z-10">
-            {/* Navigation Header */}
-            <header className="header-bar sticky top-0 z-[100] px-6 py-4">
-              <div className="max-w-7xl mx-auto flex justify-between items-center">
-                <Link to="/" className="flex items-center gap-3 group">
-                  <div className="relative flex items-center justify-center">
-                    <div className="w-11 h-11 glass rounded-2xl flex items-center justify-center border-white/10 group-hover:border-aqua/50 transition-all shadow-xl bg-white/5 relative z-10">
-                      <Shield className="w-5 h-5 text-aqua" />
+            {/* Navigation Header - Hidden on Dashboard */}
+            {!isDashboard && (
+              <header className="header-bar sticky top-0 z-[100] px-6 py-4">
+                <div className="max-w-7xl mx-auto flex justify-between items-center">
+                  <Link to="/" className="flex items-center gap-3 group">
+                    <div className="relative flex items-center justify-center">
+                      <div className="w-11 h-11 glass rounded-2xl flex items-center justify-center border-white/10 group-hover:border-aqua/50 transition-all shadow-xl bg-white/5 relative z-10">
+                        <Shield className="w-5 h-5 text-aqua" />
+                      </div>
                     </div>
-                    {/* Decorative Moon icon overlapping the shield box */}
-                    <div className="absolute -top-1.5 -left-1.5 w-6 h-6 glass rounded-full flex items-center justify-center border-white/10 shadow-lg z-20 bg-white/10 backdrop-blur-md">
-                      <span className="text-[10px] filter drop-shadow-sm">🌙</span>
+                    <div className="flex flex-col -gap-0.5">
+                      <h1 className="text-[22px] text-white tracking-tight leading-none italic font-semibold" style={{ fontFamily: "'Playfair Display', serif" }}>
+                        Smart Civic
+                      </h1>
+                      <p className="text-[9px] font-black text-violet uppercase tracking-[0.5em] mt-1 opacity-90">Operations</p>
                     </div>
-                  </div>
-                  <div className="flex flex-col -gap-0.5">
-                    <h1 className="text-[22px] text-white tracking-tight leading-none italic font-semibold" style={{ fontFamily: "'Playfair Display', serif" }}>
-                      Smart Civic
-                    </h1>
-                    <p className="text-[9px] font-black text-violet uppercase tracking-[0.5em] mt-1 opacity-90">Operations</p>
-                  </div>
-                </Link>
+                  </Link>
 
-                <nav className="flex items-center gap-1 sm:gap-2">
-                  {user && <NavLink to="/report" icon={<FileText className="w-4 h-4 sm:w-5 sm:h-5" />} label="Report" />}
-                  <NavLink to="/dashboard" icon={<LayoutDashboard className="w-4 h-4 sm:w-5 sm:h-5" />} label="Status" />
-                  {user && <NavLink to="/ai-assistant" icon={<Bot className="w-4 h-4 sm:w-5 sm:h-5" />} label="AI" />}
-                  
-                  {user && (
-                    <button 
-                      onClick={handleLogout} 
-                      className="glass glass-btn glass-btn--primary h-9 sm:h-10 px-3 sm:px-5 text-[9px] sm:text-[10px] font-black tracking-widest flex items-center gap-1 sm:gap-2 text-white bg-rose/40 border-rose/40 hover:bg-rose/60 ml-2 sm:ml-4 shadow-[0_0_20px_rgba(247,168,196,0.3)] transition-all active:scale-95"
-                    >
-                      <LogOut className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> <span className="hidden xs:inline">LOGOUT</span>
-                    </button>
-                  )}
-                </nav>
-              </div>
-            </header>
+                  <nav className="flex items-center gap-1 sm:gap-2">
+                    {user && <NavLink to="/report" icon={<FileText className="w-4 h-4 sm:w-5 sm:h-5" />} label="Report" />}
+                    <NavLink to="/dashboard" icon={<LayoutDashboard className="w-4 h-4 sm:w-5 sm:h-5" />} label="Status" />
+                    {user && <NavLink to="/ai-assistant" icon={<Bot className="w-4 h-4 sm:w-5 sm:h-5" />} label="AI" />}
+                    
+                    {user && (
+                      <button 
+                        onClick={handleLogout} 
+                        className="glass glass-btn glass-btn--primary h-9 sm:h-10 px-3 sm:px-5 text-[9px] sm:text-[10px] font-black tracking-widest flex items-center gap-1 sm:gap-2 text-white bg-rose/40 border-rose/40 hover:bg-rose/60 ml-2 sm:ml-4 shadow-[0_0_20px_rgba(247,168,196,0.3)] transition-all active:scale-95"
+                      >
+                        <LogOut className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> <span className="hidden xs:inline">LOGOUT</span>
+                      </button>
+                    )}
+                  </nav>
+                </div>
+              </header>
+            )}
 
             {/* Main Application Routes */}
-            <main className="flex-1 px-4 py-6 max-w-7xl mx-auto w-full flex flex-col items-center">
+            <main className={`flex-1 w-full ${isDashboard ? 'p-0' : 'px-4 py-6 max-w-7xl mx-auto flex flex-col items-center'}`}>
               <Routes>
                 <Route path="/" element={<Landing />} />
                 <Route path="/report" element={user ? <ComplaintSubmission user={user} /> : <Navigate to="/login" />} />
                 <Route path="/login" element={!user ? <PhoneAuth onLogin={handleLogin} /> : <Navigate to="/report" />} />
-                <Route path="/dashboard" element={<DashboardGate><Dashboard /></DashboardGate>} />
+                <Route path="/dashboard" element={<DashboardGate onLogout={handleLogout}><Dashboard user={user} onLogout={handleLogout} /></DashboardGate>} />
                 <Route path="/ai-assistant" element={user ? <AIChatBot user={user} /> : <Navigate to="/login" />} />
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>

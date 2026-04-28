@@ -8,7 +8,6 @@ import {
   ShieldCheck,
   Plus,
   XCircle,
-  LayoutDashboard,
   ChevronRight,
   Settings,
   Bell,
@@ -23,6 +22,7 @@ import {
   Search,
   UserPlus
 } from 'lucide-react';
+import { ControlCenterSidebar } from './ControlCenterSidebar';
 
 const DEMO_COMPLAINTS = [
   {
@@ -265,100 +265,12 @@ export function Dashboard({ user, onLogout }) {
 
   return (
     <div className="main-container">
-      {/* Vertical Tabs Navigation */}
-      <nav className="tabs-nav">
-        <div className="nav-header">
-          <h2>Control Center</h2>
-          <p>Premium Dashboard</p>
-        </div>
-        
-        <div className="space-y-2">
-          <button 
-            onClick={() => setActiveTab('incidents')}
-            className={`tab-btn ${activeTab === 'incidents' ? 'active' : ''}`}
-          >
-            <div className="tab-icon">
-              <LayoutDashboard className="w-5 h-5" />
-            </div>
-            <div className="tab-text">
-              <div className="tab-title">Dashboard</div>
-              <div className="tab-subtitle">Overview & Stats</div>
-            </div>
-            <ChevronRight className="tab-arrow w-4 h-4" />
-          </button>
-
-          {user?.role === 'ADMIN' && (
-            <button 
-              onClick={() => setActiveTab('staff')}
-              className={`tab-btn ${activeTab === 'staff' ? 'active' : ''}`}
-            >
-              <div className="tab-icon">
-                <Users className="w-5 h-5" />
-              </div>
-              <div className="tab-text">
-                <div className="tab-title">Staff Hub</div>
-                <div className="tab-subtitle">Personnel Management</div>
-              </div>
-              <ChevronRight className="tab-arrow w-4 h-4" />
-            </button>
-          )}
-
-          <button 
-            onClick={() => setActiveTab('analytics')}
-            className={`tab-btn ${activeTab === 'analytics' ? 'active' : ''}`}
-          >
-            <div className="tab-icon">
-              <BarChart3 className="w-5 h-5" />
-            </div>
-            <div className="tab-text">
-              <div className="tab-title">Analytics</div>
-              <div className="tab-subtitle">Performance Data</div>
-            </div>
-            <ChevronRight className="tab-arrow w-4 h-4" />
-          </button>
-
-          <button 
-            onClick={() => setActiveTab('notifications')}
-            className={`tab-btn ${activeTab === 'notifications' ? 'active' : ''}`}
-          >
-            <div className="tab-icon">
-              <Bell className="w-5 h-5" />
-            </div>
-            <div className="tab-text">
-              <div className="tab-title">Notifications</div>
-              <div className="tab-subtitle">System Alerts</div>
-            </div>
-            <ChevronRight className="tab-arrow w-4 h-4" />
-          </button>
-        </div>
-
-        <div className="mt-auto space-y-4">
-          <div className="glass p-4 rounded-2xl border-white/5 bg-white/5">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-aqua/20 to-violet/20 flex items-center justify-center font-black text-xs border border-white/10">
-                {user?.name?.[0] || 'S'}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-[11px] font-black uppercase truncate text-white">{user?.name}</div>
-                <div className="text-[9px] opacity-40 font-bold uppercase tracking-wider">{user?.role}</div>
-              </div>
-            </div>
-          </div>
-
-          <button 
-            onClick={onLogout}
-            className="tab-btn group hover:bg-rose/10 hover:text-rose border-transparent hover:border-rose/20"
-          >
-            <div className="tab-icon group-hover:bg-rose/20">
-              <LogOut className="w-5 h-5" />
-            </div>
-            <div className="tab-text">
-              <div className="tab-title">Logout</div>
-              <div className="tab-subtitle">End Session</div>
-            </div>
-          </button>
-        </div>
-      </nav>
+      <ControlCenterSidebar 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab} 
+        user={user} 
+        onLogout={onLogout} 
+      />
 
       {/* Main Content Area */}
       <main className="content-area custom-scrollbar">
@@ -366,19 +278,19 @@ export function Dashboard({ user, onLogout }) {
           <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-700">
             <div className="flex justify-between items-end">
               <div>
-                <span className="hero__kicker">Smart City Infrastructure</span>
-                <h1 className="text-4xl font-display tracking-tight mb-2">Operations Center</h1>
-                <p className="text-slate-400 text-sm max-w-lg">Monitoring {user?.department} operations across the metropolitan area.</p>
+                <span className="hero__kicker text-blue-400">Smart City Infrastructure</span>
+                <h1 className="text-4xl font-display tracking-tight mb-2 text-white">Operations Center</h1>
+                <p className="text-blue-100/60 text-sm max-w-lg">Monitoring {user?.department} operations across the metropolitan area.</p>
               </div>
-              <div className="flex items-center gap-4 bg-white/5 p-2 rounded-2xl border border-white/5">
+              <div className="flex items-center gap-4 bg-blue-500/5 p-2 rounded-2xl border border-blue-500/10">
                 <div className="text-right">
-                  <div className="text-[10px] font-black text-aqua uppercase tracking-widest">{user?.department}</div>
-                  <div className="text-[8px] opacity-40 font-bold uppercase">Active Sector</div>
+                  <div className="text-[10px] font-black text-blue-400 uppercase tracking-widest">{user?.department}</div>
+                  <div className="text-[8px] text-blue-100/40 font-bold uppercase">Active Sector</div>
                 </div>
-                <div className="w-px h-8 bg-white/10"></div>
+                <div className="w-px h-8 bg-blue-500/20"></div>
                 <div className="flex items-center gap-2 px-2">
-                  <div className="w-2 h-2 rounded-full bg-lime animate-pulse"></div>
-                  <span className="text-[10px] font-black uppercase tracking-widest">System Live</span>
+                  <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse shadow-[0_0_8px_rgba(96,165,250,0.5)]"></div>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-blue-100/80">System Live</span>
                 </div>
               </div>
             </div>

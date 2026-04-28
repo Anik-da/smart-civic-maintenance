@@ -6,6 +6,7 @@ import { collection, getDocs, query, where } from 'firebase/firestore';
 // Local fallback credentials - used when Firestore is unreachable
 const LOCAL_STAFF = [
   { name: 'Admin', role: 'ADMIN', department: 'ADMIN', passcode: 'ADMIN2026' },
+  { name: 'Staff Member', role: 'WORKER', department: 'GENERAL', passcode: 'STAFF2026' },
   { name: 'Road Worker', role: 'WORKER', department: 'ROADS', passcode: 'ROAD_WORK' },
   { name: 'Power Staff', role: 'WORKER', department: 'ELECTRICITY', passcode: 'POWER_STAFF' },
   { name: 'Water Dept', role: 'WORKER', department: 'WATER', passcode: 'AQUA_DEPT' },
@@ -38,12 +39,16 @@ export function DashboardGate({ children }) {
   };
 
   const checkLocalFallback = (input) => {
-    const normalized = input.trim().toUpperCase().replace(/[\s_]+/g, '');
+    const normalized = input.trim().toUpperCase();
+    console.log('[Auth] Checking local fallback. Normalized input:', normalized);
+    
     const match = LOCAL_STAFF.find(s => {
-      const savedNorm = s.passcode.toUpperCase().replace(/[\s_]+/g, '');
-      return savedNorm === normalized || s.passcode.toUpperCase() === input.trim().toUpperCase();
+      const savedNorm = s.passcode.toUpperCase();
+      return savedNorm === normalized;
     });
+    
     if (match) {
+      console.log('[Auth] Local match found:', match.name);
       return { role: match.role, department: match.department, name: match.name };
     }
     return null;
@@ -54,15 +59,20 @@ export function DashboardGate({ children }) {
     setError(false);
     
     const input = code.trim().toUpperCase();
+    const inputStripped = input; // Keep special characters
+    
+    console.log('[Auth] Attempting validation for:', input);
     
     // Try Firestore first
     try {
       const staffRef = collection(db, 'staff');
+      // Direct match
       const q = query(staffRef, where('passcode', '==', input));
       const querySnapshot = await getDocs(q);
       
       if (!querySnapshot.empty) {
         const staffData = querySnapshot.docs[0].data();
+        console.log('[Auth] Firestore direct match found');
         authorizeUser({
           role: staffData.role,
           department: staffData.department,
@@ -71,15 +81,15 @@ export function DashboardGate({ children }) {
         return true;
       }
 
-      // Try fetching all staff for fuzzy match
+      // Try fetching all staff for fuzzy match if direct fails
+      console.log('[Auth] Direct match failed, trying fuzzy Firestore match...');
       const allStaffSnapshot = await getDocs(staffRef);
       let found = null;
       
       allStaffSnapshot.forEach(doc => {
         const data = doc.data();
         if (!data.passcode) return;
-        const savedCode = data.passcode.toUpperCase().replace(/[\s_]+/g, '');
-        const inputStripped = input.replace(/[\s_]+/g, '');
+        const savedCode = data.passcode.toUpperCase();
         
         if (savedCode === inputStripped) {
           found = {
@@ -91,11 +101,12 @@ export function DashboardGate({ children }) {
       });
 
       if (found) {
+        console.log('[Auth] Firestore fuzzy match found');
         authorizeUser(found);
         return true;
       }
     } catch (err) {
-      console.warn('Firestore auth check failed, using local fallback:', err.message);
+      console.warn('[Auth] Firestore error:', err.message);
     }
 
     // Fallback to local credentials
@@ -105,6 +116,7 @@ export function DashboardGate({ children }) {
       return true;
     }
 
+    console.error('[Auth] No match found for passcode');
     setError(true);
     setPasscode('');
     setLoading(false);
@@ -166,8 +178,8 @@ export function DashboardGate({ children }) {
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
               {error && (
-                <div className="gate-error">
-                  <XCircle className="w-3 h-3" /> Invalid Access Token
+                <div className="gate-error text-rose-500">
+                  <XCircle className="w-3 h-3" /> Invalid Staff Passcode
                 </div>
               )}
             </div>

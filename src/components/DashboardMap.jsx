@@ -15,6 +15,7 @@ const defaultCenter = {
 const mapOptions = {
   disableDefaultUI: true,
   zoomControl: false,
+  gestureHandling: 'greedy',
   styles: [
     { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
     { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
