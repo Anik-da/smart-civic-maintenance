@@ -14,8 +14,6 @@ import { DashboardGate } from './components/DashboardGate';
 
 function AppShell() {
   const [user, setUser] = useState(null);
-  const isFirebaseDomain = window.location.hostname.endsWith('web.app') || 
-                           window.location.hostname.endsWith('firebaseapp.com');
   const location = useLocation();
 
   const isDashboard = location.pathname === '/dashboard';
@@ -48,7 +46,7 @@ function AppShell() {
   const showHeader = !isDashboard && !isLanding;
 
   return (
-    <div className={`min-h-screen ${isFirebaseDomain ? 'hide-recaptcha' : ''}`}>
+    <div className="min-h-screen">
       <div className="scene" aria-hidden="true"></div>
 
       {/* Toast region (ARIA live) */}
