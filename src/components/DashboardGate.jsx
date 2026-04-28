@@ -1,55 +1,172 @@
-import { useState } from 'react';
-import { Shield, Lock, ArrowRight, XCircle } from 'lucide-react';
+import { useState, useEffect, cloneElement, Children } from 'react';
+import { Shield, Lock, ArrowRight, XCircle, Loader2, Eye, EyeOff } from 'lucide-react';
+import { db } from '../lib/firebase';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+
+// Local fallback credentials - used when Firestore is unreachable
+const LOCAL_STAFF = [
+  { name: 'Admin', role: 'ADMIN', department: 'ADMIN', passcode: 'ADMIN2026' },
+  { name: 'Road Worker', role: 'WORKER', department: 'ROADS', passcode: 'ROAD_WORK' },
+  { name: 'Power Staff', role: 'WORKER', department: 'ELECTRICITY', passcode: 'POWER_STAFF' },
+  { name: 'Water Dept', role: 'WORKER', department: 'WATER', passcode: 'AQUA_DEPT' },
+  { name: 'Sanitation', role: 'WORKER', department: 'SANITATION', passcode: 'CLEAN_CITY' },
+];
 
 export function DashboardGate({ children }) {
   const [passcode, setPasscode] = useState('');
-  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [authorizedUser, setAuthorizedUser] = useState(null);
   const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-  // In a real app, this would check against a backend or ENV
-  const ADMIN_PASSCODE = 'CIVIC2026'; 
+  // Persistence check
+  useEffect(() => {
+    const saved = localStorage.getItem('staff_authorized_user');
+    if (saved) {
+      try {
+        setAuthorizedUser(JSON.parse(saved));
+      } catch (e) {
+        localStorage.removeItem('staff_authorized_user');
+      }
+    }
+  }, []);
+
+  const authorizeUser = (userData) => {
+    setAuthorizedUser(userData);
+    localStorage.setItem('staff_authorized_user', JSON.stringify(userData));
+    setLoading(false);
+  };
+
+  const checkLocalFallback = (input) => {
+    const normalized = input.trim().toUpperCase().replace(/[\s_]+/g, '');
+    const match = LOCAL_STAFF.find(s => {
+      const savedNorm = s.passcode.toUpperCase().replace(/[\s_]+/g, '');
+      return savedNorm === normalized || s.passcode.toUpperCase() === input.trim().toUpperCase();
+    });
+    if (match) {
+      return { role: match.role, department: match.department, name: match.name };
+    }
+    return null;
+  };
+
+  const validatePasscode = async (code) => {
+    setLoading(true);
+    setError(false);
+    
+    const input = code.trim().toUpperCase();
+    
+    // Try Firestore first
+    try {
+      const staffRef = collection(db, 'staff');
+      const q = query(staffRef, where('passcode', '==', input));
+      const querySnapshot = await getDocs(q);
+      
+      if (!querySnapshot.empty) {
+        const staffData = querySnapshot.docs[0].data();
+        authorizeUser({
+          role: staffData.role,
+          department: staffData.department,
+          name: staffData.name || 'Staff Member'
+        });
+        return true;
+      }
+
+      // Try fetching all staff for fuzzy match
+      const allStaffSnapshot = await getDocs(staffRef);
+      let found = null;
+      
+      allStaffSnapshot.forEach(doc => {
+        const data = doc.data();
+        if (!data.passcode) return;
+        const savedCode = data.passcode.toUpperCase().replace(/[\s_]+/g, '');
+        const inputStripped = input.replace(/[\s_]+/g, '');
+        
+        if (savedCode === inputStripped) {
+          found = {
+            role: data.role,
+            department: data.department,
+            name: data.name || 'Staff Member'
+          };
+        }
+      });
+
+      if (found) {
+        authorizeUser(found);
+        return true;
+      }
+    } catch (err) {
+      console.warn('Firestore auth check failed, using local fallback:', err.message);
+    }
+
+    // Fallback to local credentials
+    const localMatch = checkLocalFallback(input);
+    if (localMatch) {
+      authorizeUser(localMatch);
+      return true;
+    }
+
+    setError(true);
+    setPasscode('');
+    setLoading(false);
+    return false;
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (passcode.toUpperCase() === ADMIN_PASSCODE) {
-      setIsAuthorized(true);
-      setError(false);
-    } else {
-      setError(true);
-      setPasscode('');
-      // Shake animation effect could be added here
-    }
+    if (loading || !passcode.trim()) return;
+    validatePasscode(passcode);
   };
 
-  if (isAuthorized) {
-    return children;
+  const handleLogout = () => {
+    localStorage.removeItem('staff_authorized_user');
+    setAuthorizedUser(null);
+  };
+
+  if (authorizedUser) {
+    // Render children with user info
+    const child = Array.isArray(children) ? children[0] : children;
+    if (!child) return null;
+    return cloneElement(child, { user: authorizedUser, onLogout: handleLogout });
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[70vh] w-full px-4">
-      <div className="w-full max-w-md relative group">
-        <div className="absolute -inset-1 bg-gradient-to-r from-violet/20 to-aqua/20 rounded-[2.5rem] blur opacity-30 group-hover:opacity-100 transition duration-1000"></div>
+    <div className="gate-container">
+      <div className="gate-card-wrapper">
+        <div className="gate-glow" />
         
-        <div className="relative glass p-10 rounded-[2.5rem] border-white/10 text-center">
-          <div className="w-20 h-20 glass rounded-3xl flex items-center justify-center border-white/5 mx-auto mb-8 shadow-inner">
-            <Lock className="w-8 h-8 text-violet animate-pulse" />
+        <div className="gate-card">
+          <div className="gate-icon-box">
+            <Lock className="gate-icon" />
+            <div className="gate-icon-ring" />
           </div>
 
-          <h2 className="font-display text-3xl font-bold mb-2">Staff Access</h2>
-          <p className="text-slate-400 text-sm mb-10">This dashboard is restricted to authorized maintenance personnel only.</p>
+          <h2 className="gate-title">Staff Access</h2>
+          <p className="gate-subtitle">
+            This dashboard is restricted to authorized maintenance personnel only.
+          </p>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="relative">
+          <form onSubmit={handleSubmit} className="gate-form">
+            <div className="gate-input-wrapper">
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="Enter Staff Passcode"
                 value={passcode}
-                onChange={(e) => setPasscode(e.target.value)}
-                className={`glass-input text-center tracking-[0.5em] text-lg font-bold placeholder:tracking-normal placeholder:text-sm ${error ? 'border-rose/50 text-rose' : 'border-white/10'}`}
+                onChange={(e) => {
+                  setPasscode(e.target.value);
+                  setError(false);
+                }}
+                className={`gate-input ${error ? 'gate-input--error' : ''}`}
                 autoFocus
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="gate-toggle-vis"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
               {error && (
-                <div className="absolute -bottom-8 left-0 right-0 flex items-center justify-center gap-2 text-rose text-[10px] font-black uppercase tracking-widest animate-in fade-in slide-in-from-top-1">
+                <div className="gate-error">
                   <XCircle className="w-3 h-3" /> Invalid Access Token
                 </div>
               )}
@@ -57,24 +174,30 @@ export function DashboardGate({ children }) {
 
             <button 
               type="submit"
-              className="w-full h-16 glass-btn glass-btn--primary gap-3 text-sm"
+              disabled={loading}
+              className="gate-submit"
             >
-              VALIDATE IDENTITY <ArrowRight className="w-4 h-4" />
+              {loading ? (
+                <>AUTHENTICATING <Loader2 className="w-4 h-4 animate-spin" /></>
+              ) : (
+                <>VALIDATE IDENTITY <ArrowRight className="w-4 h-4" /></>
+              )}
             </button>
           </form>
 
-          <div className="mt-12 pt-8 border-t border-white/5">
-            <div className="flex items-center justify-center gap-3 opacity-20">
-              <Shield className="w-4 h-4" />
-              <span className="text-[9px] font-black uppercase tracking-[0.3em]">End-to-End Encryption Active</span>
-            </div>
+          <div className="gate-footer">
+            <Shield className="w-4 h-4" />
+            <span>End-to-End Encryption Active</span>
           </div>
         </div>
       </div>
       
-      <p className="mt-8 text-slate-500 text-[10px] font-bold uppercase tracking-widest">
-        Unauthorized access attempts are logged and monitored.
-      </p>
+      <div className="gate-notice">
+        <p className="gate-notice-title">System Notice</p>
+        <p className="gate-notice-text">
+          Access is managed by the Central Administration. If you've forgotten your passcode or need a new one, please contact your department head.
+        </p>
+      </div>
     </div>
   );
 }

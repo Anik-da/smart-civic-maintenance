@@ -63,28 +63,34 @@ function App() {
             <header className="header-bar sticky top-0 z-[100] px-6 py-4">
               <div className="max-w-7xl mx-auto flex justify-between items-center">
                 <Link to="/" className="flex items-center gap-3 group">
-                  <div className="w-10 h-10 glass rounded-xl flex items-center justify-center border-white/10 group-hover:border-aqua/50 transition-all shadow-lg">
-                    <Shield className="w-5 h-5 text-aqua" />
+                  <div className="relative flex items-center justify-center">
+                    <div className="w-11 h-11 glass rounded-2xl flex items-center justify-center border-white/10 group-hover:border-aqua/50 transition-all shadow-xl bg-white/5 relative z-10">
+                      <Shield className="w-5 h-5 text-aqua" />
+                    </div>
+                    {/* Decorative Moon icon overlapping the shield box */}
+                    <div className="absolute -top-1.5 -left-1.5 w-6 h-6 glass rounded-full flex items-center justify-center border-white/10 shadow-lg z-20 bg-white/10 backdrop-blur-md">
+                      <span className="text-[10px] filter drop-shadow-sm">🌙</span>
+                    </div>
                   </div>
-                  <div>
-                    <h1 className="text-lg font-black text-white tracking-tighter leading-none font-display uppercase">
+                  <div className="flex flex-col -gap-0.5">
+                    <h1 className="text-[22px] text-white tracking-tight leading-none italic font-semibold" style={{ fontFamily: "'Playfair Display', serif" }}>
                       Smart Civic
                     </h1>
-                    <p className="text-[9px] font-black text-violet uppercase tracking-[0.3em] mt-1 opacity-60">Operations</p>
+                    <p className="text-[9px] font-black text-violet uppercase tracking-[0.5em] mt-1 opacity-90">Operations</p>
                   </div>
                 </Link>
 
-                <nav className="flex items-center gap-2">
-                  {user && <NavLink to="/report" icon={<FileText />} label="Report" />}
-                  <NavLink to="/dashboard" icon={<LayoutDashboard />} label="Dashboard" />
-                  {user && <NavLink to="/ai-assistant" icon={<Bot />} label="AI Bot" />}
+                <nav className="flex items-center gap-1 sm:gap-2">
+                  {user && <NavLink to="/report" icon={<FileText className="w-4 h-4 sm:w-5 sm:h-5" />} label="Report" />}
+                  <NavLink to="/dashboard" icon={<LayoutDashboard className="w-4 h-4 sm:w-5 sm:h-5" />} label="Status" />
+                  {user && <NavLink to="/ai-assistant" icon={<Bot className="w-4 h-4 sm:w-5 sm:h-5" />} label="AI" />}
                   
                   {user && (
                     <button 
                       onClick={handleLogout} 
-                      className="glass glass-btn glass-btn--ghost text-[10px] font-bold px-4 h-10 flex items-center gap-2 text-rose border-rose/20 hover:bg-rose/5 ml-2"
+                      className="glass glass-btn glass-btn--primary h-9 sm:h-10 px-3 sm:px-5 text-[9px] sm:text-[10px] font-black tracking-widest flex items-center gap-1 sm:gap-2 text-white bg-rose/40 border-rose/40 hover:bg-rose/60 ml-2 sm:ml-4 shadow-[0_0_20px_rgba(247,168,196,0.3)] transition-all active:scale-95"
                     >
-                      <LogOut className="w-3.5 h-3.5" /> LOGOUT
+                      <LogOut className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> <span className="hidden xs:inline">LOGOUT</span>
                     </button>
                   )}
                 </nav>
@@ -121,10 +127,10 @@ function NavLink({ to, icon, label }) {
   return (
     <Link 
       to={to} 
-      className="glass glass-btn glass-btn--ghost text-[10px] font-bold px-4 h-10 flex items-center gap-2 border-white/5 hover:border-aqua/30 transition-all uppercase tracking-widest"
+      className="glass glass-btn glass-btn--ghost text-[9px] sm:text-[10px] font-bold px-2 sm:px-4 h-9 sm:h-10 flex items-center gap-1 sm:gap-2 border-white/5 hover:border-aqua/30 transition-all uppercase tracking-widest whitespace-nowrap"
     >
-      {cloneElement(icon, { className: "w-3.5 h-3.5 text-aqua" })}
-      <span className="hidden sm:inline">{label}</span>
+      {cloneElement(icon, { className: "w-3.5 h-3.5 sm:w-4 sm:h-4" })}
+      <span className="hidden xs:inline">{label}</span>
     </Link>
   );
 }

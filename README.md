@@ -1,16 +1,26 @@
-# React + Vite
+# Smart Civic Maintenance & Operations Center
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A premium, high-fidelity infrastructure management platform built with React, Vite, and Firebase. Featuring a "Liquid Glass" glassmorphism UI, real-time analytics, and secure staff authentication.
 
-Currently, two official plugins are available:
+## 🚀 Live Demo
+[https://smart-maintenance-494503.web.app](https://smart-maintenance-494503.web.app)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 💎 Key Features
+- **Operations Center**: Real-time monitoring of civic incidents (Roads, Water, Electricity, Sanitation).
+- **Geospatial Tracking**: Integrated Google Maps for incident distribution and crew tracking.
+- **Advanced Analytics**: Performance metrics, SLA compliance, and trend analysis.
+- **Command Feed**: System-wide notifications and emergency SOS broadcasts.
+- **Liquid Glass UI**: Stunning glassmorphism design with fluid animations and dark/light mode support.
+- **AI Assistant**: Gemini-powered assistant for staff and citizens.
 
-## React Compiler
+## 🔐 Testing Credentials
+Access the Dashboard via the **Status** link using these demo passcodes:
+- **Admin**: `ADMIN2026`
+- **Road Dept**: `ROAD_WORK`
+- **Electricity Dept**: `POWER_STAFF`
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🛠️ Tech Stack
+- **Frontend**: React 19, Vite, Tailwind CSS (Liquid Glass Kit)
+- **Backend**: Firebase (Firestore, Auth, Storage, Messaging)
+- **Icons**: Lucide React
+- **Maps**: Google Maps API

@@ -1,10 +1,11 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
 
 @theme {
   --font-sans: "DM Sans", sans-serif;
   --font-display: "Italiana", serif;
   --color-aqua: #5ee7df;
-  --color-violet: #b490f5;
+  --color-violet: #8b5cf6;
   --color-rose: #f7a8c4;
   --color-amber: #ffd27f;
   --color-lime: #a8f08a;
@@ -473,15 +474,35 @@ body {
 .header-bar {
   backdrop-filter: var(--blur-md);
   -webkit-backdrop-filter: var(--blur-md);
-  background: rgba(11, 14, 26, 0.6);
-  border-bottom: 1px solid var(--glass-border-subtle);
+  background: rgba(11, 14, 26, 0.85); /* Increased opacity */
+  border-bottom: 1px solid var(--glass-border);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
-/* ── Page container ── */
-.page {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: var(--space-xl);
+/* ── Layout Fixes ── */
+main {
+  padding-top: 6rem; /* Increased to prevent overlap with sticky header */
+  padding-bottom: 5rem;
+  position: relative;
+  z-index: 10;
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .header-bar {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  .page {
+    padding: 1rem;
+  }
+}
+
+/* ── SOS Modal Specific ── */
+.emergency-modal {
+  z-index: 1000 !important;
+  background: rgba(11, 14, 26, 0.98) !important;
+  backdrop-filter: blur(40px) !important;
 }
 
 /* ── Font utility ── */
@@ -490,10 +511,348 @@ body {
 }
 
 /* ── Custom scrollbar ── */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
+
+/* ── Control Center Layout ── */
+.main-container {
+  display: flex;
+  min-height: 100vh;
+  width: 100vw;
+  background: #02040a;
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
 }
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 4px;
+
+.tabs-nav {
+  width: 280px;
+  background: rgba(11, 14, 26, 0.4);
+  backdrop-filter: blur(40px);
+  border-right: 1px solid var(--glass-border-subtle);
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-xl);
+  z-index: 100;
+}
+
+.nav-header {
+  margin-bottom: var(--space-2xl);
+  padding: 0 var(--space-xs);
+}
+
+.nav-header h2 {
+  font-family: var(--font-display);
+  font-size: 24px;
+  background: linear-gradient(to right, #fff, var(--accent-aqua));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.nav-header p {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  color: var(--color-text-subtle);
+  margin-top: 4px;
+}
+
+.tab-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  border-radius: var(--radius-lg);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all var(--dur-mid) var(--ease-smooth);
+  margin-bottom: var(--space-sm);
+  text-align: left;
+}
+
+.tab-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+.tab-btn.active {
+  background: rgba(94, 231, 223, 0.1);
+  border-color: rgba(94, 231, 223, 0.2);
+  color: var(--accent-aqua);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.tab-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.03);
+  transition: all var(--dur-mid);
+}
+
+.tab-btn.active .tab-icon {
+  background: var(--accent-aqua);
+  color: #000;
+}
+
+.tab-title {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.tab-subtitle {
+  font-size: 10px;
+  opacity: 0.5;
+  font-weight: 500;
+}
+
+.tab-arrow {
+  margin-left: auto;
+  opacity: 0;
+  transition: all var(--dur-mid);
+}
+
+.tab-btn:hover .tab-arrow, .tab-btn.active .tab-arrow {
+  opacity: 1;
+  transform: translateX(4px);
+}
+
+.content-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-3xl);
+  position: relative;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-lg);
+  margin-bottom: var(--space-2xl);
+}
+
+.premium-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--glass-border-subtle);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-xl);
+  transition: all var(--dur-mid);
+}
+
+.premium-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--glass-border);
+  transform: translateY(-4px);
+}
+
+/* ── Dashboard Gate Redesign ── */
+.gate-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100%;
+  background: radial-gradient(circle at 50% 50%, #0f172a 0%, #02040a 100%);
+  padding: 20px;
+}
+
+.gate-card-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+}
+
+.gate-glow {
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(45deg, var(--accent-aqua), var(--accent-violet), var(--accent-rose));
+  border-radius: 32px;
+  filter: blur(20px);
+  opacity: 0.3;
+  animation: rotate-glow 10s linear infinite;
+}
+
+@keyframes rotate-glow {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+
+.gate-card {
+  position: relative;
+  background: rgba(11, 14, 26, 0.8);
+  backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 30px;
+  padding: 48px;
+  text-align: center;
+}
+
+.gate-icon-box {
+  width: 80px;
+  height: 80px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 32px;
+  position: relative;
+}
+
+.gate-icon {
+  width: 32px;
+  height: 32px;
+  color: var(--accent-aqua);
+}
+
+.gate-icon-ring {
+  position: absolute;
+  inset: -8px;
+  border: 2px solid var(--accent-aqua);
+  border-radius: 28px;
+  opacity: 0.2;
+  animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.gate-title {
+  font-family: var(--font-display);
+  font-size: 32px;
+  margin-bottom: 8px;
+  background: linear-gradient(to bottom, #fff, #94a3b8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gate-subtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin-bottom: 40px;
+}
+
+.gate-input-wrapper {
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.gate-input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 16px 20px;
+  color: #fff;
+  font-size: 18px;
+  text-align: center;
+  letter-spacing: 0.3em;
+  outline: none;
+  transition: all 0.3s;
+}
+
+.gate-input:focus {
+  border-color: var(--accent-aqua);
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 20px rgba(94, 231, 223, 0.1);
+}
+
+.gate-input--error {
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.gate-toggle-vis {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.gate-error {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 8px;
+  font-size: 10px;
+  font-weight: 800;
+  color: #ef4444;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.gate-submit {
+  width: 100%;
+  background: linear-gradient(45deg, #5ee7df, #b490f5);
+  border: none;
+  border-radius: 16px;
+  padding: 16px;
+  color: #000;
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.gate-submit:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 10px 30px rgba(94, 231, 223, 0.3);
+}
+
+.gate-submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.gate-footer {
+  margin-top: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: #475569;
+}
+
+.gate-notice {
+  margin-top: 48px;
+  max-width: 400px;
+  text-align: center;
+}
+
+.gate-notice-title {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--accent-aqua);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  margin-bottom: 8px;
+}
+
+.gate-notice-text {
+  font-size: 12px;
+  color: #475569;
+  line-height: 1.6;
 }
