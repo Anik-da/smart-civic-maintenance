@@ -141,7 +141,7 @@ export function EmergencyTracking({ user }) {
           </div>
         </div>
 
-        <div className="glass rounded-3xl overflow-hidden border-white/5 shadow-inner">
+        <div className="glass rounded-2xl overflow-hidden border-white/5 shadow-inner">
           {isLoaded && activeEmergency.location ? (
             <GoogleMap
               mapContainerStyle={mapContainerStyle}

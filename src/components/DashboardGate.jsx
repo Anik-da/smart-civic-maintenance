@@ -58,40 +58,21 @@ export function DashboardGate({ children }) {
     setLoading(true);
     setError(false);
     
+    // Normalize: trim and ensure it's uppercase for consistent checking
     const input = code.trim().toUpperCase();
-    const inputStripped = input; // Keep special characters
     
     console.log('[Auth] Attempting validation for:', input);
     
     // Try Firestore first
     try {
       const staffRef = collection(db, 'staff');
-      // Direct match
-      const q = query(staffRef, where('passcode', '==', input));
-      const querySnapshot = await getDocs(q);
+      // We'll fetch all staff and check locally for better robustness against mixed case in DB
+      const querySnapshot = await getDocs(staffRef);
       
-      if (!querySnapshot.empty) {
-        const staffData = querySnapshot.docs[0].data();
-        console.log('[Auth] Firestore direct match found');
-        authorizeUser({
-          role: staffData.role,
-          department: staffData.department,
-          name: staffData.name || 'Staff Member'
-        });
-        return true;
-      }
-
-      // Try fetching all staff for fuzzy match if direct fails
-      console.log('[Auth] Direct match failed, trying fuzzy Firestore match...');
-      const allStaffSnapshot = await getDocs(staffRef);
       let found = null;
-      
-      allStaffSnapshot.forEach(doc => {
+      querySnapshot.forEach(doc => {
         const data = doc.data();
-        if (!data.passcode) return;
-        const savedCode = data.passcode.toUpperCase();
-        
-        if (savedCode === inputStripped) {
+        if (data.passcode && data.passcode.trim().toUpperCase() === input) {
           found = {
             role: data.role,
             department: data.department,
@@ -99,9 +80,9 @@ export function DashboardGate({ children }) {
           };
         }
       });
-
+      
       if (found) {
-        console.log('[Auth] Firestore fuzzy match found');
+        console.log('[Auth] Firestore match found');
         authorizeUser(found);
         return true;
       }
@@ -112,6 +93,7 @@ export function DashboardGate({ children }) {
     // Fallback to local credentials
     const localMatch = checkLocalFallback(input);
     if (localMatch) {
+      console.log('[Auth] Local fallback match found');
       authorizeUser(localMatch);
       return true;
     }
@@ -142,44 +124,47 @@ export function DashboardGate({ children }) {
   }
 
   return (
-    <div className="gate-container">
-      <div className="gate-card-wrapper">
-        <div className="gate-glow" />
-        
-        <div className="gate-card">
-          <div className="gate-icon-box">
-            <Lock className="gate-icon" />
-            <div className="gate-icon-ring" />
+    <div className="gate-container bg-[#02040a] flex items-center justify-center min-h-screen">
+      <div className="gate-card-wrapper w-full max-w-md p-4">
+        <div className="professional-surface p-10 rounded-2xl border border-white/5 shadow-2xl relative overflow-hidden bg-slate-900/40 backdrop-blur-md">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 via-blue-400 to-blue-600"></div>
+          
+          <div className="flex flex-col items-center mb-10">
+            <div className="w-20 h-20 rounded-xl bg-blue-600/10 flex items-center justify-center mb-6 border border-blue-500/20 shadow-inner">
+              <Shield className="w-10 h-10 text-blue-500" />
+            </div>
+            <h2 className="text-3xl font-black uppercase tracking-tight text-blue-100 mb-2">Staff Access</h2>
+            <p className="text-sm text-blue-400/70 text-center px-4 leading-relaxed font-medium">
+              Authorized personnel only. Please verify your identity using your assigned passcode.
+            </p>
           </div>
 
-          <h2 className="gate-title">Staff Access</h2>
-          <p className="gate-subtitle">
-            This dashboard is restricted to authorized maintenance personnel only.
-          </p>
-
-          <form onSubmit={handleSubmit} className="gate-form">
-            <div className="gate-input-wrapper">
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="Enter Staff Passcode"
-                value={passcode}
-                onChange={(e) => {
-                  setPasscode(e.target.value);
-                  setError(false);
-                }}
-                className={`gate-input ${error ? 'gate-input--error' : ''}`}
-                autoFocus
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="gate-toggle-vis"
-              >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-blue-500 uppercase tracking-[0.3em] ml-1">Secure Passcode</label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={passcode}
+                  onChange={(e) => {
+                    setPasscode(e.target.value);
+                    setError(false);
+                  }}
+                  className={`w-full bg-black/40 border ${error ? 'border-red-500/50' : 'border-white/10'} rounded-xl p-5 text-lg font-mono tracking-widest outline-none focus:border-blue-500/40 transition-all text-blue-100 placeholder:text-blue-900/30`}
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-5 top-1/2 -translate-y-1/2 p-2 text-blue-500/50 hover:text-blue-400 transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
               {error && (
-                <div className="gate-error text-rose-500">
-                  <XCircle className="w-3 h-3" /> Invalid Staff Passcode
+                <div className="flex items-center gap-2 text-[10px] font-bold text-red-400 mt-2 ml-1 uppercase tracking-wider animate-bounce">
+                  <XCircle className="w-3.5 h-3.5" /> Access Denied: Invalid Passcode
                 </div>
               )}
             </div>
@@ -187,7 +172,7 @@ export function DashboardGate({ children }) {
             <button 
               type="submit"
               disabled={loading}
-              className="gate-submit"
+              className="w-full py-5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-[11px] font-black tracking-[0.2em] uppercase transition-all shadow-lg shadow-blue-600/20 flex items-center justify-center gap-3 active:scale-[0.98]"
             >
               {loading ? (
                 <>AUTHENTICATING <Loader2 className="w-4 h-4 animate-spin" /></>
@@ -197,18 +182,7 @@ export function DashboardGate({ children }) {
             </button>
           </form>
 
-          <div className="gate-footer">
-            <Shield className="w-4 h-4" />
-            <span>End-to-End Encryption Active</span>
-          </div>
         </div>
-      </div>
-      
-      <div className="gate-notice">
-        <p className="gate-notice-title">System Notice</p>
-        <p className="gate-notice-text">
-          Access is managed by the Central Administration. If you've forgotten your passcode or need a new one, please contact your department head.
-        </p>
       </div>
     </div>
   );

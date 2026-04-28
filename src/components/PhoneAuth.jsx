@@ -188,6 +188,3 @@ export function PhoneAuth({ onLogin }) {
     </div>
   );
 }
-
-import { XCircle } from 'lucide-react';
-

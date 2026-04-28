@@ -175,9 +175,6 @@ export function ComplaintSubmission({ user }) {
               <Button variant="primary" className="h-14 font-black tracking-widest text-[11px]" onClick={() => setIsSubmitted(false)}>
                 LOG ANOTHER INCIDENT
               </Button>
-              <Button variant="outline" className="h-14 font-black tracking-widest text-[11px] border-white/10" onClick={() => window.location.hash = '#/dashboard'}>
-                VIEW OPERATION STATUS
-              </Button>
             </div>
           </div>
         </Card>

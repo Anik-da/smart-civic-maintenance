@@ -4,7 +4,8 @@ import {
   BarChart3, 
   Bell, 
   LogOut, 
-  ChevronRight 
+  ChevronRight,
+  ShieldAlert
 } from 'lucide-react';
 
 export function ControlCenterSidebar({ activeTab, setActiveTab, user, onLogout }) {
@@ -37,13 +38,13 @@ export function ControlCenterSidebar({ activeTab, setActiveTab, user, onLogout }
   ];
 
   return (
-    <nav className="tabs-nav">
+    <nav className="tabs-nav professional-surface">
       <div className="nav-header">
-        <h2 className="text-blue-500">Control Center</h2>
-        <p className="text-blue-400/60">Premium Dashboard</p>
+        <h2 className="text-blue-100 font-black">Control Center</h2>
+        <p className="text-blue-500 font-bold uppercase tracking-[0.2em] text-[10px]">Premium Dashboard</p>
       </div>
       
-      <div className="space-y-2 flex-1">
+      <div className="space-y-1.5 flex-1 mt-8">
         {tabs.map((tab) => {
           if (tab.adminOnly && user?.role !== 'ADMIN') return null;
           
@@ -60,21 +61,22 @@ export function ControlCenterSidebar({ activeTab, setActiveTab, user, onLogout }
                 <div className="tab-title">{tab.label}</div>
                 <div className="tab-subtitle">{tab.subtitle}</div>
               </div>
-              <ChevronRight className="tab-arrow w-4 h-4" />
+              <div className="active-indicator"></div>
+              {activeTab !== tab.id && <ChevronRight className="tab-arrow w-4 h-4 opacity-20" />}
             </button>
           );
         })}
       </div>
 
-      <div className="mt-auto space-y-4">
-        <div className="glass p-4 rounded-2xl border-white/5 bg-white/5">
+      <div className="mt-auto pt-8 border-t border-white/5 space-y-4">
+        <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-600/20 flex items-center justify-center font-black text-xs border border-white/10 text-blue-400">
+            <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center font-black text-xs text-white shadow-inner">
               {user?.name?.[0] || 'S'}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-[11px] font-black uppercase truncate text-blue-100">{user?.name}</div>
-              <div className="text-[9px] text-blue-400/60 font-bold uppercase tracking-wider">{user?.role}</div>
+              <div className="text-[11px] font-black uppercase truncate text-blue-50">{user?.name || 'Staff Member'}</div>
+              <div className="text-[9px] text-blue-500 font-bold uppercase tracking-wider">{user?.role || 'Authorized User'}</div>
             </div>
           </div>
         </div>
@@ -88,7 +90,7 @@ export function ControlCenterSidebar({ activeTab, setActiveTab, user, onLogout }
           </div>
           <div className="tab-text">
             <div className="tab-title">Logout</div>
-            <div className="tab-subtitle">End Session</div>
+            <div className="tab-subtitle">Terminate Session</div>
           </div>
         </button>
       </div>

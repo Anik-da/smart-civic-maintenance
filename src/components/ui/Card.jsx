@@ -8,7 +8,6 @@ export function Card({ children, className = '', title, icon: Icon }) {
             {Icon && <Icon className="w-4 h-4" />}
             {title || "COMPONENT"}
           </div>
-          {title && <h3 className="glass-card__title">{title}</h3>}
         </div>
       )}
       <div className="glass-card__body text-white">

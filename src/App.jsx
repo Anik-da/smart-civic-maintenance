@@ -79,7 +79,6 @@ function App() {
 
                   <nav className="flex items-center gap-1 sm:gap-2">
                     {user && <NavLink to="/report" icon={<FileText className="w-4 h-4 sm:w-5 sm:h-5" />} label="Report" />}
-                    <NavLink to="/dashboard" icon={<LayoutDashboard className="w-4 h-4 sm:w-5 sm:h-5" />} label="Status" />
                     {user && <NavLink to="/ai-assistant" icon={<Bot className="w-4 h-4 sm:w-5 sm:h-5" />} label="AI" />}
                     
                     {user && (

@@ -13,9 +13,13 @@ const defaultCenter = {
 };
 
 const mapOptions = {
-  disableDefaultUI: true,
-  zoomControl: false,
+  disableDefaultUI: false,
+  zoomControl: true,
   gestureHandling: 'greedy',
+  scrollwheel: false,
+  mapTypeControl: false,
+  streetViewControl: false,
+  fullscreenControl: false,
   styles: [
     { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
     { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
@@ -87,12 +91,18 @@ export function DashboardMap({ complaints, onComplaintClick }) {
   if (!isLoaded) return <div className="h-[600px] flex items-center justify-center rounded-xl neu-inset">Loading Map...</div>;
 
   return (
-    <div className="neu-inset rounded-xl p-2 h-[600px]">
+    <div className="professional-surface p-1 rounded-2xl overflow-hidden h-[600px] border border-white/5 shadow-2xl relative">
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={center}
         zoom={12}
-        options={mapOptions}
+        options={{
+          ...mapOptions,
+          gestureHandling: 'greedy', // Explicitly ensure greedy handling
+          zoomControlOptions: {
+            position: window.google?.maps?.ControlPosition?.RIGHT_CENTER
+          }
+        }}
       >
         {heatmapData.length > 0 && (
           <HeatmapLayer

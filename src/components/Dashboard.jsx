@@ -278,11 +278,11 @@ export function Dashboard({ user, onLogout }) {
           <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-700">
             <div className="flex justify-between items-end">
               <div>
-                <span className="hero__kicker text-blue-400">Smart City Infrastructure</span>
-                <h1 className="text-4xl font-display tracking-tight mb-2 text-white">Operations Center</h1>
+                <span className="hero__kicker text-blue-500">Smart City Infrastructure</span>
+                <h1 className="text-4xl font-display tracking-tight mb-2 text-blue-400">Operations Center</h1>
                 <p className="text-blue-100/60 text-sm max-w-lg">Monitoring {user?.department} operations across the metropolitan area.</p>
               </div>
-              <div className="flex items-center gap-4 bg-blue-500/5 p-2 rounded-2xl border border-blue-500/10">
+              <div className="flex items-center gap-4 bg-blue-500/5 p-2 rounded-xl border border-blue-500/10">
                 <div className="text-right">
                   <div className="text-[10px] font-black text-blue-400 uppercase tracking-widest">{user?.department}</div>
                   <div className="text-[8px] text-blue-100/40 font-bold uppercase">Active Sector</div>
@@ -324,7 +324,7 @@ export function Dashboard({ user, onLogout }) {
                     <div className="w-1.5 h-1.5 rounded-full bg-aqua"></div>
                   </div>
                 </div>
-                <div className="premium-card p-1 h-[600px] rounded-[2.5rem] overflow-hidden relative shadow-2xl">
+                <div className="professional-surface p-1 h-[600px] rounded-2xl overflow-hidden relative shadow-xl">
                   <DashboardMap 
                     complaints={filteredComplaints} 
                     onComplaintClick={(c) => setSelectedComplaint(c)} 
@@ -344,7 +344,7 @@ export function Dashboard({ user, onLogout }) {
                   </span>
                 </div>
                 
-                <div className="premium-card flex flex-col h-[600px] p-0 rounded-[2.5rem] overflow-hidden">
+                <div className="professional-surface flex flex-col h-[600px] p-0 rounded-2xl overflow-hidden">
                    <div className="p-5 bg-white/5 border-b border-white/5">
                       <div className="relative">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-30" />
@@ -353,7 +353,7 @@ export function Dashboard({ user, onLogout }) {
                           placeholder="Search incidents or locations..." 
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
-                          className="w-full bg-black/40 border border-white/10 rounded-2xl py-3.5 pl-12 pr-4 text-xs outline-none focus:border-aqua/40 transition-all placeholder:opacity-30 font-medium" 
+                          className="w-full bg-black/40 border border-white/10 rounded-xl py-3.5 pl-12 pr-4 text-xs outline-none focus:border-blue-400/40 transition-all placeholder:opacity-30 font-medium" 
                         />
                       </div>
                    </div>
@@ -369,7 +369,7 @@ export function Dashboard({ user, onLogout }) {
                           <div 
                             key={c.id} 
                             onClick={() => setSelectedComplaint(c)}
-                            className={`premium-card p-5 border-white/5 hover:border-aqua/30 hover:bg-aqua/5 cursor-pointer transition-all duration-500 group relative overflow-hidden ${c.status?.toLowerCase() === 'resolved' ? 'opacity-60 grayscale-[0.5]' : ''}`}
+                            className={`professional-surface p-5 border-white/5 hover:border-blue-400/30 hover:bg-blue-400/5 cursor-pointer transition-all duration-500 group relative overflow-hidden ${c.status?.toLowerCase() === 'resolved' ? 'opacity-60 grayscale-[0.5]' : ''}`}
                           >
                             <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-aqua/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                             
@@ -429,7 +429,7 @@ export function Dashboard({ user, onLogout }) {
               </div>
               <button 
                 onClick={() => setShowAddStaff(true)}
-                className="glass px-8 py-4 rounded-2xl bg-violet/20 border-violet/30 hover:bg-violet/30 transition-all flex items-center gap-3 text-[11px] font-black tracking-[0.2em] uppercase shadow-lg shadow-violet/10"
+                className="professional-surface px-8 py-4 bg-blue-600/10 border-blue-500/30 hover:bg-blue-600/20 transition-all flex items-center gap-3 text-[11px] font-black tracking-[0.2em] uppercase shadow-lg shadow-blue-500/5"
               >
                 <UserPlus className="w-4 h-4" /> Register New Personnel
               </button>
@@ -459,7 +459,7 @@ export function Dashboard({ user, onLogout }) {
                         {member.name?.[0] || '?'}
                       </div>
                       <div>
-                        <h4 className="font-bold text-sm uppercase tracking-wide text-white">{member.name}</h4>
+                        <h4 className="font-bold text-sm uppercase tracking-wide text-blue-400">{member.name}</h4>
                         <div className="flex items-center gap-2 mt-1">
                           <span className="text-[8px] px-2 py-0.5 bg-violet/10 text-violet rounded-md font-black uppercase tracking-widest border border-violet/20">
                             {member.role}
@@ -774,14 +774,14 @@ function StatCard({ label, value, icon, color, subtitle, active }) {
   };
 
   return (
-    <div className={`glass-card p-6 bg-gradient-to-br ${themes[color]} ${active ? activeBorders[color] : 'border-white/5'} flex flex-col justify-between hover:translate-y-[-4px] transition-all duration-500 rounded-3xl`}>
+    <div className={`professional-surface p-6 bg-gradient-to-br ${themes[color]} ${active ? activeBorders[color] : 'border-white/5'} flex flex-col justify-between hover:translate-y-[-4px] transition-all duration-500 rounded-2xl`}>
       <div className="flex justify-between items-center">
-        <div className={active ? 'opacity-100' : 'opacity-40'}>{cloneElement(icon, { size: 18 })}</div>
+        <div className={active ? 'opacity-100 text-white' : 'opacity-40 text-blue-400'}>{cloneElement(icon, { size: 18 })}</div>
         <div className={`w-8 h-1 rounded-full ${active ? 'bg-white/20' : 'bg-white/5'}`}></div>
       </div>
       <div className="mt-8">
         <div className={`text-[10px] font-black tracking-[0.2em] uppercase mb-1 ${active ? 'opacity-60' : 'opacity-30'}`}>{subtitle}</div>
-        <div className="text-4xl font-black tracking-tighter">{value}</div>
+        <div className="text-4xl font-black tracking-tighter text-blue-400">{value}</div>
         <div className={`text-[11px] font-bold mt-2 ${active ? 'opacity-100' : 'opacity-60'}`}>{label}</div>
       </div>
     </div>
