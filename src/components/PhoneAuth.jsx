@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
-import { Phone, ShieldCheck, CheckCircle2, XCircle } from 'lucide-react';
+import { Phone, ShieldCheck, CheckCircle2, XCircle, ArrowLeft } from 'lucide-react';
 import { auth } from '../lib/firebase';
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 
@@ -90,28 +90,33 @@ export function PhoneAuth({ onLogin }) {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center w-full px-4 py-10">
-      <div className="w-full max-w-xl relative group">
-        <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 to-blue-600/20 rounded-[2.2rem] blur opacity-30 group-hover:opacity-100 transition duration-1000"></div>
+    <div className="flex flex-col items-center justify-center w-full px-4 py-32 min-h-screen">
+      <div className="w-full max-w-2xl relative group">
+        <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/10 via-blue-600/20 to-blue-500/10 rounded-[3rem] blur-3xl opacity-40 group-hover:opacity-100 transition duration-1000"></div>
         
         <Card className="relative w-full animate-in fade-in zoom-in-95 duration-700 p-2" title="CITIZEN LOGIN">
+          <div className="absolute top-8 left-8 sm:hidden">
+            <button onClick={() => window.history.back()} className="text-white/40 hover:text-white transition-colors">
+              <ArrowLeft className="w-6 h-6" />
+            </button>
+          </div>
           {!showOtp ? (
-            <form onSubmit={handleSendOtp} className="space-y-6">
-              <div className="text-center mb-6">
-                <p className="text-base opacity-60">Enter your phone number to access the Smart Civic Maintenance portal</p>
+            <form onSubmit={handleSendOtp} className="space-y-10 p-4 sm:p-8">
+              <div className="text-center mb-8">
+                <p className="text-lg text-blue-100/60 font-medium leading-relaxed">Enter your registered mobile number to access the Smart Civic Portal.</p>
               </div>
               
               <div className="space-y-3">
                 <label className="text-xs font-black opacity-30 uppercase tracking-[0.2em] ml-2">Phone Number</label>
                 <div className="relative">
-                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 opacity-30" />
+                  <Phone className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-blue-400 opacity-50" />
                   <input
                     type="tel"
                     placeholder="99999 99999"
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value)}
                     required
-                    className="glass-input pl-12 text-base h-14"
+                    className="glass-input pl-14 text-xl h-20 font-bold tracking-wider"
                   />
                 </div>
               </div>
@@ -129,11 +134,11 @@ export function PhoneAuth({ onLogin }) {
               <Button 
                 type="submit" 
                 variant="primary" 
-                className="w-full h-16 text-base bg-blue-600 hover:bg-blue-500 border-blue-400/30" 
+                className="w-full h-20 text-lg font-black tracking-widest bg-blue-600 hover:bg-blue-500 border-blue-400/30 shadow-[0_0_30px_rgba(37,99,235,0.2)]" 
                 isLoading={isLoading} 
                 disabled={captchaStatus !== 'verified'}
               >
-                SEND VERIFICATION CODE
+                REQUEST OTP ACCESS
               </Button>
             </form>
           ) : (

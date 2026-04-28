@@ -1,5 +1,5 @@
 import { useState, useEffect, cloneElement, Children } from 'react';
-import { Shield, Lock, ArrowRight, XCircle, Loader2, Eye, EyeOff } from 'lucide-react';
+import { Shield, Lock, ArrowRight, XCircle, Loader2, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { db } from '../lib/firebase';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 
@@ -127,6 +127,13 @@ export function DashboardGate({ children }) {
     <div className="gate-container bg-[#02040a] flex items-center justify-center min-h-screen">
       <div className="gate-card-wrapper w-full max-w-xl p-4">
         <div className="professional-surface p-12 rounded-2xl border border-white/5 shadow-2xl relative overflow-hidden bg-slate-900/40 backdrop-blur-md">
+          <button 
+            onClick={() => window.history.back()} 
+            className="absolute top-8 left-8 text-blue-500/40 hover:text-blue-500 transition-colors z-10"
+            title="Go Back"
+          >
+            <ArrowLeft className="w-6 h-6" />
+          </button>
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 via-blue-400 to-blue-600"></div>
           
           <div className="flex flex-col items-center mb-12">

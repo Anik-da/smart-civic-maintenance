@@ -45,6 +45,14 @@ function AppShell() {
     setUser(null);
   };
 
+  const handleBack = () => {
+    if (window.history.length <= 1 || location.pathname === '/login') {
+      navigate('/');
+    } else {
+      navigate(-1);
+    }
+  };
+
   // Determine if header should show (only on inner pages like /report)
   const showHeader = !isDashboard && !isLanding && !isLogin;
 
@@ -62,11 +70,12 @@ function AppShell() {
         {/* Global Back Button */}
         {canGoBack && (
           <button
-            onClick={() => navigate(-1)}
-            className="fixed top-4 left-4 sm:top-6 sm:left-6 z-[200] glass glass-btn glass-btn--ghost w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full border-white/10 hover:border-white/30 hover:bg-white/5 transition-all shadow-xl bg-black/20 backdrop-blur-md"
+            onClick={handleBack}
+            className="fixed top-6 left-6 z-[300] glass glass-btn h-12 px-6 flex items-center gap-3 rounded-full border-white/20 hover:border-aqua/50 transition-all shadow-2xl bg-black/60 backdrop-blur-2xl group w-fit animate-in slide-in-from-left-4 duration-500"
             aria-label="Go back"
           >
-            <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+            <ArrowLeft className="w-5 h-5 text-aqua group-hover:-translate-x-1 transition-transform" />
+            <span className="text-xs font-black tracking-[0.2em] text-white/90">GO BACK</span>
           </button>
         )}
 

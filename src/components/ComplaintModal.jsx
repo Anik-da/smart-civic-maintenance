@@ -6,9 +6,9 @@ import { Button } from './ui/Button';
 import { X, Save, MessageSquare, User, Activity, ExternalLink, Search, Check, AlertTriangle } from 'lucide-react';
 
 export function ComplaintModal({ complaint, onClose, staff = [], userRole }) {
-  const [status, setStatus] = useState(complaint.status || 'Pending');
-  const [assignedTo, setAssignedTo] = useState(complaint.assignedTo || '');
-  const [feedback, setFeedback] = useState(complaint.operatorFeedback || '');
+  const [status, setStatus] = useState(complaint?.status || 'Pending');
+  const [assignedTo, setAssignedTo] = useState(complaint?.assignedTo || '');
+  const [feedback, setFeedback] = useState(complaint?.operatorFeedback || '');
   const [isSaving, setIsSaving] = useState(false);
   const [staffSearch, setStaffSearch] = useState('');
   const [showStaffDropdown, setShowStaffDropdown] = useState(false);
@@ -20,10 +20,11 @@ export function ComplaintModal({ complaint, onClose, staff = [], userRole }) {
     const category = complaint.category?.toUpperCase() || '';
     
     return staff
-      .filter(s => 
-        s.name.toLowerCase().includes(search) || 
-        s.department.toLowerCase().includes(search)
-      )
+      .filter(s => {
+        const nameMatch = (s.name || '').toLowerCase().includes(search);
+        const deptMatch = (s.department || '').toLowerCase().includes(search);
+        return nameMatch || deptMatch;
+      })
       .sort((a, b) => {
         // Prioritize staff in matching department
         const aMatch = a.department === category ? 1 : 0;
@@ -105,7 +106,10 @@ export function ComplaintModal({ complaint, onClose, staff = [], userRole }) {
               </div>
               <div className="flex flex-col">
                 <span className="text-[10px] font-bold opacity-30 uppercase tracking-widest">LOCATION REF</span>
-                <span className="text-xs font-black text-violet">{complaint.location?.lat.toFixed(4)}, {complaint.location?.lng.toFixed(4)}</span>
+                <span className="text-xs font-black text-violet">
+                  {typeof complaint.location?.lat === 'number' ? complaint.location.lat.toFixed(4) : 'N/A'}, 
+                  {typeof complaint.location?.lng === 'number' ? complaint.location.lng.toFixed(4) : 'N/A'}
+                </span>
               </div>
             </div>
           </div>
@@ -162,7 +166,7 @@ export function ComplaintModal({ complaint, onClose, staff = [], userRole }) {
                           <span className="text-[9px] opacity-40 font-bold">{s.department} • {s.role}</span>
                         </div>
                         {assignedTo === s.name && <Check className="w-3 h-3 text-aqua" />}
-                        {s.department === complaint.category?.toUpperCase() && !assignedTo && (
+                        {(s.department || '') === (complaint.category?.toUpperCase() || '') && !assignedTo && (
                           <span className="text-[8px] bg-aqua/20 text-aqua px-1.5 py-0.5 rounded font-black uppercase tracking-tighter">SUGGESTED</span>
                         )}
                       </button>
