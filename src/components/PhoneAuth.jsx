@@ -90,8 +90,8 @@ export function PhoneAuth({ onLogin }) {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen px-4 pb-10 w-full">
-      <div className="w-full max-w-lg relative group">
+    <div className="flex flex-col items-center justify-center w-full px-4 py-10">
+      <div className="w-full max-w-xl relative group">
         <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 to-blue-600/20 rounded-[2.2rem] blur opacity-30 group-hover:opacity-100 transition duration-1000"></div>
         
         <Card className="relative w-full animate-in fade-in zoom-in-95 duration-700 p-2" title="CITIZEN LOGIN">

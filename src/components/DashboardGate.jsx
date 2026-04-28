@@ -125,23 +125,23 @@ export function DashboardGate({ children }) {
 
   return (
     <div className="gate-container bg-[#02040a] flex items-center justify-center min-h-screen">
-      <div className="gate-card-wrapper w-full max-w-md p-4">
-        <div className="professional-surface p-10 rounded-2xl border border-white/5 shadow-2xl relative overflow-hidden bg-slate-900/40 backdrop-blur-md">
+      <div className="gate-card-wrapper w-full max-w-xl p-4">
+        <div className="professional-surface p-12 rounded-2xl border border-white/5 shadow-2xl relative overflow-hidden bg-slate-900/40 backdrop-blur-md">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 via-blue-400 to-blue-600"></div>
           
-          <div className="flex flex-col items-center mb-10">
-            <div className="w-20 h-20 rounded-xl bg-blue-600/10 flex items-center justify-center mb-6 border border-blue-500/20 shadow-inner">
-              <Shield className="w-10 h-10 text-blue-500" />
+          <div className="flex flex-col items-center mb-12">
+            <div className="w-24 h-24 rounded-xl bg-blue-600/10 flex items-center justify-center mb-8 border border-blue-500/20 shadow-inner">
+              <Shield className="w-12 h-12 text-blue-500" />
             </div>
-            <h2 className="text-3xl font-black uppercase tracking-tight text-blue-100 mb-2">Staff Access</h2>
-            <p className="text-sm text-blue-400/70 text-center px-4 leading-relaxed font-medium">
+            <h2 className="text-4xl font-black uppercase tracking-tight text-blue-100 mb-3">Staff Access</h2>
+            <p className="text-base text-blue-400/70 text-center px-4 leading-relaxed font-medium">
               Authorized personnel only. Please verify your identity using your assigned passcode.
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-blue-500 uppercase tracking-[0.3em] ml-1">Secure Passcode</label>
+          <form onSubmit={handleSubmit} className="space-y-8">
+            <div className="space-y-3">
+              <label className="text-xs font-black text-blue-500 uppercase tracking-[0.3em] ml-1">Secure Passcode</label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -151,7 +151,7 @@ export function DashboardGate({ children }) {
                     setPasscode(e.target.value);
                     setError(false);
                   }}
-                  className={`w-full bg-black/40 border ${error ? 'border-red-500/50' : 'border-white/10'} rounded-xl p-5 text-lg font-mono tracking-widest outline-none focus:border-blue-500/40 transition-all text-blue-100 placeholder:text-blue-900/30`}
+                  className={`w-full bg-black/40 border ${error ? 'border-red-500/50' : 'border-white/10'} rounded-xl p-6 text-xl font-mono tracking-widest outline-none focus:border-blue-500/40 transition-all text-blue-100 placeholder:text-blue-900/30`}
                   autoFocus
                 />
                 <button
@@ -172,7 +172,7 @@ export function DashboardGate({ children }) {
             <button 
               type="submit"
               disabled={loading}
-              className="w-full py-5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-[11px] font-black tracking-[0.2em] uppercase transition-all shadow-lg shadow-blue-600/20 flex items-center justify-center gap-3 active:scale-[0.98]"
+              className="w-full py-6 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-black tracking-[0.2em] uppercase transition-all shadow-lg shadow-blue-600/20 flex items-center justify-center gap-3 active:scale-[0.98]"
             >
               {loading ? (
                 <>AUTHENTICATING <Loader2 className="w-4 h-4 animate-spin" /></>

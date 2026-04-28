@@ -5,8 +5,7 @@ import { Dashboard } from './components/Dashboard';
 import { EmergencyButton } from './components/EmergencyButton';
 import { EmergencyTracking } from './components/EmergencyTracking';
 import { PhoneAuth } from './components/PhoneAuth';
-import { AIChatBot } from './components/AIChatBot';
-import { Shield, FileText, LogOut, Bot } from 'lucide-react';
+import { Shield, FileText, LogOut } from 'lucide-react';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
 import { Landing } from './components/Landing';
@@ -18,6 +17,7 @@ function AppShell() {
 
   const isDashboard = location.pathname === '/dashboard';
   const isLanding = location.pathname === '/';
+  const isLogin = location.pathname === '/login';
 
   useEffect(() => {
     try {
@@ -42,8 +42,11 @@ function AppShell() {
     setUser(null);
   };
 
-  // Determine if header should show (only on inner pages like /report, /login, /ai-assistant)
-  const showHeader = !isDashboard && !isLanding;
+  // Determine if header should show (only on inner pages like /report)
+  const showHeader = !isDashboard && !isLanding && !isLogin;
+
+  // Full-screen pages get no padding
+  const isFullScreen = isDashboard || isLanding || isLogin;
 
   return (
     <div className="min-h-screen">
@@ -73,7 +76,6 @@ function AppShell() {
 
               <nav className="flex items-center gap-1 sm:gap-2">
                 {user && <NavLink to="/report" icon={<FileText className="w-4 h-4 sm:w-5 sm:h-5" />} label="Report" />}
-                {user && <NavLink to="/ai-assistant" icon={<Bot className="w-4 h-4 sm:w-5 sm:h-5" />} label="AI" />}
                 
                 {user && (
                   <button 
@@ -89,13 +91,12 @@ function AppShell() {
         )}
 
         {/* Main Application Routes */}
-        <main className={`flex-1 w-full ${isDashboard ? 'dashboard-main p-0' : isLanding ? 'p-0 flex flex-col items-center' : 'px-4 py-6 max-w-7xl mx-auto flex flex-col items-center'}`}>
+        <main className={`flex-1 w-full ${isDashboard ? 'dashboard-main p-0' : isLogin ? 'p-0 flex flex-col items-center justify-center min-h-screen' : isFullScreen ? 'p-0 flex flex-col items-center' : 'px-4 py-6 max-w-7xl mx-auto flex flex-col items-center'}`}>
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/report" element={user ? <ComplaintSubmission user={user} /> : <Navigate to="/login" />} />
             <Route path="/login" element={!user ? <PhoneAuth onLogin={handleLogin} /> : <Navigate to="/report" />} />
             <Route path="/dashboard" element={<DashboardGate onLogout={handleLogout}><Dashboard user={user} onLogout={handleLogout} /></DashboardGate>} />
-            <Route path="/ai-assistant" element={user ? <AIChatBot user={user} /> : <Navigate to="/login" />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </main>
