@@ -20,6 +20,7 @@ export function DashboardGate({ children }) {
   const [loading, setLoading] = useState(false);
   const [isResetMode, setIsResetMode] = useState(false);
   const [customRole, setCustomRole] = useState('ADMIN');
+  const [showPasscode, setShowPasscode] = useState(false);
 
   // Persistence check
   useEffect(() => {
@@ -162,16 +163,24 @@ export function DashboardGate({ children }) {
               </label>
               <div className="relative">
                 <input
-                  type="password"
+                  type={showPasscode ? "text" : "password"}
                   placeholder="ADMIN2026"
                   value={passcode}
                   onChange={(e) => {
                     setPasscode(e.target.value);
                     setError(false);
                   }}
-                  className={`w-full bg-black/40 border ${error ? 'border-red-500/50' : 'border-white/10'} rounded-xl p-5 text-lg font-mono tracking-wider outline-none focus:border-blue-500/40 transition-all text-blue-100 placeholder:text-blue-900/30`}
+                  className={`w-full bg-black/40 border ${error ? 'border-red-500/50' : 'border-white/10'} rounded-xl p-5 text-lg font-mono tracking-wider outline-none focus:border-blue-500/40 transition-all text-blue-100 placeholder:text-blue-900/30 pr-14`}
                   autoFocus
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPasscode(!showPasscode)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-blue-500/50 hover:text-blue-400 transition-colors"
+                  title={showPasscode ? "Hide Passcode" : "Show Passcode"}
+                >
+                  {showPasscode ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
               </div>
 
               {isResetMode && (
