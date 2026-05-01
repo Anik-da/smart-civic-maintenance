@@ -169,12 +169,12 @@ What's on your mind?`,
           </h1>
           <p className="text-slate-400 text-sm mt-2">
             {GEMINI_API_KEY 
-              ? `✨ \${isStaff ? 'SECURE OPERATIONS LINE' : 'Citizen Helper'} via Gemini 1.5` 
-              : `Ask me anything about \${isStaff ? 'infrastructure management' : 'civic maintenance'}.`}
+              ? `✨ ${isStaff ? 'SECURE OPERATIONS LINE' : 'Citizen Helper'} via Gemini 1.5` 
+              : `Ask me anything about ${isStaff ? 'infrastructure management' : 'civic maintenance'}.`}
           </p>
         </div>
-        <div className={`glass px-4 py-2 rounded-md flex items-center gap-2 \${isStaff ? 'border-rose/30 shadow-[0_0_15px_rgba(244,63,94,0.2)]' : ''}`}>
-          <div className={`w-2 h-2 rounded-full animate-pulse \${isStaff ? 'bg-rose shadow-[0_0_10px_#f43f5e]' : 'bg-lime shadow-[0_0_10px_#a8f08a]'}`}></div>
+        <div className={`glass px-4 py-2 rounded-md flex items-center gap-2 ${isStaff ? 'border-rose/30 shadow-[0_0_15px_rgba(244,63,94,0.2)]' : ''}`}>
+          <div className={`w-2 h-2 rounded-full animate-pulse ${isStaff ? 'bg-rose shadow-[0_0_10px_#f43f5e]' : 'bg-lime shadow-[0_0_10px_#a8f08a]'}`}></div>
           <span className="text-[10px] font-bold tracking-widest uppercase opacity-60">
             {isStaff ? 'ENCRYPTED LINE' : 'Online'}
           </span>
