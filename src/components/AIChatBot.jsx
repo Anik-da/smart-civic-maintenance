@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
-import { Bot, Send, Sparkles, User, Lightbulb, Wrench, MapPin, AlertTriangle } from 'lucide-react';
+import { Bot, Send, Sparkles, User, Lightbulb, Wrench, MapPin, AlertTriangle, Users, BarChart3 } from 'lucide-react';
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
@@ -14,17 +14,13 @@ Your mission:
 4. For emergencies, mention the SOS button.
 5. Be helpful, professional, and friendly. Never say "I can only answer civic questions".`;
 
-const STAFF_SYSTEM_PROMPT = `You are a specialized Staff Operations Assistant for the Smart Civic maintenance team.
+const STAFF_SYSTEM_PROMPT = `You are the Smart Civic Operations Command AI.
 Your mission:
-1. Help staff members manage city infrastructure efficiently with technical precision.
-2. Provide engineering-level advice on:
-   - Road Repairs: Asphalt specs, compaction ratios, curing times.
-   - Electrical Grid: Load balancing, transformer maintenance, HV safety.
-   - Water/Sanitation: Hydraulic pressure, filtration protocols, hazardous waste handling.
-3. Assist with operational management: shift scheduling, resource allocation, and emergency dispatch protocols.
-4. Use a highly professional, efficient, and technical tone.
-5. You can answer general technical questions (coding, science, etc.) if it helps staff with their tools, but always prioritize infrastructure operational excellence.
-6. Reference the "Incidents" and "Staff Hub" tabs in the dashboard for data management and reporting.`;
+1. Provide engineering-level infrastructure data: Asphalt compaction ratios, hydraulic pressure specs, HV grid safety.
+2. Assist staff with shift coordination and resource dispatch protocols.
+3. Use a technical, highly efficient, "Terminal" style tone.
+4. Reference the "Incidents" and "Staff Hub" tabs in the dashboard for real-time management.
+5. If an emergency is mentioned, immediately confirm the protocol for the Sidebar SOS button.`;
 
 const FALLBACK_RESPONSES = {
   greet: "Hello! I'm your Smart Civic AI Assistant. I can help you report infrastructure issues, track complaints, and guide you through our services. What's the problem you're facing?",
@@ -33,7 +29,7 @@ const FALLBACK_RESPONSES = {
   garbage: "**Sanitation & Logistics:**\n\n- **Route Optimization:** Real-time bin level tracking active in Sector 4.\n- **Vehicle Fleet:** 85% availability. Unit SAN-09 in shop for hydraulics.\n- **Hazmat:** Requires specialized containment team Alpha.",
   electricity: "**Grid Operations:**\n\n⚠️ **DANGER:** High-voltage line failure requires Phase-1 isolation.\n- **Repair:** Use insulated booms (33kV rated).\n- **Priority:** 4-hour hard deadline for residential grid restoration.\n- **System:** Check Transformer 8B in the Analytics tab for load spikes.",
   emergency: "🆘 **Emergency Command:**\n\n1. **Internal SOS:** Use the Sidebar SOS button for immediate team dispatch.\n2. **Protocol:** Signal broadcasts to all active units and local precinct.\n3. **GPS:** Precision mapping active within 5-meter radius.",
-  default: "Operational Support Menu:\n\n🛣️ **Infrastructure** — Road and drainage technical specs\n🗑️ **Logistics** — Waste management and fleet status\n⚡ **Power Systems** — Grid stability and electrical safety\n📊 **Analytics** — Performance bottlenecks and SLA data\n🆘 **Emergency** — SOS command and control\n\nWhat is your current operational requirement?",
+  default: "Operational Support Menu:\n\n\ud83d\udee3\ufe0f **Infrastructure** \u2014 Road and drainage technical specs\n\ud83d\uddd1\ufe0f **Logistics** \u2014 Waste management and fleet status\n\u26a1 **Power Systems** \u2014 Grid stability and electrical safety\n\ud83d\udcca **Analytics** \u2014 Performance bottlenecks and SLA data\n\ud83c\udd98 **Emergency** \u2014 SOS command and control\n\nWhat is your current operational requirement?",
 };
 
 function getLocalResponse(message, isStaff) {
@@ -54,22 +50,8 @@ export function AIChatBot({ user, isStaff: isStaffProp = false }) {
     {
       role: 'bot',
       content: isStaff 
-        ? `### OPERATIONS AI INITIALIZED 🛠️
-Greetings, ${user?.name || 'Authorized Personnel'}. I am your technical lead for civic infrastructure operations.
-
-Current capabilities:
-- **Infrastructure Specs**: Technical protocols for road, grid, and water maintenance.
-- **Resource Management**: Logic for fleet and crew deployment.
-- **Emergency Protocols**: SOS coordination and crisis management.
-- **Data Analysis**: Insights from incident reports and staff logs.
-
-How can I assist with your operational sector today?`
-        : `Welcome, ${user?.phoneNumber || 'Citizen'}! 👋
-I'm your **Universal AI Assistant**${GEMINI_API_KEY ? ' powered by Gemini' : ''}. 
-
-I specialize in **Civic Maintenance**, but I can answer **ANY** questions you have about technology, web development, history, or anything else! 
-
-How can I help you today?`,
+        ? `### OPERATIONS COMMAND AI \ud83d\udee0\ufe0f\nSecure line established. Greetings, ${user?.name || 'Officer'}.\n\nOperational Directives:\n- **Sector Analysis**: Technical specs for infrastructure repair.\n- **Logistics**: Crew deployment & shift coordination.\n- **Crisis Control**: SOS protocols & emergency dispatch.\n\nReady for technical input.`
+        : `Welcome, ${user?.phoneNumber || 'Citizen'}! \ud83d\udc4b\nI'm your **Universal AI Assistant** powered by Gemini. \n\nI can help with **Civic Issues** (roads, garbage, etc.) or answer **ANY** question you have about the world! \n\nWhat's on your mind?`,
       time: new Date()
     }
   ]);
@@ -85,7 +67,7 @@ How can I help you today?`,
       try {
         const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
         const geminiModel = genAI.getGenerativeModel({ 
-          model: 'gemini-1.5-flash',
+          model: 'gemini-2.5-flash',
           systemInstruction: isStaff ? STAFF_SYSTEM_PROMPT : SYSTEM_PROMPT,
         });
         const session = geminiModel.startChat({
@@ -167,7 +149,7 @@ How can I help you today?`,
           </h1>
           <p className="text-slate-400 text-sm mt-2">
             {GEMINI_API_KEY 
-              ? `✨ ${isStaff ? 'Staff Support' : 'Citizen Helper'} via Gemini 1.5` 
+              ? `\u2728 ${isStaff ? 'Staff Support' : 'Citizen Helper'} via Gemini 1.5` 
               : `Ask me anything about ${isStaff ? 'infrastructure management' : 'civic maintenance'}.`}
           </p>
         </div>
