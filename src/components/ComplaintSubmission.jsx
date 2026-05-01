@@ -158,88 +158,61 @@ export function ComplaintSubmission({ user }) {
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-8 animate-in fade-in duration-700">
-      {/* Navigation Tabs */}
-      <div className="flex items-center justify-center gap-2 glass p-2 rounded-2xl max-w-fit mx-auto border-white/5">
-        <button 
-          onClick={() => setActiveTab('report')}
-          className={`flex items-center gap-2 px-6 py-3 rounded-xl text-[10px] font-black tracking-widest transition-all ${activeTab === 'report' ? 'bg-aqua text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
-        >
-          <Send className="w-4 h-4" /> NEW REPORT
-        </button>
-        <button 
-          onClick={() => setActiveTab('track')}
-          className={`flex items-center gap-2 px-6 py-3 rounded-xl text-[10px] font-black tracking-widest transition-all ${activeTab === 'track' ? 'bg-violet text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
-        >
-          <Clock className="w-4 h-4" /> TRACK STATUS
-        </button>
-        <button 
-          onClick={() => setActiveTab('ai')}
-          className={`flex items-center gap-2 px-6 py-3 rounded-xl text-[10px] font-black tracking-widest transition-all ${activeTab === 'ai' ? 'bg-amber text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
-        >
-          <Bot className="w-4 h-4" /> AI ANSWER
-        </button>
-      </div>
+      <Card title="FILE NEW REPORT">
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <div 
+            className="glass rounded-2xl p-8 text-center cursor-pointer transition-all hover:bg-white/10 border-dashed border-2 border-white/20 relative min-h-[200px] flex flex-col justify-center items-center overflow-hidden"
+            onClick={() => fileInputRef.current.click()}
+          >
+            <input type="file" ref={fileInputRef} onChange={handleImageChange} className="hidden" accept="image/*" capture="environment" />
+            {imagePreview ? (
+              <img src={imagePreview} alt="Preview" className="absolute inset-0 w-full h-full object-cover" />
+            ) : (
+              <>
+                <ImagePlus className="w-10 h-10 text-aqua mb-2" />
+                <p className="text-sm font-bold">Tap to add photo evidence</p>
+              </>
+            )}
+          </div>
 
-      {activeTab === 'report' && (
-        <Card title="FILE NEW REPORT">
-          <form onSubmit={handleSubmit} className="space-y-8">
-            <div 
-              className="glass rounded-2xl p-8 text-center cursor-pointer transition-all hover:bg-white/10 border-dashed border-2 border-white/20 relative min-h-[200px] flex flex-col justify-center items-center overflow-hidden"
-              onClick={() => fileInputRef.current.click()}
-            >
-              <input type="file" ref={fileInputRef} onChange={handleImageChange} className="hidden" accept="image/*" capture="environment" />
-              {imagePreview ? (
-                <img src={imagePreview} alt="Preview" className="absolute inset-0 w-full h-full object-cover" />
-              ) : (
-                <>
-                  <ImagePlus className="w-10 h-10 text-aqua mb-2" />
-                  <p className="text-sm font-bold">Tap to add photo evidence</p>
-                </>
-              )}
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="text-[10px] font-black opacity-40 tracking-widest">DESCRIPTION</span>
+              <button type="button" onClick={handleEnhanceWithAI} disabled={isEnhancing} className="text-aqua text-[10px] font-bold flex items-center gap-1">
+                {isEnhancing ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />} AI OPTIMIZE
+              </button>
             </div>
-
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-[10px] font-black opacity-40 tracking-widest">DESCRIPTION</span>
-                <button type="button" onClick={handleEnhanceWithAI} disabled={isEnhancing} className="text-aqua text-[10px] font-bold flex items-center gap-1">
-                  {isEnhancing ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />} AI OPTIMIZE
-                </button>
-              </div>
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="What issue are you seeing?"
-                className="glass-textarea"
-                required
-              />
-              {(category || aiUrgency) && (
-                <div className="flex gap-2">
-                  {category && <span className="glass-badge bg-violet/20 text-violet border-violet/30">{category}</span>}
-                  {aiUrgency && <span className="glass-badge bg-amber/20 text-amber border-amber/30">{aiUrgency}</span>}
-                </div>
-              )}
-            </div>
-
-            <div className="glass p-5 rounded-2xl flex items-center justify-between border-white/5">
-              <div className="flex items-center gap-3">
-                <MapPin className={`w-5 h-5 ${location ? 'text-aqua' : 'opacity-20'}`} />
-                <span className="text-xs font-bold">{location ? 'Location Locked' : 'GPS Required'}</span>
-              </div>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="What issue are you seeing?"
+              className="glass-textarea"
+              required
+            />
+            {(category || aiUrgency) && (
               <div className="flex gap-2">
-                <Button type="button" onClick={getLocation} variant="outline" size="sm" isLoading={isLocating}>AUTO GPS</Button>
-                {!location && <Button type="button" onClick={handleManualLocation} variant="ghost" size="sm">MANUAL</Button>}
+                {category && <span className="glass-badge bg-violet/20 text-violet border-violet/30">{category}</span>}
+                {aiUrgency && <span className="glass-badge bg-amber/20 text-amber border-amber/30">{aiUrgency}</span>}
               </div>
+            )}
+          </div>
+
+          <div className="glass p-5 rounded-2xl flex items-center justify-between border-white/5">
+            <div className="flex items-center gap-3">
+              <MapPin className={`w-5 h-5 ${location ? 'text-aqua' : 'opacity-20'}`} />
+              <span className="text-xs font-bold">{location ? 'Location Locked' : 'GPS Required'}</span>
             </div>
+            <div className="flex gap-2">
+              <Button type="button" onClick={getLocation} variant="outline" size="sm" isLoading={isLocating}>AUTO GPS</Button>
+              {!location && <Button type="button" onClick={handleManualLocation} variant="ghost" size="sm">MANUAL</Button>}
+            </div>
+          </div>
 
-            <Button type="submit" variant="primary" className="w-full h-14" isLoading={isSubmitting}>
-              SUBMIT COMPLAINT
-            </Button>
-          </form>
-        </Card>
-      )}
-
-      {activeTab === 'track' && <CitizenTracker user={user} />}
-      {activeTab === 'ai' && <AIChatBot user={user} />}
+          <Button type="submit" variant="primary" className="w-full h-14" isLoading={isSubmitting}>
+            SUBMIT COMPLAINT
+          </Button>
+        </form>
+      </Card>
     </div>
   );
 }
