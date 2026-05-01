@@ -100,7 +100,7 @@ function AppShell() {
 
               <nav className="flex items-center gap-1 sm:gap-2">
                 {user && <NavLink to="/report" icon={<FileText className="w-4 h-4 sm:w-5 sm:h-5" />} label="Report" />}
-                {user && <NavLink to="/ai-bot" icon={<Bot className="w-4 h-4 sm:w-5 sm:h-5" />} label="AI Bot" />}
+                <NavLink to="/ai-bot" icon={<Bot className="w-4 h-4 sm:w-5 sm:h-5" />} label="AI Bot" />
                 
                 {user && (
                   <button 
@@ -122,7 +122,7 @@ function AppShell() {
             <Route path="/report" element={user ? <ComplaintSubmission user={user} /> : <Navigate to="/login" />} />
             <Route path="/login" element={!user ? <PhoneAuth onLogin={handleLogin} /> : <Navigate to="/report" />} />
             <Route path="/dashboard" element={<DashboardGate onLogout={handleLogout}><Dashboard user={user} onLogout={handleLogout} /></DashboardGate>} />
-            <Route path="/ai-bot" element={user ? <AIChatBot user={user} /> : <Navigate to="/login" />} />
+            <Route path="/ai-bot" element={<AIChatBot user={user} />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </main>

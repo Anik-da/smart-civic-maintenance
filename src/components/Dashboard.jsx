@@ -3,6 +3,7 @@ import { db } from '../lib/firebase';
 import { collection, query, orderBy, onSnapshot, addDoc, deleteDoc, doc } from 'firebase/firestore';
 import { ComplaintModal } from './ComplaintModal';
 import { DashboardMap } from './DashboardMap';
+import { AIChatBot } from './AIChatBot';
 import { 
   Trash2,
   ShieldCheck,
@@ -619,7 +620,7 @@ export function Dashboard({ user, onLogout }) {
                </div>
             </div>
           </div>
-        ) : (
+        ) : activeTab === 'notifications' ? (
           <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-700">
              <div className="flex justify-between items-end">
               <div>
@@ -660,7 +661,11 @@ export function Dashboard({ user, onLogout }) {
                </div>
             </div>
           </div>
-        )}
+        ) : activeTab === 'ai-assistant' ? (
+          <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-700">
+            <AIChatBot user={user} />
+          </div>
+        ) : null}
       </main>
 
       {showAddStaff && (
@@ -745,6 +750,7 @@ export function Dashboard({ user, onLogout }) {
           </div>
         </div>
       )}
+
 
       {selectedComplaint && (
         <ComplaintModal 
