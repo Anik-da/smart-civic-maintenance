@@ -117,10 +117,10 @@ How can I assist you today?`,
   };
 
   const quickActions = [
-    { label: 'Road Issue', icon: <Wrench className="w-3 h-3" />, msg: 'How do I report a road pothole?' },
-    { label: 'Track Status', icon: <MapPin className="w-3 h-3" />, msg: 'How do I track my complaint status?' },
-    { label: 'Emergency', icon: <AlertTriangle className="w-3 h-3" />, msg: 'How do I use emergency services?' },
-    { label: 'About', icon: <Lightbulb className="w-3 h-3" />, msg: 'What can this app do?' },
+    { label: 'Roads', icon: <Wrench className="w-3 h-3" />, msg: 'Tell me about road maintenance and reporting potholes.' },
+    { label: 'Sanitation', icon: <Bot className="w-3 h-3" />, msg: 'How does garbage collection and sanitation reporting work?' },
+    { label: 'Tracking', icon: <Search className="w-3 h-3" />, msg: 'How can I track the status of my reported issues?' },
+    { label: 'Emergency', icon: <AlertTriangle className="w-3 h-3" />, msg: 'What should I do in case of a maintenance emergency?' },
   ];
 
   const handleQuickAction = (msg) => {
@@ -143,6 +143,12 @@ How can I assist you today?`,
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <Link to="/track" className="glass px-4 py-2 rounded-md flex items-center gap-2 hover:border-aqua/50 transition-all text-aqua/80 hover:text-aqua">
+            <Search className="w-3 h-3" />
+            <span className="text-[10px] font-bold tracking-widest uppercase">
+              Track Status
+            </span>
+          </Link>
 
           <div className="glass px-4 py-2 rounded-md flex items-center gap-2">
             <div className="w-2 h-2 rounded-full animate-pulse bg-lime shadow-[0_0_10px_#a8f08a]"></div>
@@ -153,7 +159,22 @@ How can I assist you today?`,
         </div>
       </div>
 
-      {/* Removed Quick Actions as requested */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+        {quickActions.map((action, i) => (
+          <button
+            key={i}
+            onClick={() => handleQuickAction(action.msg)}
+            className="glass p-4 rounded-md flex flex-col items-center gap-2 hover:border-aqua/50 transition-all group text-center"
+          >
+            <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-aqua/60 group-hover:text-aqua transition-colors">
+              {action.icon}
+            </div>
+            <span className="text-[10px] font-bold tracking-widest uppercase opacity-60 group-hover:opacity-100 transition-opacity">
+              {action.label}
+            </span>
+          </button>
+        ))}
+      </div>
 
       {/* Chat Window */}
       <Card className="w-full" title="CIVIC ASSISTANT">
