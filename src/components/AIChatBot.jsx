@@ -22,7 +22,7 @@ STYLE GUIDELINES:
 - Accuracy: Prioritize correct information above all else.`;
 
 const FALLBACK_RESPONSES = {
-  greet: "Greetings! I am **Civic-IQ**, your friendly urban companion. It seems I am currently operating in offline mode, but I can still assist with basic infrastructure reporting. How can I help you today? 😊",
+  greet: "Greetings! I am **AI Answer**, your friendly universal assistant. It seems I am currently operating in offline mode, but I can still assist with basic infrastructure reporting. How can I help you today? 😊",
   road: "### 🛣️ Road Issue\n\nI understand you want to report a road issue. You can use the **Report** section to snap a photo and share the location of the pothole. The Road Department will look into it!",
   garbage: "### 🗑️ Sanitation Issue\n\nGarbage not collected? No problem. Please go to the **Report** section, select 'Garbage', and we'll dispatch a cleanup crew to your area.",
   electricity: "### ⚡ Power Issue\n\nPower outage or broken streetlights? Stay safe! You can report this in the **Report** section so the Electricity Department can fix it promptly.",
