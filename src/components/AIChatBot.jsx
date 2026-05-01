@@ -133,7 +133,7 @@ What's on your mind?`,
           <p className="text-slate-400 text-sm mt-2">
             {GEMINI_API_KEY
               ? `✨ Citizen Helper via Gemini 1.5`
-              : `Ask me anything about civic maintenance.`}
+              : `Ask AI to answer your questions.`}
           </p>
         </div>
         <div className="glass px-4 py-2 rounded-md flex items-center gap-2">

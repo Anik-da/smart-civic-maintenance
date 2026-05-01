@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Shield, FileText, LayoutDashboard, ArrowRight, Search, Bot } from 'lucide-react';
 
-export function Landing() {
+export function Landing({ user }) {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen w-full px-6 text-center py-20 overflow-hidden">
       {/* Central Iconic Shield */}
@@ -22,46 +22,55 @@ export function Landing() {
         The official infrastructure management & emergency response portal for the Smart City Initiative. Secure, efficient, and real-time.
       </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl px-4 animate-in fade-in slide-in-from-bottom-16 duration-1000 delay-600">
+      <div className={`grid grid-cols-1 ${user ? 'lg:grid-cols-3' : 'md:grid-cols-2'} gap-8 w-full max-w-7xl px-4 animate-in fade-in slide-in-from-bottom-16 duration-1000 delay-600`}>
+        {/* Card 1: Report */}
         <div className="group relative">
-          <div className="relative professional-surface p-10 border-white/10 hover:border-blue-500/30 transition-all duration-500 h-full flex flex-col items-center text-center rounded-2xl">
-            <div className="w-16 h-16 rounded-xl bg-blue-500/5 flex items-center justify-center mb-6 text-blue-500 group-hover:scale-105 transition-all duration-500">
+          <div className="relative professional-surface p-10 border-white/10 hover:border-blue-500/30 transition-all duration-500 h-full flex flex-col items-center text-center rounded-2xl group">
+            <div className="w-16 h-16 rounded-xl bg-blue-500/5 flex items-center justify-center mb-6 text-blue-500 group-hover:scale-110 group-hover:bg-blue-500/10 transition-all duration-500">
               <FileText className="w-8 h-8" />
             </div>
-            <h3 className="font-bold text-2xl mb-3 text-blue-400">Citizen Portal</h3>
+            <h3 className="font-bold text-2xl mb-3 text-blue-400 group-hover:text-blue-300 transition-colors">Report System</h3>
             <p className="text-sm text-blue-200/60 mb-8 flex-1 leading-relaxed">
-              Report infrastructure issues, track your existing complaints, or get help from our AI Assistant.
+              {user ? 'File a new infrastructure report or emergency SOS signal.' : 'Citizen access for infrastructure issues, real-time tracking, and emergency SOS services.'}
             </p>
             
-            <div className="flex flex-col gap-3 w-full max-w-[240px]">
-              <Link to="/report" className="glass glass-btn glass-btn--primary py-3 px-6 flex items-center justify-between group/btn">
-                <span className="text-[10px] font-black uppercase tracking-widest">File a Report</span>
-                <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-              </Link>
-              
-              <div className="grid grid-cols-2 gap-2">
-                <Link to="/track" className="glass glass-btn glass-btn--ghost py-2.5 px-4 flex items-center gap-2 group/btn">
-                  <Search className="w-3.5 h-3.5 text-blue-400" />
-                  <span className="text-[9px] font-bold uppercase tracking-widest">Track</span>
-                </Link>
-                <Link to="/ai-bot" className="glass glass-btn glass-btn--ghost py-2.5 px-4 flex items-center gap-2 group/btn">
-                  <Bot className="w-3.5 h-3.5 text-aqua" />
-                  <span className="text-[9px] font-bold uppercase tracking-widest">AI Bot</span>
-                </Link>
-              </div>
-            </div>
+            <Link to="/report" className="glass glass-btn glass-btn--primary py-4 px-8 w-full flex items-center justify-between group/btn shadow-[0_0_30px_rgba(59,130,246,0.2)]">
+              <span className="text-[10px] font-black uppercase tracking-widest">{user ? 'NEW REPORT' : 'ACCESS PORTAL'}</span>
+              <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+            </Link>
           </div>
         </div>
 
+        {/* Card 2: Tracking (Only if logged in) */}
+        {user && (
+          <div className="group relative">
+            <div className="relative professional-surface p-10 border-white/10 hover:border-blue-400/30 transition-all duration-500 h-full flex flex-col items-center text-center rounded-2xl group">
+              <div className="w-16 h-16 rounded-xl bg-blue-400/5 flex items-center justify-center mb-6 text-blue-400 group-hover:scale-110 group-hover:bg-blue-400/10 transition-all duration-500">
+                <Search className="w-8 h-8" />
+              </div>
+              <h3 className="font-bold text-2xl mb-3 text-blue-300">Track Status</h3>
+              <p className="text-sm text-blue-200/60 mb-8 flex-1 leading-relaxed">
+                Monitor the real-time status and deployment progress of your reported incidents.
+              </p>
+              
+              <Link to="/track" className="glass glass-btn glass-btn--ghost py-4 px-8 w-full flex items-center justify-between group/btn hover:bg-blue-400/10 hover:border-blue-400/30">
+                <span className="text-[10px] font-black uppercase tracking-widest">MY REPORTS</span>
+                <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {/* Card 3: Staff/Dashboard */}
         <Link to="/dashboard" className="group relative">
-          <div className="relative professional-surface p-10 border-white/10 hover:border-blue-600/30 transition-all duration-500 h-full flex flex-col items-center text-center rounded-2xl">
-            <div className="w-16 h-16 rounded-xl bg-blue-600/5 flex items-center justify-center mb-6 text-blue-600 group-hover:scale-105 transition-all duration-500">
+          <div className="relative professional-surface p-10 border-white/10 hover:border-blue-600/30 transition-all duration-500 h-full flex flex-col items-center text-center rounded-2xl group">
+            <div className="w-16 h-16 rounded-xl bg-blue-600/5 flex items-center justify-center mb-6 text-blue-600 group-hover:scale-110 group-hover:bg-blue-600/10 transition-all duration-500">
               <LayoutDashboard className="w-8 h-8" />
             </div>
-            <h3 className="font-bold text-2xl mb-3 text-blue-400">Staff Console</h3>
+            <h3 className="font-bold text-2xl mb-3 text-blue-400 group-hover:text-blue-300 transition-colors">Staff Console</h3>
             <p className="text-sm text-blue-200/60 mb-8 flex-1 leading-relaxed">Administrative dashboard for crew dispatch and city-wide analytics.</p>
-            <div className="flex items-center gap-3 text-blue-600 text-[11px] font-black tracking-[0.2em] uppercase">
-              Secure Login <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
+            <div className="flex items-center gap-3 text-blue-500 text-[11px] font-black tracking-[0.2em] uppercase mt-auto group-hover:text-blue-400 transition-colors">
+              SECURE LOGIN <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
             </div>
           </div>
         </Link>

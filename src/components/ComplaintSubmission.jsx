@@ -176,7 +176,7 @@ export function ComplaintSubmission({ user }) {
           onClick={() => setActiveTab('ai')}
           className={`flex items-center gap-2 px-6 py-3 rounded-xl text-[10px] font-black tracking-widest transition-all ${activeTab === 'ai' ? 'bg-amber text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
         >
-          <Bot className="w-4 h-4" /> ASK AI
+          <Bot className="w-4 h-4" /> AI ANSWER
         </button>
       </div>
 

@@ -109,7 +109,7 @@ function AppShell() {
               <nav className="flex items-center gap-1 sm:gap-2">
                 {user && <NavLink to="/report" icon={<FileText className="w-4 h-4 sm:w-5 sm:h-5" />} label="Report" />}
                 {user && <NavLink to="/track" icon={<Search className="w-4 h-4 sm:w-5 sm:h-5" />} label="Track" />}
-                <NavLink to="/ai-bot" icon={<Bot className="w-4 h-4 sm:w-5 sm:h-5" />} label="AI Bot" />
+                <NavLink to="/ai-bot" icon={<Bot className="w-4 h-4 sm:w-5 sm:h-5" />} label="AI Answer" />
                 
                 {user && (
                   <button 
@@ -127,9 +127,9 @@ function AppShell() {
         {/* Main Application Routes */}
         <main className={`flex-1 w-full ${isDashboard ? 'dashboard-main p-0' : isLogin ? 'p-0 flex flex-col items-center justify-center min-h-screen' : isFullScreen ? 'p-0 flex flex-col items-center' : 'px-4 py-6 max-w-7xl mx-auto flex flex-col items-center'}`}>
           <Routes>
-            <Route path="/" element={<Landing />} />
+            <Route path="/" element={<Landing user={user} />} />
             <Route path="/report" element={user ? <ComplaintSubmission user={user} /> : <Navigate to="/login" />} />
-            <Route path="/login" element={!user ? <PhoneAuth onLogin={handleLogin} /> : <Navigate to="/report" />} />
+            <Route path="/login" element={!user ? <PhoneAuth onLogin={handleLogin} /> : <Navigate to="/" />} />
             <Route path="/dashboard" element={<DashboardGate onLogout={handleLogout}><Dashboard user={user} onLogout={handleLogout} /></DashboardGate>} />
             <Route path="/ai-bot" element={<AIChatBot user={user} />} />
             <Route path="/track" element={user ? <CitizenTracker user={user} /> : <Navigate to="/login" />} />
