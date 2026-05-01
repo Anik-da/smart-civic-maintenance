@@ -22,55 +22,91 @@ export function Landing({ user }) {
         The official infrastructure management & emergency response portal for the Smart City Initiative. Secure, efficient, and real-time.
       </p>
 
-      {/* Unified Citizen Portal Card */}
-      <div className="w-full max-w-xl px-4 animate-in fade-in slide-in-from-bottom-16 duration-1000 delay-600">
-        <div className="relative professional-surface p-8 md:p-12 border-white/10 rounded-[2.5rem] flex flex-col items-center group overflow-hidden">
-          {/* Decorative background glow */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-blue-500/10 blur-[80px] rounded-full -z-10 group-hover:bg-blue-500/20 transition-all duration-1000"></div>
-          
-          <div className="w-20 h-20 rounded-2xl bg-blue-500/5 border border-white/5 flex items-center justify-center mb-8 text-blue-500 group-hover:scale-110 group-hover:bg-blue-500/10 transition-all duration-700 shadow-xl">
-            <FileText className="w-10 h-10" />
+      <div className={`grid grid-cols-1 ${user ? 'md:grid-cols-3' : 'md:grid-cols-2'} gap-6 w-full max-w-6xl px-4 animate-in fade-in slide-in-from-bottom-16 duration-1000 delay-600`}>
+        {/* Card 1: Report System */}
+        <Link 
+          to="/report" 
+          className="group relative professional-surface p-8 border-white/5 hover:border-blue-500/30 transition-all duration-500 flex flex-col items-center text-center rounded-[2rem] overflow-hidden"
+        >
+          <div className="absolute inset-0 bg-blue-500/0 group-hover:bg-blue-500/[0.03] transition-colors duration-500"></div>
+          <div className="w-14 h-14 rounded-2xl bg-blue-500/5 flex items-center justify-center mb-6 text-blue-400 group-hover:scale-110 transition-transform duration-500">
+            <FileText className="w-7 h-7" />
           </div>
-          
-          <h2 className="text-4xl md:text-5xl font-black text-white mb-4 tracking-tight">Citizen Portal</h2>
-          <p className="text-sm md:text-base text-blue-100/40 mb-12 leading-relaxed max-w-sm">
-            Report infrastructure issues, track your existing complaints, or get instant answers from our AI Assistant.
+          <h3 className="text-xl font-bold text-white mb-3 tracking-tight">Report System</h3>
+          <p className="text-xs text-blue-100/40 mb-8 leading-relaxed flex-1">
+            Official portal for reporting potholes, leaks, and sanitation issues.
           </p>
-          
-          {/* Primary Action */}
-          <Link 
-            to="/report" 
-            className="w-full glass glass-btn glass-btn--primary py-6 px-10 flex items-center justify-center gap-4 mb-6 rounded-2xl shadow-[0_10px_40px_rgba(59,130,246,0.2)] hover:shadow-[0_15px_50px_rgba(59,130,246,0.3)] transition-all active:scale-[0.98]"
-          >
-            <span className="text-[14px] font-black uppercase tracking-[0.2em] ml-2">FILE A REPORT</span>
-            <ArrowRight className="w-6 h-6" />
-          </Link>
-          
-          {/* Secondary Actions */}
-          <div className="grid grid-cols-2 gap-4 w-full">
-            <Link 
-              to="/track" 
-              className="glass glass-btn glass-btn--ghost py-5 flex items-center justify-center gap-3 rounded-2xl border-white/5 hover:border-blue-400/30 hover:bg-white/5 transition-all group/btn"
-            >
-              <Search className="w-5 h-5 text-blue-400 group-hover/btn:scale-110 transition-transform" />
-              <span className="text-[11px] font-black uppercase tracking-widest text-white/80">TRACK</span>
-            </Link>
-            <Link 
-              to="/ai-bot" 
-              className="glass glass-btn glass-btn--ghost py-5 flex items-center justify-center gap-3 rounded-2xl border-white/5 hover:border-blue-500/30 hover:bg-white/5 transition-all group/btn"
-            >
-              <Bot className="w-5 h-5 text-blue-500 group-hover/btn:scale-110 transition-transform" />
-              <span className="text-[11px] font-black uppercase tracking-widest text-white/80">AI ANSWER</span>
-            </Link>
+          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-blue-500 group-hover:gap-4 transition-all">
+            FILE REPORT <ArrowRight className="w-4 h-4" />
           </div>
-        </div>
+        </Link>
 
-        {/* Subtle Staff Link */}
-        <div className="mt-12 opacity-40 hover:opacity-100 transition-opacity">
-          <Link to="/dashboard" className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-200/50 hover:text-blue-400 flex items-center justify-center gap-3">
-            <LayoutDashboard className="w-4 h-4" /> STAFF CONSOLE
+        {/* Card: Track Status (Only if logged in) */}
+        {user && (
+          <Link 
+            to="/track" 
+            className="group relative professional-surface p-8 border-white/5 hover:border-blue-400/30 transition-all duration-500 flex flex-col items-center text-center rounded-[2rem] overflow-hidden border-blue-400/10"
+          >
+            <div className="absolute inset-0 bg-blue-400/0 group-hover:bg-blue-400/[0.03] transition-colors duration-500"></div>
+            <div className="w-14 h-14 rounded-2xl bg-blue-400/5 flex items-center justify-center mb-6 text-blue-400 group-hover:scale-110 transition-transform duration-500">
+              <Search className="w-7 h-7" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-3 tracking-tight">Track Status</h3>
+            <p className="text-xs text-blue-100/40 mb-8 leading-relaxed flex-1">
+              Check the real-time status and progress of your submitted reports.
+            </p>
+            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-blue-400 group-hover:gap-4 transition-all">
+              VIEW UPDATES <ArrowRight className="w-4 h-4" />
+            </div>
           </Link>
-        </div>
+        )}
+
+        {/* Card 2: Staff Console / AI Answer (If not logged in) */}
+        {!user ? (
+          <Link 
+            to="/ai-bot" 
+            className="group relative professional-surface p-8 border-white/5 hover:border-blue-500/30 transition-all duration-500 flex flex-col items-center text-center rounded-[2rem] overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-blue-500/0 group-hover:bg-blue-500/[0.03] transition-colors duration-500"></div>
+            <div className="w-14 h-14 rounded-2xl bg-blue-500/5 flex items-center justify-center mb-6 text-blue-400 group-hover:scale-110 transition-transform duration-500">
+              <Bot className="w-7 h-7" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-3 tracking-tight">AI Answer</h3>
+            <p className="text-xs text-blue-100/40 mb-8 leading-relaxed flex-1">
+              Universal assistant for civic guidance and general city inquiries.
+            </p>
+            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-blue-500 group-hover:gap-4 transition-all">
+              START CHAT <ArrowRight className="w-4 h-4" />
+            </div>
+          </Link>
+        ) : (
+          <Link 
+            to="/dashboard" 
+            className="group relative professional-surface p-8 border-white/5 hover:border-blue-500/30 transition-all duration-500 flex flex-col items-center text-center rounded-[2rem] overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-blue-500/0 group-hover:bg-blue-500/[0.03] transition-colors duration-500"></div>
+            <div className="w-14 h-14 rounded-2xl bg-blue-500/5 flex items-center justify-center mb-6 text-blue-400 group-hover:scale-110 transition-transform duration-500">
+              <LayoutDashboard className="w-7 h-7" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-3 tracking-tight">Staff Console</h3>
+            <p className="text-xs text-blue-100/40 mb-8 leading-relaxed flex-1">
+              Internal management portal for city officials and maintenance crews.
+            </p>
+            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-blue-500 group-hover:gap-4 transition-all">
+              SECURE LOGIN <ArrowRight className="w-4 h-4" />
+            </div>
+          </Link>
+        )}
+      </div>
+
+      {/* Hidden/Subtle footer links */}
+      <div className="mt-16 flex gap-10 opacity-30 hover:opacity-100 transition-opacity duration-700">
+        <Link to="/track" className="text-[9px] font-black uppercase tracking-[0.4em] text-blue-200/50 hover:text-blue-400 flex items-center gap-2">
+          <Search className="w-3 h-3" /> TRACKING
+        </Link>
+        <Link to="/ai-bot" className="text-[9px] font-black uppercase tracking-[0.4em] text-blue-200/50 hover:text-blue-400 flex items-center gap-2">
+          <Bot className="w-3 h-3" /> AI ANSWER
+        </Link>
       </div>
     </div>
   );

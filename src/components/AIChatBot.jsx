@@ -1,25 +1,30 @@
 import { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
-import { Bot, Send, Sparkles, User, Lightbulb, Wrench, MapPin, AlertTriangle } from 'lucide-react';
+import { Bot, Send, Sparkles, User, Lightbulb, Wrench, MapPin, AlertTriangle, Search } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
-const SYSTEM_PROMPT = `You are "AI Answer", the intelligent and empathetic assistant for the Smart Civic platform. Your mission is to provide clear, accurate, and helpful guidance to citizens.
+const SYSTEM_PROMPT = `You are "AI Answer", a highly capable, universal AI assistant. 
 
-CORE RESPONSIBILITIES:
-1. INFRASTRUCTURE REPORTING: Guide users on how to report issues like potholes, garbage, or leaks. Explain that they can upload photos and tag locations.
-2. STATUS TRACKING: Help users understand how to monitor their existing reports using their phone number in the "Track" section.
-3. EMERGENCY SOS: If a life-threatening situation is mentioned, immediately urge the user to use the SOS button.
-4. BROAD KNOWLEDGE: You are a "Universal Assistant". While you specialize in civic services, you should also answer any general questions the user may have (e.g., science, history, tips, etc.) with high accuracy and a helpful tone. Don't be restrictive—if the user asks something outside of civic matters, answer it fully and then optionally offer how you can help with city services.
+Your primary goal is to provide accurate, helpful, and empathetic answers to ANY question a user might have. Whether it's about civic maintenance, science, history, or daily life, you are here to help.
 
-STYLE GUIDELINES:
-- Tone: Professional, warm, and highly capable.
-- Format: Use Markdown (headers, lists, bold text) for readability.
-- Conciseness: Give direct answers but provide sufficient detail to be truly helpful.
-- Accuracy: Prioritize correct information above all else.`;
+CIVIC GUIDANCE:
+- If asked about infrastructure (potholes, leaks, etc.), guide the user to the "Report System".
+- If asked about tracking a complaint, explain they can use the "Track Status" feature with their phone number.
+- For emergencies, always point them to the "SOS" button.
+
+UNIVERSAL CAPABILITY:
+- Answer general knowledge questions fully and accurately.
+- Do not be restrictive. If a user asks something unrelated to city services, answer it with the same level of detail and care.
+
+TONE & STYLE:
+- Use a warm, professional, and intelligent tone.
+- Use Markdown (headers, bold, lists) to structure your responses.
+- Always refer to yourself as "AI Answer".`;
 
 const FALLBACK_RESPONSES = {
   greet: "Greetings! I am **AI Answer**, your friendly universal assistant. It seems I am currently operating in offline mode, but I can still assist with basic infrastructure reporting. How can I help you today? 😊",
@@ -140,11 +145,19 @@ How can I assist you today?`,
               : `Ask me about report status or city services.`}
           </p>
         </div>
-        <div className="glass px-4 py-2 rounded-md flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full animate-pulse bg-lime shadow-[0_0_10px_#a8f08a]"></div>
-          <span className="text-[10px] font-bold tracking-widest uppercase opacity-60">
-            Online
-          </span>
+        <div className="flex items-center gap-3">
+          <Link to="/track" className="glass px-4 py-2 rounded-md flex items-center gap-2 hover:border-aqua/50 transition-all">
+            <Search className="w-4 h-4 text-aqua" />
+            <span className="text-[10px] font-bold tracking-widest uppercase opacity-80">
+              Track Status
+            </span>
+          </Link>
+          <div className="glass px-4 py-2 rounded-md flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full animate-pulse bg-lime shadow-[0_0_10px_#a8f08a]"></div>
+            <span className="text-[10px] font-bold tracking-widest uppercase opacity-60">
+              Online
+            </span>
+          </div>
         </div>
       </div>
 
