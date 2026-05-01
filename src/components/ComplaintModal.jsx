@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { db } from '../lib/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
 import { Card } from './ui/Card';
@@ -12,6 +12,18 @@ export function ComplaintModal({ complaint, onClose, staff = [], userRole }) {
   const [isSaving, setIsSaving] = useState(false);
   const [staffSearch, setStaffSearch] = useState('');
   const [showStaffDropdown, setShowStaffDropdown] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowStaffDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   if (!complaint) return null;
 
@@ -27,8 +39,8 @@ export function ComplaintModal({ complaint, onClose, staff = [], userRole }) {
       })
       .sort((a, b) => {
         // Prioritize staff in matching department
-        const aMatch = a.department === category ? 1 : 0;
-        const bMatch = b.department === category ? 1 : 0;
+        const aMatch = a.department?.toUpperCase() === category ? 1 : 0;
+        const bMatch = b.department?.toUpperCase() === category ? 1 : 0;
         return bMatch - aMatch;
       });
   }, [staff, staffSearch, complaint.category]);
@@ -94,7 +106,7 @@ export function ComplaintModal({ complaint, onClose, staff = [], userRole }) {
                   <img src={complaint.imageUrl} alt="Issue" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                   <div className="absolute top-4 left-4 flex gap-2">
                      <span className="glass-badge glass-badge--violet">{complaint.category}</span>
-                     <span className={`glass-badge ${getPriorityBadge(complaint.priority)}`}>{complaint.priority}Priority</span>
+                     <span className={`glass-badge ${getPriorityBadge(complaint.priority)}`}>{complaint.priority} Priority</span>
                   </div>
                 </div>
               </div>
@@ -129,7 +141,7 @@ export function ComplaintModal({ complaint, onClose, staff = [], userRole }) {
               </select>
             </div>
 
-            <div className="space-y-2 relative">
+            <div className="space-y-2 relative" ref={dropdownRef}>
               <label className="text-[10px] font-bold opacity-30 uppercase tracking-widest flex items-center gap-2">
                 <User className="w-3 h-3 text-violet" /> PERSONNEL ASSIGNMENT
               </label>
@@ -140,7 +152,9 @@ export function ComplaintModal({ complaint, onClose, staff = [], userRole }) {
                   placeholder="Search staff or select..."
                   value={showStaffDropdown ? staffSearch : assignedTo} 
                   onChange={(e) => {
-                    setStaffSearch(e.target.value);
+                    const val = e.target.value;
+                    setStaffSearch(val);
+                    setAssignedTo(val); 
                     setShowStaffDropdown(true);
                   }}
                   onFocus={() => setShowStaffDropdown(true)}
@@ -150,14 +164,15 @@ export function ComplaintModal({ complaint, onClose, staff = [], userRole }) {
               </div>
 
               {showStaffDropdown && (
-                <div className="absolute top-full left-0 right-0 mt-2 glass-card p-2 bg-black/90 backdrop-blur-2xl border-white/10 z-[210] max-h-60 overflow-y-auto custom-scrollbar animate-in slide-in-from-top-2 duration-300">
+                <div className="absolute top-full left-0 right-0 mt-2 glass-card p-2 bg-black/90 backdrop-blur-2xl border-white/10 z-[210] max-h-60 overflow-y-auto custom-scrollbar animate-in slide-in-from-top-2 duration-300 shadow-2xl">
                   {filteredStaff.length > 0 ? (
                     filteredStaff.map(s => (
                       <button
                         key={s.id}
+                        type="button"
                         onClick={() => {
                           setAssignedTo(s.name);
-                          setStaffSearch('');
+                          setStaffSearch(s.name);
                           setShowStaffDropdown(false);
                         }}
                         className={`w-full flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-all text-left group ${assignedTo === s.name ? 'bg-aqua/10 border border-aqua/20' : ''}`}
@@ -167,7 +182,7 @@ export function ComplaintModal({ complaint, onClose, staff = [], userRole }) {
                           <span className="text-[9px] opacity-40 font-bold">{s.department} • {s.role}</span>
                         </div>
                         {assignedTo === s.name && <Check className="w-3 h-3 text-aqua" />}
-                        {(s.department || '') === (complaint.category?.toUpperCase() || '') && !assignedTo && (
+                        {(s.department?.toLowerCase() === complaint.category?.toLowerCase()) && !assignedTo && (
                           <span className="text-[8px] bg-aqua/20 text-aqua px-1.5 py-0.5 rounded font-black uppercase tracking-tighter">SUGGESTED</span>
                         )}
                       </button>
@@ -175,12 +190,6 @@ export function ComplaintModal({ complaint, onClose, staff = [], userRole }) {
                   ) : (
                     <div className="p-4 text-center opacity-30 text-[10px] font-bold uppercase tracking-widest">No matching personnel</div>
                   )}
-                  <button 
-                    onClick={() => setShowStaffDropdown(false)}
-                    className="w-full mt-2 p-2 text-[8px] font-black uppercase tracking-widest text-center opacity-30 hover:opacity-100 transition-opacity"
-                  >
-                    CLOSE SELECTION
-                  </button>
                 </div>
               )}
             </div>

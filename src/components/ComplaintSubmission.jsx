@@ -158,61 +158,97 @@ export function ComplaintSubmission({ user }) {
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-8 animate-in fade-in duration-700">
-      <Card title="FILE NEW REPORT">
-        <form onSubmit={handleSubmit} className="space-y-8">
-          <div 
-            className="glass rounded-2xl p-8 text-center cursor-pointer transition-all hover:bg-white/10 border-dashed border-2 border-white/20 relative min-h-[200px] flex flex-col justify-center items-center overflow-hidden"
-            onClick={() => fileInputRef.current.click()}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-2">
+        <div className="space-y-1">
+          <span className="hero__kicker">Citizen Portal</span>
+          <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-white">
+            Smart <span className="text-aqua">Civic</span>
+          </h1>
+        </div>
+
+        <div className="flex items-center gap-2 glass p-1.5 rounded-2xl border-white/10 w-full md:w-auto">
+          <button 
+            onClick={() => setActiveTab('report')}
+            className={`flex-1 md:flex-none px-6 py-3 rounded-xl text-[10px] font-black tracking-widest transition-all flex items-center justify-center gap-2 ${activeTab === 'report' ? 'bg-aqua text-white shadow-lg shadow-aqua/20' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
           >
-            <input type="file" ref={fileInputRef} onChange={handleImageChange} className="hidden" accept="image/*" capture="environment" />
-            {imagePreview ? (
-              <img src={imagePreview} alt="Preview" className="absolute inset-0 w-full h-full object-cover" />
-            ) : (
-              <>
-                <ImagePlus className="w-10 h-10 text-aqua mb-2" />
-                <p className="text-sm font-bold">Tap to add photo evidence</p>
-              </>
-            )}
-          </div>
+            <MapPin className="w-3.5 h-3.5" /> REPORT
+          </button>
+          <button 
+            onClick={() => setActiveTab('track')}
+            className={`flex-1 md:flex-none px-6 py-3 rounded-xl text-[10px] font-black tracking-widest transition-all flex items-center justify-center gap-2 ${activeTab === 'track' ? 'bg-aqua text-white shadow-lg shadow-aqua/20' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+          >
+            <Clock className="w-3.5 h-3.5" /> TRACK
+          </button>
+          <button 
+            onClick={() => setActiveTab('ai')}
+            className={`flex-1 md:flex-none px-6 py-3 rounded-xl text-[10px] font-black tracking-widest transition-all flex items-center justify-center gap-2 ${activeTab === 'ai' ? 'bg-aqua text-white shadow-lg shadow-aqua/20' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+          >
+            <Bot className="w-3.5 h-3.5" /> AI CHAT
+          </button>
+        </div>
+      </div>
 
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-[10px] font-black opacity-40 tracking-widest">DESCRIPTION</span>
-              <button type="button" onClick={handleEnhanceWithAI} disabled={isEnhancing} className="text-aqua text-[10px] font-bold flex items-center gap-1">
-                {isEnhancing ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />} AI OPTIMIZE
-              </button>
+      {activeTab === 'report' ? (
+        <Card title="FILE NEW REPORT">
+          <form onSubmit={handleSubmit} className="space-y-8">
+            <div 
+              className="glass rounded-2xl p-8 text-center cursor-pointer transition-all hover:bg-white/10 border-dashed border-2 border-white/20 relative min-h-[200px] flex flex-col justify-center items-center overflow-hidden"
+              onClick={() => fileInputRef.current.click()}
+            >
+              <input type="file" ref={fileInputRef} onChange={handleImageChange} className="hidden" accept="image/*" capture="environment" />
+              {imagePreview ? (
+                <img src={imagePreview} alt="Preview" className="absolute inset-0 w-full h-full object-cover" />
+              ) : (
+                <>
+                  <ImagePlus className="w-10 h-10 text-aqua mb-2" />
+                  <p className="text-sm font-bold">Tap to add photo evidence</p>
+                </>
+              )}
             </div>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="What issue are you seeing?"
-              className="glass-textarea"
-              required
-            />
-            {(category || aiUrgency) && (
-              <div className="flex gap-2">
-                {category && <span className="glass-badge bg-violet/20 text-violet border-violet/30">{category}</span>}
-                {aiUrgency && <span className="glass-badge bg-amber/20 text-amber border-amber/30">{aiUrgency}</span>}
+
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] font-black opacity-40 tracking-widest">DESCRIPTION</span>
+                <button type="button" onClick={handleEnhanceWithAI} disabled={isEnhancing} className="text-aqua text-[10px] font-bold flex items-center gap-1">
+                  {isEnhancing ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />} AI OPTIMIZE
+                </button>
               </div>
-            )}
-          </div>
-
-          <div className="glass p-5 rounded-2xl flex items-center justify-between border-white/5">
-            <div className="flex items-center gap-3">
-              <MapPin className={`w-5 h-5 ${location ? 'text-aqua' : 'opacity-20'}`} />
-              <span className="text-xs font-bold">{location ? 'Location Locked' : 'GPS Required'}</span>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="What issue are you seeing?"
+                className="glass-textarea"
+                required
+              />
+              {(category || aiUrgency) && (
+                <div className="flex gap-2">
+                  {category && <span className="glass-badge bg-violet/20 text-violet border-violet/30">{category}</span>}
+                  {aiUrgency && <span className="glass-badge bg-amber/20 text-amber border-amber/30">{aiUrgency}</span>}
+                </div>
+              )}
             </div>
-            <div className="flex gap-2">
-              <Button type="button" onClick={getLocation} variant="outline" size="sm" isLoading={isLocating}>AUTO GPS</Button>
-              {!location && <Button type="button" onClick={handleManualLocation} variant="ghost" size="sm">MANUAL</Button>}
-            </div>
-          </div>
 
-          <Button type="submit" variant="primary" className="w-full h-14" isLoading={isSubmitting}>
-            SUBMIT COMPLAINT
-          </Button>
-        </form>
-      </Card>
+            <div className="glass p-5 rounded-2xl flex items-center justify-between border-white/5">
+              <div className="flex items-center gap-3">
+                <MapPin className={`w-5 h-5 ${location ? 'text-aqua' : 'opacity-20'}`} />
+                <span className="text-xs font-bold">{location ? 'Location Locked' : 'GPS Required'}</span>
+              </div>
+              <div className="flex gap-2">
+                <Button type="button" onClick={getLocation} variant="outline" size="sm" isLoading={isLocating}>AUTO GPS</Button>
+                {!location && <Button type="button" onClick={handleManualLocation} variant="ghost" size="sm">MANUAL</Button>}
+              </div>
+            </div>
+
+            <Button type="submit" variant="primary" className="w-full h-14" isLoading={isSubmitting}>
+              SUBMIT COMPLAINT
+            </Button>
+          </form>
+        </Card>
+      ) : activeTab === 'track' ? (
+        <CitizenTracker user={user} />
+      ) : (
+        <AIChatBot user={user} />
+      )}
     </div>
   );
 }

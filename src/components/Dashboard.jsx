@@ -463,22 +463,36 @@ export function Dashboard({ user, onLogout }) {
                           <h4 className="text-sm font-black uppercase tracking-wide group-hover:text-aqua transition-colors mb-2">{c.category || 'Maintenance Issue'}</h4>
                           <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity">{c.description}</p>
 
-                          <div className="mt-5 pt-5 border-t border-white/5 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-aqua">
-                                <Users className="w-3.5 h-3.5" />
+                          <div className="mt-5 pt-5 border-t border-white/5 space-y-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-aqua">
+                                  <Users className="w-3.5 h-3.5" />
+                                </div>
+                                <div className="flex flex-col">
+                                  <span className="text-[8px] opacity-40 font-bold uppercase">Assigned Unit</span>
+                                  <span className="text-[10px] font-black text-white/80 uppercase tracking-wider">{c.assignedTo || 'UNASSIGNED'}</span>
+                                </div>
                               </div>
-                              <div className="flex flex-col">
-                                <span className="text-[8px] opacity-40 font-bold uppercase">Assigned Unit</span>
-                                <span className="text-[10px] font-black text-white/80">{c.assignedTo || 'UNASSIGNED'}</span>
+                              <div className="text-right">
+                                <span className="text-[8px] opacity-40 font-bold uppercase block mb-1">Est. Completion</span>
+                                <span className="text-[10px] font-black text-violet">
+                                  {c.estimatedEndDate ? new Date(c.estimatedEndDate).toLocaleDateString([], { month: 'short', day: 'numeric', year: '2-digit' }) : 'PENDING'}
+                                </span>
                               </div>
                             </div>
-                            <div className="text-right">
-                              <span className="text-[8px] opacity-40 font-bold uppercase block mb-1">Est. Completion</span>
-                              <span className="text-[10px] font-black text-violet">
-                                {c.estimatedEndDate ? new Date(c.estimatedEndDate).toLocaleDateString([], { month: 'short', day: 'numeric', year: '2-digit' }) : 'PENDING'}
-                              </span>
-                            </div>
+
+                            {c.operatorFeedback && (
+                              <div className="glass-card p-3 border-white/5 bg-white/5 rounded-lg">
+                                <div className="flex items-center gap-2 mb-1.5 opacity-30">
+                                  <RefreshCcw className="w-2.5 h-2.5" />
+                                  <span className="text-[7px] font-black uppercase tracking-widest">Operator Note</span>
+                                </div>
+                                <p className="text-[10px] text-slate-400 italic line-clamp-2">
+                                  "{c.operatorFeedback}"
+                                </p>
+                              </div>
+                            )}
                           </div>
 
                           <div className="mt-4 flex items-center justify-between">

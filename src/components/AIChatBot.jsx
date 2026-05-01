@@ -24,21 +24,25 @@ CONSTRAINTS:
 - Use Markdown for clear, structured responses.`;
 
 const FALLBACK_RESPONSES = {
-  greet: "Greetings! I am **AI Answer**, your friendly universal assistant. It seems I am currently operating in offline mode, but I can still assist with basic infrastructure reporting. How can I help you today? 😊",
-  road: "### 🛣️ Road Issue\n\nI understand you want to report a road issue. You can use the **Report** section to snap a photo and share the location of the pothole. The Road Department will look into it!",
-  garbage: "### 🗑️ Sanitation Issue\n\nGarbage not collected? No problem. Please go to the **Report** section, select 'Garbage', and we'll dispatch a cleanup crew to your area.",
-  electricity: "### ⚡ Power Issue\n\nPower outage or broken streetlights? Stay safe! You can report this in the **Report** section so the Electricity Department can fix it promptly.",
-  emergency: "### 🆘 Emergency!\n\nIf this is a life-threatening emergency, please use the **SOS** button immediately to alert all authorities and your emergency contacts!",
-  default: "I'm currently running in limited offline mode. Please try asking about specific issues like 'road', 'garbage', 'electricity', or 'emergency'.",
+  greet: "Greetings! I am **Smart Civic AI**, your specialized urban maintenance assistant. I'm currently operating in a secure offline mode, but I can still guide you through reporting infrastructure issues. How can I help you improve our city today? 🏙️",
+  road: "### 🛣️ Road & Infrastructure\n\nTo report potholes, damaged pavements, or road obstructions:\n1. Go to the **REPORT** tab.\n2. Upload a clear photo of the damage.\n3. Use 'AUTO GPS' to lock the exact coordinates.\n\nOur road maintenance units usually respond within 48-72 hours.",
+  garbage: "### 🗑️ Sanitation & Waste\n\nFor missed garbage collection or public litter issues:\n- File a report under the **Sanitation** category.\n- Providing a photo helps our crews bring the right equipment.\n- You can track the cleanup status in the **TRACK** tab.",
+  electricity: "### ⚡ Power & Street Lighting\n\nIf you see broken streetlights or exposed wiring:\n- **Safety First:** Do not approach damaged electrical infrastructure.\n- Report it immediately in the **REPORT** tab.\n- For widespread blackouts, please contact the City Power Grid helpdesk.",
+  water: "### 🚰 Water & Sewage\n\nFor water leaks, burst pipes, or drainage issues:\n- Select the **Water/Sewage** category when reporting.\n- Note if the leak is causing road damage or flooding.\n- Emergency repairs are prioritized by our central dispatch.",
+  tracking: "### 🔍 Tracking Your Reports\n\nYou can monitor your reported issues in real-time:\n1. Switch to the **TRACK** tab at the top of this page.\n2. All reports associated with your phone number (**user.phoneNumber**) will appear there.\n3. You'll see status updates, assigned personnel, and estimated completion dates.",
+  emergency: "### 🆘 Emergency Protocol\n\n**If this is a life-threatening situation (fire, gas leak, building collapse):**\n- Use the red **SOS** button on the home screen immediately.\n- This alerts all emergency services and shares your live location with first responders.",
+  default: "I am currently in limited offline mode. I can help with issues related to **roads**, **garbage**, **electricity**, **water**, or **tracking** your complaints. Please specify the issue you'd like to report.",
 };
 
 function getLocalResponse(message) {
   const lower = message.toLowerCase();
-  if (lower.match(/^(hi|hello|hey|good|namaste)/)) return FALLBACK_RESPONSES.greet;
-  if (lower.match(/road|pothole|crack|street|pavement/)) return FALLBACK_RESPONSES.road;
-  if (lower.match(/garbage|waste|trash|dump|bin|litter/)) return FALLBACK_RESPONSES.garbage;
-  if (lower.match(/electric|light|power|wire|outage/)) return FALLBACK_RESPONSES.electricity;
-  if (lower.match(/emergency|sos|urgent|danger|accident|fire/)) return FALLBACK_RESPONSES.emergency;
+  if (lower.match(/^(hi|hello|hey|good|namaste|greetings)/)) return FALLBACK_RESPONSES.greet;
+  if (lower.match(/road|pothole|crack|street|pavement|highway/)) return FALLBACK_RESPONSES.road;
+  if (lower.match(/garbage|waste|trash|dump|bin|litter|sanitation|smell|clean/)) return FALLBACK_RESPONSES.garbage;
+  if (lower.match(/electric|light|power|wire|outage|dark|transformer/)) return FALLBACK_RESPONSES.electricity;
+  if (lower.match(/water|leak|pipe|drain|sewage|flood|overflow/)) return FALLBACK_RESPONSES.water;
+  if (lower.match(/track|status|check|progress|where|report|my cases/)) return FALLBACK_RESPONSES.tracking;
+  if (lower.match(/emergency|sos|urgent|danger|accident|fire|help/)) return FALLBACK_RESPONSES.emergency;
   return FALLBACK_RESPONSES.default;
 }
 

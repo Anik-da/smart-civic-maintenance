@@ -223,6 +223,33 @@ export function CitizenTracker({ user }) {
                   </div>
                 </div>
               )}
+
+              {(incident.operatorFeedback || incident.assignedTo) && (
+                <div className="mt-6 space-y-4">
+                  {incident.assignedTo && (
+                    <div className="flex items-center gap-3 glass-card p-3 border-white/5 bg-aqua/5">
+                      <div className="w-8 h-8 rounded-full bg-aqua/10 flex items-center justify-center text-aqua">
+                        <Phone className="w-3.5 h-3.5" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[8px] font-black uppercase opacity-40">Assigned Personnel</span>
+                        <span className="text-[10px] font-bold text-white uppercase tracking-wider">{incident.assignedTo}</span>
+                      </div>
+                    </div>
+                  )}
+                  {incident.operatorFeedback && (
+                    <div className="glass-card p-4 border-white/5 bg-white/5 italic">
+                      <div className="flex items-center gap-2 mb-2 opacity-30">
+                        <RefreshCcw className="w-3 h-3" />
+                        <span className="text-[8px] font-black uppercase tracking-[0.2em]">Operational Update</span>
+                      </div>
+                      <p className="text-xs text-slate-300 leading-relaxed font-medium">
+                        "{incident.operatorFeedback}"
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
               
               <div className="mt-6 flex justify-end">
                 <Button className="h-10 px-6 text-[10px] font-black tracking-[0.2em] group/btn">
