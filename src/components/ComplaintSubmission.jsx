@@ -104,9 +104,17 @@ export function ComplaintSubmission({ user }) {
         },
         async () => {
           const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          // Normalize phone to always store with +91 prefix
+          const normalizedPhone = (() => {
+            const raw = (user.phoneNumber || '').replace(/\s+/g, '');
+            if (raw.startsWith('+91')) return raw;
+            if (raw.startsWith('91') && raw.length > 10) return '+' + raw;
+            if (/^\d{10}$/.test(raw)) return '+91' + raw;
+            return raw;
+          })();
           await addDoc(collection(db, 'complaints'), {
             userId: user.uid, 
-            phone: user.phoneNumber, 
+            phone: normalizedPhone, 
             description,
             category: category || 'Uncategorized', 
             imageUrl: downloadURL,

@@ -605,7 +605,7 @@ export function Dashboard({ user, onLogout }) {
           const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
           const dayCounts = [0, 0, 0, 0, 0, 0, 0];
           const categoryMap = {};
-          const deptStats = { ROADS: { total: 0, resolved: 0 }, ELECTRICITY: { total: 0, resolved: 0 }, WATER: { total: 0, resolved: 0 }, SANITATION: { total: 0, resolved: 0 } };
+          const deptStats = { ROADS: { total: 0, resolved: 0 }, ELECTRICITY: { total: 0, resolved: 0 }, WATER: { total: 0, resolved: 0 }, SANITATION: { total: 0, resolved: 0 }, ADMIN: { total: 0, resolved: 0 } };
           let highPriorityTotal = 0;
           let highPriorityResolved = 0;
 

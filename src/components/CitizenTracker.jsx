@@ -28,10 +28,23 @@ export function CitizenTracker({ user }) {
     setLoading(true);
     const dataReceived = { complaints: false, emergencies: false };
 
-    // Query for Complaints
+    // Normalize phone: generate all possible formats to match inconsistent Firestore data
+    const rawPhone = user.phoneNumber.replace(/\s+/g, '');
+    const phoneVariants = new Set([rawPhone]);
+    if (rawPhone.startsWith('+91')) {
+      phoneVariants.add(rawPhone.slice(3)); // without +91
+    } else if (rawPhone.startsWith('91') && rawPhone.length > 10) {
+      phoneVariants.add(rawPhone.slice(2)); // without 91
+      phoneVariants.add('+' + rawPhone);    // with +
+    } else if (/^\d{10}$/.test(rawPhone)) {
+      phoneVariants.add('+91' + rawPhone);  // with +91
+    }
+    const phonesArray = [...phoneVariants];
+
+    // Query complaints for ALL phone variants using 'in' operator
     const qComplaints = query(
       collection(db, 'complaints'),
-      where('phone', '==', user.phoneNumber)
+      where('phone', 'in', phonesArray)
     );
 
     const unsubscribeComplaints = onSnapshot(qComplaints, (snapshot) => {
@@ -45,10 +58,10 @@ export function CitizenTracker({ user }) {
       if (dataReceived.emergencies) setLoading(false);
     });
 
-    // Query for Emergencies
+    // Query emergencies for ALL phone variants
     const qEmergencies = query(
       collection(db, 'emergencies'),
-      where('phone', '==', user.phoneNumber)
+      where('phone', 'in', phonesArray)
     );
 
     const unsubscribeEmergencies = onSnapshot(qEmergencies, (snapshot) => {
