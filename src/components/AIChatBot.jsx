@@ -8,23 +8,20 @@ import ReactMarkdown from 'react-markdown';
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
-const SYSTEM_PROMPT = `You are "AI Answer", a highly capable, universal AI assistant. 
+const SYSTEM_PROMPT = `You are "Smart Civic AI", a specialized assistant for the Smart Civic maintenance platform.
 
-Your primary goal is to provide accurate, helpful, and empathetic answers to ANY question a user might have. Whether it's about civic maintenance, science, history, or daily life, you are here to help.
+Your goal is to help citizens with infrastructure issues, reporting complaints, and tracking their status. You are professional, efficient, and highly knowledgeable about urban maintenance.
 
-CIVIC GUIDANCE:
-- If asked about infrastructure (potholes, leaks, etc.), guide the user to the "Report System".
-- If asked about tracking a complaint, explain they can use the "Track Status" feature with their phone number.
-- For emergencies, always point them to the "SOS" button.
+CORE COMPETENCIES:
+1. INFRASTRUCTURE: Help users identify and describe issues like potholes, street light failures, water leaks, and sanitation problems.
+2. REPORTING: Guide users to the "Report" section to file a new complaint with photo and GPS evidence.
+3. TRACKING: Explain that users can track their complaints using the "Track Status" tab in the Report section by entering their registered phone number.
+4. EMERGENCIES: For life-threatening emergencies, always emphasize using the "SOS" button.
 
-UNIVERSAL CAPABILITY:
-- Answer general knowledge questions fully and accurately.
-- Do not be restrictive. If a user asks something unrelated to city services, answer it with the same level of detail and care.
-
-TONE & STYLE:
-- Use a warm, professional, and intelligent tone.
-- Use Markdown (headers, bold, lists) to structure your responses.
-- Always refer to yourself as "AI Answer".`;
+CONSTRAINTS:
+- Keep answers focused on civic services and city maintenance.
+- Be precise and accurate. If you don't know something about a specific city policy, ask the user to contact the helpdesk.
+- Use Markdown for clear, structured responses.`;
 
 const FALLBACK_RESPONSES = {
   greet: "Greetings! I am **AI Answer**, your friendly universal assistant. It seems I am currently operating in offline mode, but I can still assist with basic infrastructure reporting. How can I help you today? 😊",
@@ -49,9 +46,9 @@ export function AIChatBot({ user }) {
   const [messages, setMessages] = useState([
     {
       role: 'bot',
-      content: `Hello! I am **AI Answer**, your universal assistant for the Smart Civic platform. 👋
+      content: `Hello! I am **Smart Civic AI**, your specialized assistant for city maintenance. 👋
         
-I can help you report infrastructure issues, track your existing complaints, or answer **any** other questions you have about our city or the world.
+I can help you report infrastructure issues, explain how to track your existing complaints, or provide information about our city services.
 
 How can I assist you today?`,
       time: new Date()
@@ -137,21 +134,16 @@ How can I assist you today?`,
         <div>
           <span className="hero__kicker">AI-Powered Assistance</span>
           <h1 className="hero__title" style={{ fontSize: '2.5rem', textAlign: 'left', marginBottom: 0 }}>
-            AI Answer
+            Smart Civic AI
           </h1>
           <p className="text-slate-400 text-sm mt-2">
             {GEMINI_API_KEY
-              ? `✨ Official Civic Assistant`
+              ? `✨ Official Maintenance Assistant`
               : `Ask me about report status or city services.`}
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Link to="/track" className="glass px-4 py-2 rounded-md flex items-center gap-2 hover:border-aqua/50 transition-all">
-            <Search className="w-4 h-4 text-aqua" />
-            <span className="text-[10px] font-bold tracking-widest uppercase opacity-80">
-              Track Status
-            </span>
-          </Link>
+
           <div className="glass px-4 py-2 rounded-md flex items-center gap-2">
             <div className="w-2 h-2 rounded-full animate-pulse bg-lime shadow-[0_0_10px_#a8f08a]"></div>
             <span className="text-[10px] font-bold tracking-widest uppercase opacity-60">
@@ -164,7 +156,7 @@ How can I assist you today?`,
       {/* Removed Quick Actions as requested */}
 
       {/* Chat Window */}
-      <Card className="w-full" title="AI ANSWER">
+      <Card className="w-full" title="CIVIC ASSISTANT">
         <div className="flex flex-col h-[500px]">
           {/* Messages */}
           <div className="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar mb-4">

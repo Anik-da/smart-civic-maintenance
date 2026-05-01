@@ -108,8 +108,8 @@ function AppShell() {
 
               <nav className="flex items-center gap-1 sm:gap-2">
                 {user && <NavLink to="/report" icon={<FileText className="w-4 h-4 sm:w-5 sm:h-5" />} label="Report" />}
-                {user && <NavLink to="/track" icon={<Search className="w-4 h-4 sm:w-5 sm:h-5" />} label="Track" />}
-                <NavLink to="/ai-bot" icon={<Bot className="w-4 h-4 sm:w-5 sm:h-5" />} label="AI Answer" />
+
+
                 
                 {user && (
                   <button 
