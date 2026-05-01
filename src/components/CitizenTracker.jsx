@@ -26,6 +26,7 @@ export function CitizenTracker({ user }) {
     if (!user?.phoneNumber) return;
 
     setLoading(true);
+    const dataReceived = { complaints: false, emergencies: false };
 
     // Query for Complaints
     const qComplaints = query(
@@ -40,8 +41,8 @@ export function CitizenTracker({ user }) {
         ...doc.data()
       }));
       setComplaints(docs);
-      if (dataReceived.emergencies) setLoading(false);
       dataReceived.complaints = true;
+      if (dataReceived.emergencies) setLoading(false);
     });
 
     // Query for Emergencies
@@ -50,20 +51,17 @@ export function CitizenTracker({ user }) {
       where('phone', '==', user.phoneNumber)
     );
 
-    const dataReceived = { complaints: false, emergencies: false };
-
     const unsubscribeEmergencies = onSnapshot(qEmergencies, (snapshot) => {
       const docs = snapshot.docs.map(doc => ({
         id: doc.id,
         collection: 'emergencies',
         ...doc.data(),
         category: doc.data().type || 'Emergency SOS',
-        // Emergencies might not have a description field in the same way
         description: doc.data().description || `Emergency SOS signal reported from this device.`
       }));
       setEmergencies(docs);
-      if (dataReceived.complaints) setLoading(false);
       dataReceived.emergencies = true;
+      if (dataReceived.complaints) setLoading(false);
     });
 
     // Fallback if no data is received within a timeout

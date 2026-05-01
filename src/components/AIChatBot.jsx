@@ -59,7 +59,7 @@ What's on your mind?`,
     if (GEMINI_API_KEY) {
       try {
         const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-        const geminiModel = genAI.getGenerativeModel({ 
+        const geminiModel = genAI.getGenerativeModel({
           model: 'gemini-2.0-flash',
           systemInstruction: SYSTEM_PROMPT,
         });
@@ -72,7 +72,7 @@ What's on your mind?`,
         console.error('Failed to init Gemini chat:', err);
       }
     }
-  }, [GEMINI_API_KEY]); 
+  }, [GEMINI_API_KEY]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -131,8 +131,8 @@ What's on your mind?`,
             Civic-IQ Assistant
           </h1>
           <p className="text-slate-400 text-sm mt-2">
-            {GEMINI_API_KEY 
-              ? `✨ Citizen Helper via Gemini 2.0` 
+            {GEMINI_API_KEY
+              ? `✨ Citizen Helper via Gemini 1.5`
               : `Ask me anything about civic maintenance.`}
           </p>
         </div>
@@ -164,16 +164,16 @@ What's on your mind?`,
           {/* Messages */}
           <div className="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar mb-4">
             {messages.map((msg, i) => (
-              <div key={i} className={`flex gap-3 \${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                <div className={`w-8 h-8 rounded-md flex-shrink-0 flex items-center justify-center \${
+              <div key={i} className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
+                <div className={`w-8 h-8 rounded-md flex-shrink-0 flex items-center justify-center ${
                   msg.role === 'bot' 
                     ? 'bg-aqua/10 border border-aqua/20' 
                     : 'bg-violet/10 border border-violet/20'
                 }`}>
                   {msg.role === 'bot' ? <Bot className="w-4 h-4 text-aqua" /> : <User className="w-4 h-4 text-violet" />}
                 </div>
-                <div className={`max-w-[80%] \${msg.role === 'user' ? 'text-right' : ''}`}>
-                  <div className={`glass p-4 rounded-md text-sm leading-relaxed markdown-content \${
+                <div className={`max-w-[80%] ${msg.role === 'user' ? 'text-right' : ''}`}>
+                  <div className={`glass p-4 rounded-md text-sm leading-relaxed markdown-content ${
                     msg.role === 'user' 
                       ? 'bg-violet/10 border-violet/20' 
                       : 'bg-white/5 border-white/5'
@@ -214,8 +214,8 @@ What's on your mind?`,
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder={GEMINI_API_KEY 
-                  ? "Ask Gemini anything about your city..." 
+                placeholder={GEMINI_API_KEY
+                  ? "Ask Gemini anything about your city..."
                   : "Ask about roads, garbage, electricity, water..."}
                 className="glass-input pl-12 w-full"
                 disabled={isTyping}
