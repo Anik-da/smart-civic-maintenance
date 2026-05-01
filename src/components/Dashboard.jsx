@@ -20,7 +20,8 @@ import {
   Map as MapIcon,
   TrendingUp,
   Search,
-  UserPlus
+  UserPlus,
+  RefreshCcw
 } from 'lucide-react';
 import { ControlCenterSidebar } from './ControlCenterSidebar';
 
@@ -222,7 +223,8 @@ export function Dashboard({ user, onLogout }) {
         console.warn('Firestore Emergencies Error:', error.message);
       });
 
-      if (user?.role === 'ADMIN') {
+      // Allow all authorized staff to see personnel for assignment
+      if (user?.role) {
         const qS = collection(db, 'staff');
         unsubscribeStaff = onSnapshot(qS, (snapshot) => {
           setStaff(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
@@ -321,6 +323,7 @@ export function Dashboard({ user, onLogout }) {
 
     const matchesRole = user?.role === 'ADMIN' || 
                         c.assignedTo === user?.department || 
+                        c.assignedDept === user?.department ||
                         c.assignedTo === 'ADMIN' || 
                         !c.assignedTo;
 
@@ -471,7 +474,11 @@ export function Dashboard({ user, onLogout }) {
                                 </div>
                                 <div className="flex flex-col">
                                   <span className="text-[8px] opacity-40 font-bold uppercase">Assigned Unit</span>
-                                  <span className="text-[10px] font-black text-white/80 uppercase tracking-wider">{c.assignedTo || 'UNASSIGNED'}</span>
+                                  <span className="text-[10px] font-black text-white/80 uppercase tracking-wider">
+                                    {c.assignedTo ? (
+                                      c.assignedDept ? `${c.assignedTo} (${c.assignedDept})` : c.assignedTo
+                                    ) : 'UNASSIGNED'}
+                                  </span>
                                 </div>
                               </div>
                               <div className="text-right">
@@ -483,13 +490,16 @@ export function Dashboard({ user, onLogout }) {
                             </div>
 
                             {c.operatorFeedback && (
-                              <div className="glass-card p-3 border-white/5 bg-white/5 rounded-lg">
-                                <div className="flex items-center gap-2 mb-1.5 opacity-30">
-                                  <RefreshCcw className="w-2.5 h-2.5" />
-                                  <span className="text-[7px] font-black uppercase tracking-widest">Operator Note</span>
+                              <div className="mt-4 p-4 bg-blue-400/5 border border-blue-400/20 rounded-xl relative group/note overflow-hidden">
+                                <div className="absolute top-0 right-0 p-2 opacity-10 group-hover/note:opacity-30 transition-opacity">
+                                  <RefreshCcw className="w-12 h-12 -rotate-12" />
                                 </div>
-                                <p className="text-[10px] text-slate-400 italic line-clamp-2">
-                                  "{c.operatorFeedback}"
+                                <div className="flex items-center gap-2 mb-2">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></div>
+                                  <span className="text-[8px] font-black uppercase tracking-[0.2em] text-blue-400/80">Operational Note</span>
+                                </div>
+                                <p className="text-xs text-blue-100/90 font-medium leading-relaxed">
+                                  {c.operatorFeedback}
                                 </p>
                               </div>
                             )}

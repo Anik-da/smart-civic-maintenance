@@ -8,6 +8,7 @@ import { X, Save, MessageSquare, User, Activity, ExternalLink, Search, Check, Al
 export function ComplaintModal({ complaint, onClose, staff = [], userRole }) {
   const [status, setStatus] = useState(complaint?.status || 'Pending');
   const [assignedTo, setAssignedTo] = useState(complaint?.assignedTo || '');
+  const [selectedDept, setSelectedDept] = useState(complaint?.assignedDept || '');
   const [feedback, setFeedback] = useState(complaint?.operatorFeedback || '');
   const [isSaving, setIsSaving] = useState(false);
   const [staffSearch, setStaffSearch] = useState('');
@@ -53,6 +54,7 @@ export function ComplaintModal({ complaint, onClose, staff = [], userRole }) {
       await updateDoc(complaintRef, {
         status, 
         assignedTo, 
+        assignedDept: selectedDept,
         operatorFeedback: feedback, 
         updatedAt: new Date()
       });
@@ -149,18 +151,31 @@ export function ComplaintModal({ complaint, onClose, staff = [], userRole }) {
               <div className="relative">
                 <input 
                   type="text" 
-                  placeholder="Search staff or select..."
-                  value={showStaffDropdown ? staffSearch : assignedTo} 
+                  placeholder="Search staff or type name..."
+                  value={showStaffDropdown ? staffSearch : (assignedTo || '')} 
                   onChange={(e) => {
                     const val = e.target.value;
                     setStaffSearch(val);
-                    setAssignedTo(val); 
+                    setAssignedTo(val);
+                    setSelectedDept(''); // Clear department for manual entries
+                    if (!showStaffDropdown) setShowStaffDropdown(true);
+                  }}
+                  onFocus={() => {
+                    setStaffSearch(assignedTo || '');
                     setShowStaffDropdown(true);
                   }}
-                  onFocus={() => setShowStaffDropdown(true)}
-                  className="glass-input pr-10"
+                  className="glass-input pr-10 focus:ring-2 focus:ring-violet/20"
                 />
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 opacity-20" />
+                <button 
+                  type="button"
+                  onClick={() => {
+                    if (!showStaffDropdown) setStaffSearch(assignedTo || '');
+                    setShowStaffDropdown(!showStaffDropdown);
+                  }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-white/5 rounded-md transition-all"
+                >
+                  <Search className={`w-3.5 h-3.5 transition-opacity ${showStaffDropdown ? 'opacity-100 text-violet' : 'opacity-20'}`} />
+                </button>
               </div>
 
               {showStaffDropdown && (
@@ -170,20 +185,23 @@ export function ComplaintModal({ complaint, onClose, staff = [], userRole }) {
                       <button
                         key={s.id}
                         type="button"
-                        onClick={() => {
-                          setAssignedTo(s.name);
-                          setStaffSearch(s.name);
+                        onMouseDown={(e) => {
+                          // Prevent input onBlur from closing dropdown before click
+                          e.preventDefault();
+                          setAssignedTo(s.name || '');
+                          setSelectedDept(s.department || '');
+                          setStaffSearch(s.name || '');
                           setShowStaffDropdown(false);
                         }}
-                        className={`w-full flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-all text-left group ${assignedTo === s.name ? 'bg-aqua/10 border border-aqua/20' : ''}`}
+                        className={`w-full flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-all text-left group ${assignedTo === s.name ? 'bg-violet/10 border border-violet/20' : ''}`}
                       >
                         <div className="flex flex-col">
-                          <span className="text-xs font-black uppercase group-hover:text-aqua transition-colors">{s.name}</span>
-                          <span className="text-[9px] opacity-40 font-bold">{s.department} • {s.role}</span>
+                          <span className="text-xs font-black uppercase group-hover:text-violet transition-colors">{s.name}</span>
+                          <span className="text-[9px] opacity-40 font-bold tracking-wider">{s.department} • {s.role}</span>
                         </div>
-                        {assignedTo === s.name && <Check className="w-3 h-3 text-aqua" />}
-                        {(s.department?.toLowerCase() === complaint.category?.toLowerCase()) && !assignedTo && (
-                          <span className="text-[8px] bg-aqua/20 text-aqua px-1.5 py-0.5 rounded font-black uppercase tracking-tighter">SUGGESTED</span>
+                        {assignedTo === s.name && <Check className="w-3 h-3 text-violet" />}
+                        {(s.department?.toUpperCase() === complaint.category?.toUpperCase()) && (
+                          <span className="text-[7px] bg-violet/20 text-violet px-1.5 py-0.5 rounded font-black uppercase tracking-tighter">DEPT MATCH</span>
                         )}
                       </button>
                     ))
