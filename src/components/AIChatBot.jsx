@@ -172,12 +172,12 @@ What's on your mind?`,
           </h1>
           <p className="text-slate-400 text-sm mt-2">
             {GEMINI_API_KEY 
-              ? `✨ ${isStaff ? 'SECURE OPERATIONS LINE' : 'Citizen Helper'} via Gemini 1.5` 
-              : `Ask me anything about ${isStaff ? 'infrastructure management' : 'civic maintenance'}.`}
+              ? `✨ \${isStaff ? 'SECURE OPERATIONS LINE' : 'Citizen Helper'} via Gemini 1.5` 
+              : `Ask me anything about \${isStaff ? 'infrastructure management' : 'civic maintenance'}.`}
           </p>
         </div>
-        <div className={`glass px-4 py-2 rounded-md flex items-center gap-2 ${isStaff ? 'border-rose/30 shadow-[0_0_15px_rgba(244,63,94,0.2)]' : ''}`}>
-          <div className={`w-2 h-2 rounded-full animate-pulse ${isStaff ? 'bg-rose shadow-[0_0_10px_#f43f5e]' : 'bg-lime shadow-[0_0_10px_#a8f08a]'}`}></div>
+        <div className={`glass px-4 py-2 rounded-md flex items-center gap-2 \${isStaff ? 'border-rose/30 shadow-[0_0_15px_rgba(244,63,94,0.2)]' : ''}`}>
+          <div className={`w-2 h-2 rounded-full animate-pulse \${isStaff ? 'bg-rose shadow-[0_0_10px_#f43f5e]' : 'bg-lime shadow-[0_0_10px_#a8f08a]'}`}></div>
           <span className="text-[10px] font-bold tracking-widest uppercase opacity-60">
             {isStaff ? 'ENCRYPTED LINE' : 'Online'}
           </span>
@@ -204,16 +204,16 @@ What's on your mind?`,
           {/* Messages */}
           <div className="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar mb-4">
             {messages.map((msg, i) => (
-              <div key={i} className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                <div className={`w-8 h-8 rounded-md flex-shrink-0 flex items-center justify-center ${
+              <div key={i} className={`flex gap-3 \${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
+                <div className={`w-8 h-8 rounded-md flex-shrink-0 flex items-center justify-center \${
                   msg.role === 'bot' 
                     ? (isStaff ? 'bg-rose/10 border border-rose/20' : 'bg-aqua/10 border border-aqua/20') 
                     : 'bg-violet/10 border border-violet/20'
                 }`}>
-                  {msg.role === 'bot' ? <Bot className={`w-4 h-4 ${isStaff ? 'text-rose' : 'text-aqua'}`} /> : <User className="w-4 h-4 text-violet" />}
+                  {msg.role === 'bot' ? <Bot className={`w-4 h-4 \${isStaff ? 'text-rose' : 'text-aqua'}`} /> : <User className="w-4 h-4 text-violet" />}
                 </div>
-                <div className={`max-w-[80%] ${msg.role === 'user' ? 'text-right' : ''}`}>
-                  <div className={`glass p-4 rounded-md text-sm leading-relaxed markdown-content ${
+                <div className={`max-w-[80%] \${msg.role === 'user' ? 'text-right' : ''}`}>
+                  <div className={`glass p-4 rounded-md text-sm leading-relaxed markdown-content \${
                     msg.role === 'user' 
                       ? 'bg-violet/10 border-violet/20' 
                       : (isStaff ? 'bg-rose/5 border-rose/10' : 'bg-white/5 border-white/5')
@@ -261,11 +261,11 @@ What's on your mind?`,
                 placeholder={GEMINI_API_KEY 
                   ? (isStaff ? "Consult Unit-01 on infrastructure, safety, or coordination..." : "Ask Gemini anything about your city...") 
                   : (isStaff ? "Technical queries, safety protocols, or resource planning..." : "Ask about roads, garbage, electricity, water...")}
-                className={`glass-input pl-12 w-full ${isStaff ? 'border-rose/20 focus:border-rose/50 font-mono' : ''}`}
+                className={`glass-input pl-12 w-full \${isStaff ? 'border-rose/20 focus:border-rose/50 font-mono' : ''}`}
                 disabled={isTyping}
               />
             </div>
-            <Button type="submit" variant={isStaff ? 'outline' : 'primary'} className={`px-6 ${isStaff ? 'border-rose/50 text-rose hover:bg-rose/10' : ''}`} disabled={isTyping || !input.trim()}>
+            <Button type="submit" variant={isStaff ? 'outline' : 'primary'} className={`px-6 \${isStaff ? 'border-rose/50 text-rose hover:bg-rose/10' : ''}`} disabled={isTyping || !input.trim()}>
               <Send className="w-4 h-4" />
             </Button>
           </form>
