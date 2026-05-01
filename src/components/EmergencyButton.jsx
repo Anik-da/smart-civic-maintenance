@@ -4,7 +4,7 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { requestNotificationPermission } from '../lib/fcm';
 import { AlertTriangle } from 'lucide-react';
 
-export function EmergencyButton({ user }) {
+export function EmergencyButton({ user, variant = 'floating' }) {
   const [isRequesting, setIsRequesting] = useState(false);
 
   const handleEmergency = async () => {
@@ -67,6 +67,24 @@ export function EmergencyButton({ user }) {
       setIsRequesting(false);
     }
   };
+
+  if (variant === 'sidebar') {
+    return (
+      <button 
+        onClick={handleEmergency}
+        disabled={isRequesting}
+        className="tab-btn group bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-500/30 mt-6 mb-4 ring-1 ring-rose-500/20"
+      >
+        <div className="tab-icon bg-rose-500/30 shadow-[0_0_15px_rgba(244,63,94,0.3)]">
+          <AlertTriangle className={`w-5 h-5 ${isRequesting ? 'animate-ping' : 'animate-pulse'}`} />
+        </div>
+        <div className="tab-text text-left">
+          <div className="tab-title text-rose-100">EMERGENCY SOS</div>
+          <div className="tab-subtitle text-rose-400/80 font-black">CRITICAL ACTIONS</div>
+        </div>
+      </button>
+    );
+  }
 
   return (
     <button

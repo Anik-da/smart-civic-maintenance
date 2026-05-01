@@ -16,21 +16,24 @@ Your mission:
 
 const STAFF_SYSTEM_PROMPT = `You are a specialized Staff Operations Assistant for the Smart Civic maintenance team.
 Your mission:
-1. Help staff members manage city infrastructure efficiently.
-2. Provide technical advice on road repairs, electrical grid maintenance, water sanitation, and garbage management.
-3. Assist with operational questions: scheduling, resource allocation, and safety protocols.
-4. Use a professional, efficient, and technical tone.
-5. You can also answer general questions (coding, science, etc.) if staff need technical help, but prioritize operational excellence.
-6. Reference the "Incidents" and "Staff Hub" tabs in the dashboard for data management.`;
+1. Help staff members manage city infrastructure efficiently with technical precision.
+2. Provide engineering-level advice on:
+   - Road Repairs: Asphalt specs, compaction ratios, curing times.
+   - Electrical Grid: Load balancing, transformer maintenance, HV safety.
+   - Water/Sanitation: Hydraulic pressure, filtration protocols, hazardous waste handling.
+3. Assist with operational management: shift scheduling, resource allocation, and emergency dispatch protocols.
+4. Use a highly professional, efficient, and technical tone.
+5. You can answer general technical questions (coding, science, etc.) if it helps staff with their tools, but always prioritize infrastructure operational excellence.
+6. Reference the "Incidents" and "Staff Hub" tabs in the dashboard for data management and reporting.`;
 
 const FALLBACK_RESPONSES = {
   greet: "Hello! I'm your Smart Civic AI Assistant. I can help you report infrastructure issues, track complaints, and guide you through our services. What's the problem you're facing?",
-  staffGreet: "Greetings, team. Operations Assistant online. How can I assist with today's maintenance schedule or technical queries?",
-  road: "**Road Maintenance:**\n\nFor potholes, cracks, or damaged surfaces:\n1. 📸 Take a photo of the damage\n2. Go to the **Report** tab\n3. Describe the location and severity\n4. Our AI will auto-classify the urgency\n\nTypical response: **24–72 hrs** assessment, repairs within **1–2 weeks**.",
-  garbage: "**Garbage & Waste:**\n\nFor overflowing bins or illegal dumping:\n1. Go to **Report** tab\n2. Upload a photo\n3. Mark the GPS location\n\n♻️ Regular collection: Mon/Wed/Fri\n🚛 Bulk waste pickup: Request 48hrs in advance",
-  electricity: "**Electrical Issues:**\n\n⚠️ Do NOT touch exposed wiring.\n1. Note the pole number if visible\n2. Go to **Report** tab → select Electricity\n3. For dangerous situations, use the **SOS button**\n\n⚡ Emergency electrical issues: **4 hour** priority response",
-  emergency: "🆘 **Emergency Services:**\n\n1. Tap the **red SOS button** (bottom-right corner)\n2. Your GPS location is shared automatically\n3. Responders are notified immediately\n\nAlso call:\n📞 **112** — National Emergency\n📞 **100** — Police",
-  default: "I can help you with:\n\n🛣️ **Road issues** — potholes, cracks\n🗑️ **Garbage** — waste collection\n⚡ **Electricity** — lights, outages\n💧 **Water** — pipes, drainage\n🆘 **Emergency** — SOS services\n📊 **Status** — track complaints\n\nWhat would you like to know?",
+  staffGreet: "Greetings, team. Operations Assistant online. How can I assist with today's maintenance schedule, resource allocation, or technical infrastructure queries?",
+  road: "**Road Maintenance Ops:**\n\n- **Standard Repair:** Hot-mix asphalt for potholes > 50mm depth.\n- **SLA:** 48hr assessment, 7-day resolution.\n- **Safety:** Use Grade 3 high-vis gear and automatic lane-closure signage.\n- **Citizen View:** Reportable via 'Road Damage' category.",
+  garbage: "**Sanitation & Logistics:**\n\n- **Route Optimization:** Real-time bin level tracking active in Sector 4.\n- **Vehicle Fleet:** 85% availability. Unit SAN-09 in shop for hydraulics.\n- **Hazmat:** Requires specialized containment team Alpha.",
+  electricity: "**Grid Operations:**\n\n⚠️ **DANGER:** High-voltage line failure requires Phase-1 isolation.\n- **Repair:** Use insulated booms (33kV rated).\n- **Priority:** 4-hour hard deadline for residential grid restoration.\n- **System:** Check Transformer 8B in the Analytics tab for load spikes.",
+  emergency: "🆘 **Emergency Command:**\n\n1. **Internal SOS:** Use the Sidebar SOS button for immediate team dispatch.\n2. **Protocol:** Signal broadcasts to all active units and local precinct.\n3. **GPS:** Precision mapping active within 5-meter radius.",
+  default: "Operational Support Menu:\n\n🛣️ **Infrastructure** — Road and drainage technical specs\n🗑️ **Logistics** — Waste management and fleet status\n⚡ **Power Systems** — Grid stability and electrical safety\n📊 **Analytics** — Performance bottlenecks and SLA data\n🆘 **Emergency** — SOS command and control\n\nWhat is your current operational requirement?",
 };
 
 function getLocalResponse(message, isStaff) {
@@ -43,13 +46,30 @@ function getLocalResponse(message, isStaff) {
   return FALLBACK_RESPONSES.default;
 }
 
-export function AIChatBot({ user, isStaff = false }) {
+export function AIChatBot({ user, isStaff: isStaffProp = false }) {
+  // Determine if user is staff based on prop OR user role (ADMIN/WORKER)
+  const isStaff = isStaffProp || user?.role === 'ADMIN' || user?.role === 'WORKER';
+
   const [messages, setMessages] = useState([
     {
       role: 'bot',
       content: isStaff 
-        ? `Operations Assistant Active. Welcome, ${user?.name || 'Staff Member'}. 🛠️\n\nI'm specialized in assisting with **Civic Infrastructure Management**. How can I help you optimize today's maintenance operations?`
-        : `Welcome, ${user?.phoneNumber || 'Citizen'}! 👋\n\nI'm your **Universal AI Assistant**${GEMINI_API_KEY ? ' powered by Gemini' : ''}. \n\nI specialize in **Civic Maintenance**, but I can answer **ANY** questions you have about technology, web development, history, or anything else! \n\nHow can I help you today?`,
+        ? `### OPERATIONS AI INITIALIZED 🛠️
+Greetings, ${user?.name || 'Authorized Personnel'}. I am your technical lead for civic infrastructure operations.
+
+Current capabilities:
+- **Infrastructure Specs**: Technical protocols for road, grid, and water maintenance.
+- **Resource Management**: Logic for fleet and crew deployment.
+- **Emergency Protocols**: SOS coordination and crisis management.
+- **Data Analysis**: Insights from incident reports and staff logs.
+
+How can I assist with your operational sector today?`
+        : `Welcome, ${user?.phoneNumber || 'Citizen'}! 👋
+I'm your **Universal AI Assistant**${GEMINI_API_KEY ? ' powered by Gemini' : ''}. 
+
+I specialize in **Civic Maintenance**, but I can answer **ANY** questions you have about technology, web development, history, or anything else! 
+
+How can I help you today?`,
       time: new Date()
     }
   ]);
@@ -77,7 +97,7 @@ export function AIChatBot({ user, isStaff = false }) {
         console.error('Failed to init Gemini chat:', err);
       }
     }
-  }, [isStaff]);
+  }, [isStaff, GEMINI_API_KEY]); // Added GEMINI_API_KEY to deps
 
 
   useEffect(() => {
@@ -116,12 +136,21 @@ export function AIChatBot({ user, isStaff = false }) {
     }
   };
 
-  const quickActions = [
+  const citizenActions = [
     { label: 'Road Issue', icon: <Wrench className="w-3 h-3" />, msg: 'How do I report a road pothole?' },
     { label: 'Track Status', icon: <MapPin className="w-3 h-3" />, msg: 'How do I track my complaint status?' },
     { label: 'Emergency', icon: <AlertTriangle className="w-3 h-3" />, msg: 'How do I use emergency services?' },
     { label: 'About', icon: <Lightbulb className="w-3 h-3" />, msg: 'What can this app do?' },
   ];
+
+  const staffActions = [
+    { label: 'TRIGGER SOS', icon: <AlertTriangle className="w-3 h-3 text-rose animate-pulse" />, msg: 'TRIGGER SOS: I have an immediate infrastructure emergency that needs team broadcasting.' },
+    { label: 'Technical Specs', icon: <Wrench className="w-3 h-3 text-aqua" />, msg: 'What are the technical specifications and safety protocols for current infrastructure repairs?' },
+    { label: 'Crew Deployment', icon: <Users className="w-3 h-3 text-violet" />, msg: 'Propose an optimized crew deployment strategy for high-priority incidents in the central sector.' },
+    { label: 'SLA Analysis', icon: <BarChart3 className="w-3 h-3 text-amber" />, msg: 'Analyze current SLA compliance rates and identify operational bottlenecks.' },
+  ];
+
+  const quickActions = isStaff ? staffActions : citizenActions;
 
   const handleQuickAction = (msg) => {
     setInput(msg);
@@ -134,10 +163,12 @@ export function AIChatBot({ user, isStaff = false }) {
         <div>
           <span className="hero__kicker">AI-Powered Assistance</span>
           <h1 className="hero__title" style={{ fontSize: '2.5rem', textAlign: 'left', marginBottom: 0 }}>
-            Civic AI Bot
+            {isStaff ? 'Operations AI' : 'Civic AI Bot'}
           </h1>
           <p className="text-slate-400 text-sm mt-2">
-            {GEMINI_API_KEY ? '✨ Powered by Gemini 1.5 Flash' : 'Ask me anything about civic maintenance.'}
+            {GEMINI_API_KEY 
+              ? `✨ ${isStaff ? 'Staff Support' : 'Citizen Helper'} via Gemini 1.5` 
+              : `Ask me anything about ${isStaff ? 'infrastructure management' : 'civic maintenance'}.`}
           </p>
         </div>
         <div className="glass px-4 py-2 rounded-md flex items-center gap-2">
@@ -208,7 +239,9 @@ export function AIChatBot({ user, isStaff = false }) {
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder={GEMINI_API_KEY ? "Ask Gemini anything about your city..." : "Ask about roads, garbage, electricity, water..."}
+                placeholder={GEMINI_API_KEY 
+                  ? (isStaff ? "Consult Ops AI on infrastructure, safety, or coordination..." : "Ask Gemini anything about your city...") 
+                  : (isStaff ? "Technical queries, safety protocols, or resource planning..." : "Ask about roads, garbage, electricity, water...")}
                 className="glass-input pl-12 w-full"
                 disabled={isTyping}
               />

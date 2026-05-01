@@ -129,18 +129,20 @@ function AppShell() {
             <Route path="/report" element={user ? <ComplaintSubmission user={user} /> : <Navigate to="/login" />} />
             <Route path="/login" element={!user ? <PhoneAuth onLogin={handleLogin} /> : <Navigate to="/report" />} />
             <Route path="/dashboard" element={<DashboardGate onLogout={handleLogout}><Dashboard user={user} onLogout={handleLogout} /></DashboardGate>} />
-            <Route path="/ai-bot" element={<AIChatBot user={user} />} />
+            <Route path="/ai-bot" element={<AIChatBot user={user} isStaff={user?.role === 'ADMIN' || user?.role === 'WORKER'} />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </main>
 
-        {/* Global Emergency Controls - Always show SOS button, Tracking only if user exists */}
-        <div className="fixed bottom-8 right-8 z-[150] flex flex-col gap-4 items-end pointer-events-none">
-          <div className="pointer-events-auto">
-            {user && <EmergencyTracking user={user} />}
-            <EmergencyButton user={user} />
+        {/* Global Emergency Controls - Only show on non-dashboard pages to prevent overlap with sidebar SOS */}
+        {!isDashboard && (
+          <div className="fixed bottom-8 right-8 z-[1000] flex flex-col gap-4 items-end pointer-events-none">
+            <div className="pointer-events-auto">
+              {user && <EmergencyTracking user={user} />}
+              <EmergencyButton user={user} />
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

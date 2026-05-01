@@ -8,6 +8,7 @@ import {
   ShieldAlert,
   Bot
 } from 'lucide-react';
+import { EmergencyButton } from './EmergencyButton';
 
 export function ControlCenterSidebar({ activeTab, setActiveTab, user, onLogout }) {
   const tabs = [
@@ -87,6 +88,9 @@ export function ControlCenterSidebar({ activeTab, setActiveTab, user, onLogout }
             </div>
           </div>
         </div>
+
+        {/* Permanent Sidebar SOS */}
+        <EmergencyButton user={user} variant="sidebar" />
 
         <button 
           onClick={onLogout}
