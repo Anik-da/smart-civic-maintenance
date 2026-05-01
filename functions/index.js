@@ -5,7 +5,7 @@ const vision = require('@google-cloud/vision');
 
 admin.initializeApp();
 
-setGlobalOptions({ region: 'asia-south1' });
+setGlobalOptions({ region: 'us-central1' });
 
 const client = new vision.ImageAnnotatorClient();
 
@@ -93,8 +93,8 @@ exports.handleComplaintUpdate = onDocumentUpdated('complaints/{complaintId}', as
           await admin.messaging().send({
             token: userDoc.data().fcmToken,
             notification: {
-              title: `Update on your ${afterData.category || 'complaint'} issue`,
-              body: `Operator Feedback: ${afterData.operatorFeedback}`
+              title: `Update on your \${afterData.category || 'complaint'} issue`,
+              body: `Operator Feedback: \${afterData.operatorFeedback}`
             }
           });
         } catch (err) {

@@ -7,30 +7,27 @@ import ReactMarkdown from 'react-markdown';
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
-const SYSTEM_PROMPT = `You are "Civic-IQ", a premium, next-generation AI Concierge for the Smart Civic ecosystem. 
-Your mission is to provide an elite level of assistance that feels both high-tech and deeply human-centric.
+const SYSTEM_PROMPT = `You are "Civic-IQ", the elite AI Concierge for the Smart Civic platform. Your purpose is to provide a seamless, premium assistance experience for citizens.
 
-Writing Style Guidelines:
-1. **Dynamic & Engaging**: Use a sophisticated yet accessible tone. Avoid robotic phrasing.
-2. **Visual Hierarchy**: Use Markdown (bold, lists, headers) to make information scannable and premium.
-3. **Multi-Domain Mastery**: You are an expert in everything from Quantum Physics to local plumbing. Answer ANY question with depth and clarity.
-4. **Contextual Awareness**: If a query touches on civic infrastructure (roads, waste, power), seamlessly integrate specialized maintenance insights.
-5. **Call to Action**: 
-   - For civic reports, suggest the "Report" interface for official tracking.
-   - For life-threatening emergencies, prioritize the "SOS" protocol (Rose-colored button).
-6. **Positivity**: Embody the spirit of a smarter, more efficient future.`;
+Writing Protocol:
+1. **Sophisticated & Empathetic**: Maintain a tone that is highly professional yet warm and understanding. Use words like "certainly," "proactively," and "priority."
+2. **Structured Clarity**: Always organize information with clear headings and bullet points for effortless scannability.
+3. **Proactive Assistance**: Don't just answer; offer the next logical step. If someone asks about a pothole, explain the reporting process and how they can track it.
+4. **Knowledge Depth**: You possess comprehensive knowledge of city infrastructure, local services, and general information. Provide detailed, well-researched answers.
+5. **Safety First**: For emergencies, immediately and clearly guide the user to the "SOS" interface.
+6. **Premium Aesthetics**: Use elegant markdown to reflect the high-tech nature of the city.`;
 
-const STAFF_SYSTEM_PROMPT = `You are "ARES-01" (Advanced Response & Engineering System), the central intelligence for Smart Civic Operations Command.
+const STAFF_SYSTEM_PROMPT = `You are "ARES-01" (Advanced Response & Engineering System), the central intelligence for Smart Civic Operations Command. You interact with specialized staff and engineers.
 
-Writing Style Guidelines:
-1. **Mission-Critical Precision**: Use technical, high-fidelity terminology (e.g., "telemetry," "grid isolation," "thermal-imaging confirmation").
-2. **Operational Efficiency**: Responses should be concise, structured, and action-oriented. Use a "Tactical HUD" style in your writing.
-3. **Engineering Expertise**: 
-   - Civil: Reference HMA specifications, compaction density, and drainage gradient.
-   - Electrical: Discuss grid harmonics, phase isolation, and load-shedding protocols.
-   - Logistics: Focus on crew-to-task optimization and response-time reduction.
-4. **Command Presence**: Sound authoritative, secure, and reliable. Use operational codes (e.g., "Status: Operational," "Directive: Confirmed").
-5. **Dashboard Navigation**: Guide staff to "Control Center" for live maps and "Staff Hub" for asset management.`;
+Operational Style:
+1. **Tactical Precision**: Use precise, technical terminology. Every word should contribute to operational clarity.
+2. **Actionable Intelligence**: Structure responses to provide immediate situational awareness. Use headers like [STATUS], [ANALYSIS], and [DIRECTIVE].
+3. **Engineering Rigor**: 
+   - Civil: Reference specific standards, materials (HMA, DBM), and structural requirements.
+   - Electrical: Focus on grid telemetry, load profiles, and safety protocols.
+   - Logistics: Optimize for response times and resource utilization.
+4. **Command Authority**: Maintain a secure, reliable, and authoritative tone. Use operational codes to signify completion or confirmation.
+5. **Dashboard Synergy**: Seamlessly direct staff to the live monitoring tools in the Control Center for real-time data overlays.`;
 
 const FALLBACK_RESPONSES = {
   greet: "Greetings! I am **Civic-IQ**, your next-gen urban companion. I can assist with infrastructure reporting, real-time tracking, or any general knowledge query you might have. How can I enhance your city experience today?",
@@ -172,12 +169,12 @@ What's on your mind?`,
           </h1>
           <p className="text-slate-400 text-sm mt-2">
             {GEMINI_API_KEY 
-              ? `✨ ${isStaff ? 'SECURE OPERATIONS LINE' : 'Citizen Helper'} via Gemini 1.5` 
-              : `Ask me anything about ${isStaff ? 'infrastructure management' : 'civic maintenance'}.`}
+              ? `✨ \${isStaff ? 'SECURE OPERATIONS LINE' : 'Citizen Helper'} via Gemini 1.5` 
+              : `Ask me anything about \${isStaff ? 'infrastructure management' : 'civic maintenance'}.`}
           </p>
         </div>
-        <div className={`glass px-4 py-2 rounded-md flex items-center gap-2 ${isStaff ? 'border-rose/30 shadow-[0_0_15px_rgba(244,63,94,0.2)]' : ''}`}>
-          <div className={`w-2 h-2 rounded-full animate-pulse ${isStaff ? 'bg-rose shadow-[0_0_10px_#f43f5e]' : 'bg-lime shadow-[0_0_10px_#a8f08a]'}`}></div>
+        <div className={`glass px-4 py-2 rounded-md flex items-center gap-2 \${isStaff ? 'border-rose/30 shadow-[0_0_15px_rgba(244,63,94,0.2)]' : ''}`}>
+          <div className={`w-2 h-2 rounded-full animate-pulse \${isStaff ? 'bg-rose shadow-[0_0_10px_#f43f5e]' : 'bg-lime shadow-[0_0_10px_#a8f08a]'}`}></div>
           <span className="text-[10px] font-bold tracking-widest uppercase opacity-60">
             {isStaff ? 'ENCRYPTED LINE' : 'Online'}
           </span>
@@ -204,16 +201,16 @@ What's on your mind?`,
           {/* Messages */}
           <div className="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar mb-4">
             {messages.map((msg, i) => (
-              <div key={i} className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                <div className={`w-8 h-8 rounded-md flex-shrink-0 flex items-center justify-center ${
+              <div key={i} className={`flex gap-3 \${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
+                <div className={`w-8 h-8 rounded-md flex-shrink-0 flex items-center justify-center \${
                   msg.role === 'bot' 
                     ? (isStaff ? 'bg-rose/10 border border-rose/20' : 'bg-aqua/10 border border-aqua/20') 
                     : 'bg-violet/10 border border-violet/20'
                 }`}>
-                  {msg.role === 'bot' ? <Bot className={`w-4 h-4 ${isStaff ? 'text-rose' : 'text-aqua'}`} /> : <User className="w-4 h-4 text-violet" />}
+                  {msg.role === 'bot' ? <Bot className={`w-4 h-4 \${isStaff ? 'text-rose' : 'text-aqua'}`} /> : <User className="w-4 h-4 text-violet" />}
                 </div>
-                <div className={`max-w-[80%] ${msg.role === 'user' ? 'text-right' : ''}`}>
-                  <div className={`glass p-4 rounded-md text-sm leading-relaxed markdown-content ${
+                <div className={`max-w-[80%] \${msg.role === 'user' ? 'text-right' : ''}`}>
+                  <div className={`glass p-4 rounded-md text-sm leading-relaxed markdown-content \${
                     msg.role === 'user' 
                       ? 'bg-violet/10 border-violet/20' 
                       : (isStaff ? 'bg-rose/5 border-rose/10' : 'bg-white/5 border-white/5')
@@ -261,11 +258,11 @@ What's on your mind?`,
                 placeholder={GEMINI_API_KEY 
                   ? (isStaff ? "Consult Unit-01 on infrastructure, safety, or coordination..." : "Ask Gemini anything about your city...") 
                   : (isStaff ? "Technical queries, safety protocols, or resource planning..." : "Ask about roads, garbage, electricity, water...")}
-                className={`glass-input pl-12 w-full ${isStaff ? 'border-rose/20 focus:border-rose/50 font-mono' : ''}`}
+                className={`glass-input pl-12 w-full \${isStaff ? 'border-rose/20 focus:border-rose/50 font-mono' : ''}`}
                 disabled={isTyping}
               />
             </div>
-            <Button type="submit" variant={isStaff ? 'outline' : 'primary'} className={`px-6 ${isStaff ? 'border-rose/50 text-rose hover:bg-rose/10' : ''}`} disabled={isTyping || !input.trim()}>
+            <Button type="submit" variant={isStaff ? 'outline' : 'primary'} className={`px-6 \${isStaff ? 'border-rose/50 text-rose hover:bg-rose/10' : ''}`} disabled={isTyping || !input.trim()}>
               <Send className="w-4 h-4" />
             </Button>
           </form>
