@@ -14,7 +14,7 @@ const LOCAL_STAFF = [
 ];
 
 export function DashboardGate({ children }) {
-  const [passcode, setPasscode] = useState('ADMIN2026');
+  const [passcode, setPasscode] = useState('');
   const [authorizedUser, setAuthorizedUser] = useState(null);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -162,8 +162,8 @@ export function DashboardGate({ children }) {
               </label>
               <div className="relative">
                 <input
-                  type="text"
-                  placeholder="Enter passcode..."
+                  type="password"
+                  placeholder="ADMIN2026"
                   value={passcode}
                   onChange={(e) => {
                     setPasscode(e.target.value);
