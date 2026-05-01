@@ -160,6 +160,8 @@ export function Dashboard({ user, onLogout }) {
     }, 4000); // Increased to 4s for slower connections
 
     try {
+      const qC = collection(db, 'complaints');
+      const qN = collection(db, 'notifications');
       let currentComplaints = [];
       let currentEmergencies = [];
 
@@ -185,6 +187,12 @@ export function Dashboard({ user, onLogout }) {
           setStats(calculateStats(merged));
           setUsingDemoIncidents(false);
           setLoading(false);
+        } else if (dataReceived.complaints && dataReceived.emergencies) {
+           // We received live data from both, but it's empty
+           setComplaints([]);
+           setStats({ total: 0, pending: 0, inProgress: 0, resolved: 0 });
+           setUsingDemoIncidents(false);
+           setLoading(false);
         } else if (!loading && !usingDemoIncidents) {
            activateIncidentFallback();
         }
@@ -252,8 +260,9 @@ export function Dashboard({ user, onLogout }) {
         if (liveNotes.length > 0) {
           setNotifications(liveNotes);
           setUsingDemoNotifications(false);
-        } else if (!usingDemoNotifications) {
+        } else if (dataReceived.notifications) {
           setNotifications([]);
+          setUsingDemoNotifications(false);
         }
       });
     } catch (err) {

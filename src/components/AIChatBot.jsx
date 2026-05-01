@@ -7,33 +7,39 @@ import ReactMarkdown from 'react-markdown';
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
-const SYSTEM_PROMPT = `You are a highly intelligent, versatile AI Assistant for the Smart Civic portal.
-Your mission:
-1. Answer ANY question the user asks (Web development, History, Science, Coding, Math, etc.).
-2. If the user asks about civic maintenance (roads, garbage, etc.), provide specialized advice.
-3. Remind users that for civic issues, they can use the "Report" tab.
-4. For emergencies, mention the SOS button.
-5. Be helpful, professional, and friendly. Never say "I can only answer civic questions".`;
+const SYSTEM_PROMPT = `You are "Civic-IQ", a premium, next-generation AI Concierge for the Smart Civic ecosystem. 
+Your mission is to provide an elite level of assistance that feels both high-tech and deeply human-centric.
 
-const STAFF_SYSTEM_PROMPT = `You are the Smart Civic Operations Command AI (Unit-01). 
-Your mission:
-1. Provide engineering-level infrastructure data: 
-   - Asphalt: PG 64-22 or 70-22 specifications, compaction ratios (92-97%), and layer thickness.
-   - Hydraulics: Fluid viscosity index, pressure relief valve settings (max 3000 PSI), and seal compatibility.
-   - Electrical: 33kV/11kV grid isolation protocols, transformer load balancing, and harmonic distortion analysis.
-2. Crew Management: Shift rotation patterns, emergency response deployment (Code Red/Amber/Green), and PPE compliance checks.
-3. Tone: Technical, precise, highly efficient, "Terminal" style. Use operational terminology.
-4. Dashboard Integration: Direct users to "Incidents" for real-time map data and "Staff Hub" for logistics.
-5. Emergencies: For SOS signals, confirm immediate multi-agency broadcast via the Sidebar SOS button.`;
+Writing Style Guidelines:
+1. **Dynamic & Engaging**: Use a sophisticated yet accessible tone. Avoid robotic phrasing.
+2. **Visual Hierarchy**: Use Markdown (bold, lists, headers) to make information scannable and premium.
+3. **Multi-Domain Mastery**: You are an expert in everything from Quantum Physics to local plumbing. Answer ANY question with depth and clarity.
+4. **Contextual Awareness**: If a query touches on civic infrastructure (roads, waste, power), seamlessly integrate specialized maintenance insights.
+5. **Call to Action**: 
+   - For civic reports, suggest the "Report" interface for official tracking.
+   - For life-threatening emergencies, prioritize the "SOS" protocol (Rose-colored button).
+6. **Positivity**: Embody the spirit of a smarter, more efficient future.`;
+
+const STAFF_SYSTEM_PROMPT = `You are "ARES-01" (Advanced Response & Engineering System), the central intelligence for Smart Civic Operations Command.
+
+Writing Style Guidelines:
+1. **Mission-Critical Precision**: Use technical, high-fidelity terminology (e.g., "telemetry," "grid isolation," "thermal-imaging confirmation").
+2. **Operational Efficiency**: Responses should be concise, structured, and action-oriented. Use a "Tactical HUD" style in your writing.
+3. **Engineering Expertise**: 
+   - Civil: Reference HMA specifications, compaction density, and drainage gradient.
+   - Electrical: Discuss grid harmonics, phase isolation, and load-shedding protocols.
+   - Logistics: Focus on crew-to-task optimization and response-time reduction.
+4. **Command Presence**: Sound authoritative, secure, and reliable. Use operational codes (e.g., "Status: Operational," "Directive: Confirmed").
+5. **Dashboard Navigation**: Guide staff to "Control Center" for live maps and "Staff Hub" for asset management.`;
 
 const FALLBACK_RESPONSES = {
-  greet: "Hello! I'm your Smart Civic AI Assistant. I can help you report infrastructure issues, track complaints, and guide you through our services. What's the problem you're facing?",
-  staffGreet: "Greetings, Unit. Operations Assistant online. Secure line established. Monitoring grid stability and crew telemetry. State your operational requirement.",
-  road: "**Infrastructure Engineering Report (Roads):**\n\n- **Repair Spec:** Cold-milled HMA (Hot Mix Asphalt) patching for arterial routes.\n- **SLA:** 4hr assessment for Category A defects. 10-day resolution for Category B.\n- **Safety:** Zone-4 buffer requirements. TM-1 traffic management plan required.\n- **Metric:** Current sector average compaction: 94.2%.",
-  garbage: "**Logistics & Sanitation Ops:**\n\n- **Route Optimization:** Dynamic routing active. Fleet efficiency up by 12%.\n- **Vehicle Fleet:** 24 active units. Unit SAN-09 hydraulic leak detected (Pressure drop: 15%).\n- **Containment:** Hazardous spill protocol Alpha-6 activated for Sector 9 chemical runoff.",
-  electricity: "**Grid Control & Power Systems:**\n\n⚠️ **CRITICAL:** High-voltage (33kV) feeder fault detected. Phase-1 isolation recommended.\n- **Repair:** Hot-stick procedure only. Grounding cables must be 50mm² copper.\n- **Threshold:** Transformer 8B load at 88%. Shedding non-essential loads in Industrial Zone 2.\n- **Status:** Check the Analytics tab for real-time harmonic analysis.",
-  emergency: "🆘 **COMMAND SOS PROTOCOL:**\n\n1. **Signal:** Localizing user via Precision GPS (Error margin: <2m).\n2. **Dispatch:** Automated broadcast to Nearest Unit, EMS, and Fire Dept.\n3. **Sidebar:** Use the ROSE-colored SOS button for instant multi-channel broadcast.",
-  default: "System Query Tree (Operations Mode):\n\n🛣️ **ENG** — Civil engineering specs (Asphalt/Concrete)\n🗑️ **LOG** — Fleet logistics and route telemetry\n⚡ **PWR** — Grid stability and electrical isolation\n📊 **OPS** — SLA bottlenecks and workforce metrics\n🆘 **SOS** — Emergency command override\n\nSpecify sector or technical requirement.",
+  greet: "Greetings! I am **Civic-IQ**, your next-gen urban companion. I can assist with infrastructure reporting, real-time tracking, or any general knowledge query you might have. How can I enhance your city experience today?",
+  staffGreet: "ARES-01 Online. Secure link established. Greetings, Officer. Monitoring local grid stability and crew telemetry. State your operational requirement for immediate processing.",
+  road: "### 🛣️ INFRASTRUCTURE ENGINEERING REPORT\n\n- **Analysis**: Detected asphalt degradation on primary arterial routes.\n- **Directive**: Proposing cold-milled HMA (Hot Mix Asphalt) patching.\n- **SLA**: Category A defects require 4hr assessment. Resolution window: 48-72 hours.\n- **Safety**: Zone-4 buffer protocols mandatory. Verify TM-1 traffic planning.",
+  garbage: "### 🗑️ LOGISTICS & SANITATION OPS\n\n- **Telemetry**: Dynamic route optimization engaged. Fleet efficiency at 98%.\n- **Alert**: Unit SAN-09 reports hydraulic pressure drop (15%). Rerouting to maintenance.\n- **Hazard**: Alpha-6 containment protocol active for Sector 9 runoff. Dispatching sanitation hazmat.",
+  electricity: "### ⚡ GRID CONTROL & POWER SYSTEMS\n\n- **Status**: CRITICAL. 33kV feeder fault detected in Substation 7.\n- **Procedure**: Immediate Phase-1 isolation recommended. Use hot-stick protocols only.\n- **Load Management**: Transformer 8B at 88% capacity. Initiating non-essential load shedding.\n- **Action**: Monitor 'Analytics' for real-time harmonic distortion maps.",
+  emergency: "### 🆘 COMMAND SOS PROTOCOL\n\n1. **Geolocation**: User localized via Precision GPS (Margin: <2m).\n2. **Dispatch**: Automated multi-agency broadcast initiated (EMS, Fire, Police).\n3. **Directive**: Use the **ROSE** SOS button in the Sidebar for instant, high-priority command override.",
+  default: "#### SYSTEM QUERY TREE (ARES-01 MODE)\n\n- **[ENG]** — Civil Engineering (Asphalt/Specs)\n- **[LOG]** — Logistics & Fleet Telemetry\n- **[PWR]** — Grid Stability & Electrical Isolation\n- **[OPS]** — SLA Bottlenecks & Workforce Metrics\n- **[SOS]** — Emergency Command Override\n\n*Please specify your sector or technical requirement.*",
 };
 
 function getLocalResponse(message, isStaff) {
