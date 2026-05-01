@@ -4,7 +4,7 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
-import { MapPin, Send, Sparkles, ImagePlus, Loader2 } from 'lucide-react';
+import { MapPin, Send, Sparkles, ImagePlus, Loader2, Search } from 'lucide-react';
 import { analyzeComplaintText } from '../lib/ai';
 
 export function ComplaintSubmission({ user }) {
@@ -229,16 +229,27 @@ export function ComplaintSubmission({ user }) {
         <div className="space-y-3">
           <div className="flex justify-between items-center px-1">
             <span className="text-sm font-bold opacity-60">SITUATION DETAILS</span>
-            <button 
-              type="button" 
-              onClick={handleEnhanceWithAI} 
-              disabled={isEnhancing}
-              className="glass glass-btn glass-btn--sm gap-2"
-              style={{ padding: '6px 12px' }}
-            >
-              {isEnhancing ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3 text-aqua" />}
-              <span className="text-[10px] uppercase font-bold tracking-widest">AI Enhance</span>
-            </button>
+            <div className="flex gap-2">
+              <button 
+                type="button" 
+                onClick={() => window.location.hash = '#/track'} 
+                className="glass glass-btn glass-btn--sm gap-2"
+                style={{ padding: '6px 12px' }}
+              >
+                <Search className="w-3.5 h-3.5 text-blue-400" />
+                <span className="text-[10px] uppercase font-bold tracking-widest">Track Status</span>
+              </button>
+              <button 
+                type="button" 
+                onClick={handleEnhanceWithAI} 
+                disabled={isEnhancing}
+                className="glass glass-btn glass-btn--sm gap-2"
+                style={{ padding: '6px 12px' }}
+              >
+                {isEnhancing ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3 text-aqua" />}
+                <span className="text-[10px] uppercase font-bold tracking-widest">AI Enhance</span>
+              </button>
+            </div>
           </div>
           
           <textarea

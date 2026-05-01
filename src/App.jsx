@@ -5,7 +5,7 @@ import { Dashboard } from './components/Dashboard';
 import { EmergencyButton } from './components/EmergencyButton';
 import { EmergencyTracking } from './components/EmergencyTracking';
 import { PhoneAuth } from './components/PhoneAuth';
-import { Shield, FileText, LogOut, ArrowLeft, Bot } from 'lucide-react';
+import { Shield, FileText, LogOut, ArrowLeft, Bot, Search } from 'lucide-react';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
 import { Landing } from './components/Landing';
@@ -108,6 +108,7 @@ function AppShell() {
 
               <nav className="flex items-center gap-1 sm:gap-2">
                 {user && <NavLink to="/report" icon={<FileText className="w-4 h-4 sm:w-5 sm:h-5" />} label="Report" />}
+                {user && <NavLink to="/track" icon={<Search className="w-4 h-4 sm:w-5 sm:h-5" />} label="Track" />}
                 <NavLink to="/ai-bot" icon={<Bot className="w-4 h-4 sm:w-5 sm:h-5" />} label="AI Bot" />
                 
                 {user && (
