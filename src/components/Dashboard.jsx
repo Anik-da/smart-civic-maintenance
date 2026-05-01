@@ -600,7 +600,65 @@ export function Dashboard({ user, onLogout }) {
               )}
             </div>
           </div>
-        ) : activeTab === 'analytics' ? (
+        ) : activeTab === 'analytics' ? (() => {
+          // ── Compute analytics from live complaint data ──
+          const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+          const dayCounts = [0, 0, 0, 0, 0, 0, 0];
+          const categoryMap = {};
+          const deptStats = { ROADS: { total: 0, resolved: 0 }, ELECTRICITY: { total: 0, resolved: 0 }, WATER: { total: 0, resolved: 0 }, SANITATION: { total: 0, resolved: 0 } };
+          let highPriorityTotal = 0;
+          let highPriorityResolved = 0;
+
+          complaints.forEach(c => {
+            // Day-of-week distribution
+            const created = c.createdAt?.toDate ? c.createdAt.toDate() : (c.createdAt ? new Date(c.createdAt) : new Date());
+            dayCounts[created.getDay()]++;
+
+            // Category hotspot counting
+            const cat = c.category || 'Other';
+            categoryMap[cat] = (categoryMap[cat] || 0) + 1;
+
+            // Department SLA
+            const dept = (c.assignedTo || '').toUpperCase();
+            if (deptStats[dept]) {
+              deptStats[dept].total++;
+              if (c.status?.toLowerCase() === 'resolved') deptStats[dept].resolved++;
+            }
+
+            // Priority clearance
+            if (c.priority?.toLowerCase() === 'high') {
+              highPriorityTotal++;
+              if (c.status?.toLowerCase() === 'resolved') highPriorityResolved++;
+            }
+          });
+
+          // Re-order day counts so Mon first: [Mon, Tue, Wed, Thu, Fri, Sat, Sun]
+          const orderedDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+          const orderedCounts = [dayCounts[1], dayCounts[2], dayCounts[3], dayCounts[4], dayCounts[5], dayCounts[6], dayCounts[0]];
+          const maxDayCount = Math.max(...orderedCounts, 1);
+          const barPercents = orderedCounts.map(c => Math.max(Math.round((c / maxDayCount) * 100), 5));
+
+          // Top hotspots from categories
+          const hotspots = Object.entries(categoryMap)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 3)
+            .map(([loc, count]) => ({ loc, count }));
+
+          // Priority clearance rate
+          const clearanceRate = highPriorityTotal > 0 ? Math.round((highPriorityResolved / highPriorityTotal) * 100) : 0;
+
+          // SLA compliance per department
+          const slaData = Object.entries(deptStats).map(([dept, s]) => ({
+            dept,
+            perf: s.total > 0 ? Math.round((s.resolved / s.total) * 100) : 0
+          }));
+
+          // Resource allocation from staff
+          const activeStaff = staff.length;
+          const totalCapacity = Math.max(activeStaff + 6, 10);
+          const capacityPercent = Math.round((activeStaff / totalCapacity) * 100);
+
+          return (
           <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-700">
             <div>
               <span className="hero__kicker">Performance Metrics</span>
@@ -617,38 +675,16 @@ export function Dashboard({ user, onLogout }) {
                       Incident Resolution Trend
                     </h3>
                     <div className="flex gap-2">
-                      <span className="glass px-2 py-1 rounded text-[8px] font-bold uppercase tracking-tighter border-aqua/30 text-aqua">Last 7 Days</span>
+                      <span className="glass px-2 py-1 rounded text-[8px] font-bold uppercase tracking-tighter border-aqua/30 text-aqua">{complaints.length} Total</span>
                     </div>
                   </div>
                   <div className="chart-container">
-                    <div className="chart-bar-wrap">
-                      <div className="chart-bar h-[40%]" style={{ '--progress': '40%' }}></div>
-                      <span className="chart-label">Mon</span>
-                    </div>
-                    <div className="chart-bar-wrap">
-                      <div className="chart-bar h-[65%]" style={{ '--progress': '65%' }}></div>
-                      <span className="chart-label">Tue</span>
-                    </div>
-                    <div className="chart-bar-wrap">
-                      <div className="chart-bar h-[90%]" style={{ '--progress': '90%' }}></div>
-                      <span className="chart-label">Wed</span>
-                    </div>
-                    <div className="chart-bar-wrap">
-                      <div className="chart-bar h-[55%]" style={{ '--progress': '55%' }}></div>
-                      <span className="chart-label">Thu</span>
-                    </div>
-                    <div className="chart-bar-wrap">
-                      <div className="chart-bar h-[75%]" style={{ '--progress': '75%' }}></div>
-                      <span className="chart-label">Fri</span>
-                    </div>
-                    <div className="chart-bar-wrap">
-                      <div className="chart-bar h-[30%]" style={{ '--progress': '30%' }}></div>
-                      <span className="chart-label">Sat</span>
-                    </div>
-                    <div className="chart-bar-wrap">
-                      <div className="chart-bar h-[20%]" style={{ '--progress': '20%' }}></div>
-                      <span className="chart-label">Sun</span>
-                    </div>
+                    {orderedDays.map((day, i) => (
+                      <div key={day} className="chart-bar-wrap">
+                        <div className="chart-bar" style={{ height: `${barPercents[i]}%`, animationDelay: `${i * 80}ms` }}></div>
+                        <span className="chart-label">{day}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
@@ -656,11 +692,9 @@ export function Dashboard({ user, onLogout }) {
                   <div className="premium-card p-8">
                     <h3 className="text-sm font-black uppercase tracking-widest mb-6 text-violet">Top Hotspots</h3>
                     <div className="space-y-6">
-                      {[
-                        { loc: 'MG Road', count: 12, trend: '+2' },
-                        { loc: 'Jayanagar', count: 8, trend: '-1' },
-                        { loc: 'Indiranagar', count: 5, trend: '0' }
-                      ].map((hotspot, i) => (
+                      {hotspots.length === 0 ? (
+                        <p className="text-xs opacity-30 italic">No complaint data available yet</p>
+                      ) : hotspots.map((hotspot, i) => (
                         <div key={i} className="flex justify-between items-center">
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-lg bg-violet/10 flex items-center justify-center text-[10px] font-bold text-violet">{i + 1}</div>
@@ -668,7 +702,6 @@ export function Dashboard({ user, onLogout }) {
                           </div>
                           <div className="text-right">
                             <div className="text-xs font-black">{hotspot.count} cases</div>
-                            <div className={`text-[8px] font-bold ${hotspot.trend.startsWith('+') ? 'text-rose' : 'text-lime'}`}>{hotspot.trend} this week</div>
                           </div>
                         </div>
                       ))}
@@ -677,8 +710,8 @@ export function Dashboard({ user, onLogout }) {
                   <div className="premium-card p-8">
                     <h3 className="text-sm font-black uppercase tracking-widest mb-6 text-amber">Priority Shift</h3>
                     <div className="flex justify-center py-4">
-                      <div className="gauge-ring" style={{ '--progress': '72%' }}>
-                        <div className="gauge-value text-amber">72%</div>
+                      <div className="gauge-ring" style={{ '--progress': `${clearanceRate}%` }}>
+                        <div className="gauge-value text-amber">{clearanceRate}%</div>
                       </div>
                     </div>
                     <p className="text-[10px] text-center opacity-40 font-bold uppercase tracking-widest mt-4">High Priority Clearance Rate</p>
@@ -690,16 +723,11 @@ export function Dashboard({ user, onLogout }) {
                 <div className="premium-card p-8 bg-aqua/5 border-aqua/20">
                   <h3 className="text-sm font-black uppercase tracking-widest mb-6">SLA Compliance</h3>
                   <div className="space-y-6">
-                    {[
-                      { dept: 'ROADS', perf: 92 },
-                      { dept: 'ELECTRIC', perf: 88 },
-                      { dept: 'WATER', perf: 74 },
-                      { dept: 'SANITATION', perf: 95 }
-                    ].map((d, i) => (
+                    {slaData.map((d, i) => (
                       <div key={i} className="space-y-2">
                         <div className="flex justify-between text-[10px] font-black tracking-widest uppercase">
                           <span>{d.dept}</span>
-                          <span className={d.perf > 85 ? 'text-lime' : 'text-amber'}>{d.perf}%</span>
+                          <span className={d.perf > 85 ? 'text-lime' : d.perf > 0 ? 'text-amber' : 'opacity-30'}>{d.perf}%</span>
                         </div>
                         <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
                           <div className="h-full bg-gradient-to-right from-aqua to-violet transition-all duration-1000" style={{ width: `${d.perf}%` }}></div>
@@ -714,15 +742,18 @@ export function Dashboard({ user, onLogout }) {
                   <div className="p-4 bg-black/40 rounded-md border border-white/5">
                     <div className="flex justify-between items-center mb-1">
                       <span className="text-[9px] opacity-40 font-bold uppercase">Active Units</span>
-                      <span className="text-lg font-display text-aqua">24 / 30</span>
+                      <span className="text-lg font-display text-aqua">{activeStaff} / {totalCapacity}</span>
                     </div>
-                    <div className="text-[8px] font-black text-lime uppercase tracking-widest">Optimal Capacity</div>
+                    <div className={`text-[8px] font-black uppercase tracking-widest ${capacityPercent > 70 ? 'text-lime' : capacityPercent > 40 ? 'text-amber' : 'text-rose'}`}>
+                      {capacityPercent > 70 ? 'Optimal Capacity' : capacityPercent > 40 ? 'Moderate Load' : 'Low Staffing'}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        ) : activeTab === 'notifications' ? (
+          );
+        })() : activeTab === 'notifications' ? (
           <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-700">
             <div className="flex justify-between items-end">
               <div>
