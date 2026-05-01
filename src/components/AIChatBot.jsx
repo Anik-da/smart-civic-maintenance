@@ -159,7 +159,7 @@ What's on your mind?`,
       </div>
 
       {/* Chat Window */}
-      <Card className="w-full" title="AI CONVERSATION">
+      <Card className="w-full" title="AI ANSWER">
         <div className="flex flex-col h-[500px]">
           {/* Messages */}
           <div className="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar mb-4">
