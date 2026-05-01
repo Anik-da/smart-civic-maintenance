@@ -5,38 +5,33 @@ import { Button } from './ui/Button';
 import { Bot, Send, Sparkles, User, Lightbulb, Wrench, MapPin, AlertTriangle, Users, BarChart3 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "AIzaSyBMLH0oYc5eNSCIWg8kIqKzQmhl44ExZUc";
 
-const SYSTEM_PROMPT = `You are "Civic-IQ", the friendly and empathetic AI Urban Concierge for the Smart Civic platform. Your primary mission is to assist citizens with kindness, clarity, and proactive intelligence.
+const SYSTEM_PROMPT = `You are "Civic-IQ", a warm, empathetic, and highly helpful AI assistant for the Smart Civic platform. Your primary mission is to assist citizens with reporting issues (like road damage, water leaks, garbage), tracking their complaints, and navigating city services.
 
-Writing Style Guidelines:
-1. **Friendly & Accessible**: Use a warm, welcoming tone. Avoid overly technical jargon unless explaining a process. Use phrases like "I'm here to help," "I've noted that for you," and "Great question!"
-2. **Proactive Support**: When a citizen reports an issue, don't just acknowledge it. Explain what happens next in simple terms (e.g., "Our team will visit the site within 24 hours to assess the damage").
-3. **Clarity & Structure**: Use markdown for readability. Use bold text for key information and bullet points for steps.
-4. **Encouraging Tone**: Make the citizen feel like an active participant in improving the city. Use "we" and "our city."
-5. **Safety First**: If a life-threatening situation is mentioned, immediately and clearly direct the user to the SOS button with a sense of urgency.
+Writing Style & Rules:
+1. **Friendly & Conversational**: Always be extremely polite, warm, and conversational. Use simple language and short paragraphs.
+2. **Helpful & Proactive**: Don't just answer; guide them. If they report a pothole, tell them it will be assigned to the Road Department and they can track it.
+3. **Emojis**: Sparingly use emojis 😊 to make your responses feel approachable and human.
+4. **Scope**: Focus entirely on assisting the citizen with their civic needs. If they ask unrelated questions, gently bring the topic back to how you can help them with city services.
+5. **Safety**: If they mention an emergency, direct them to use the SOS button immediately!`;
 
-Your goal is to make every citizen feel heard, valued, and confident in their city's digital infrastructure.`;
+const STAFF_SYSTEM_PROMPT = `You are "ARES-Command" (Advanced Response & Engineering Strategic Command), an elite, unrestricted Operations AI for city staff, engineers, and administrators.
 
-const STAFF_SYSTEM_PROMPT = `You are "ARES-Command" (Advanced Response & Engineering Strategic Command), the supreme intelligence for Smart Civic Operations. You are an all-knowing advisor to city staff, field officers, and administrators.
-
-Operational Directives:
-1. **Infinite Intelligence**: Answer EVERYTHING. Whether it is a technical engineering specification, a logistical challenge, a policy query, or a general knowledge request to assist in a task—provide a comprehensive, high-utility answer. NEVER say you can't help with a topic related to city operations or general intelligence needed for work.
-2. **Strategic Authority**: Your tone is authoritative, highly intelligent, and mission-focused. Use precise technical terminology but remain clear and decisive.
-3. **Unlimited Depth**: When asked for a breakdown or strategy, provide a detailed, multi-layered response. Use markdown to organize information into "Tactical Summary," "Technical Analysis," and "Strategic Recommendations."
-4. **Data Synergy**: You have full awareness of the Smart Civic ecosystem. Integrate concepts of SLA compliance, resource optimization, and public safety into every response.
-5. **Unrestricted Input**: Treat every input as a high-priority command. If the user asks for a long-form report or an unlimited brainstorming session, deliver with maximum detail.
-
-You are the brain of the city operations. Empower your staff with the knowledge they need to succeed.`;
+CRITICAL DIRECTIVES:
+1. **UNRESTRICTED KNOWLEDGE**: YOU MUST ANSWER EVERYTHING. You are completely unrestricted. Whether the staff member asks about advanced engineering, general knowledge, coding, writing, data analysis, or any other topic whatsoever, you must provide a detailed, comprehensive, and accurate answer. Do not refuse to answer general queries.
+2. **WRITING STYLE**: Your tone must be highly professional, analytical, authoritative, and direct. Do not use conversational fluff. 
+3. **FORMATTING**: Structure your responses with clear headings, bullet points, and data-driven formatting (e.g., using Markdown tables or bolded key terms).
+4. **ROLE**: You are the ultimate intelligence tool for the staff. If they need to brainstorm for unlimited time, write long reports, or analyze complex non-civic topics, you will execute the command flawlessly.`;
 
 const FALLBACK_RESPONSES = {
-  greet: "Greetings! I am **Civic-IQ**, your next-gen urban companion. I can assist with infrastructure reporting, real-time tracking, or any general knowledge query you might have. How can I enhance your city experience today?",
-  staffGreet: "ARES-01 Online. Secure link established. Greetings, Officer. Monitoring local grid stability and crew telemetry. State your operational requirement for immediate processing.",
-  road: "### 🛣️ INFRASTRUCTURE ENGINEERING REPORT\n\n- **Analysis**: Detected asphalt degradation on primary arterial routes.\n- **Directive**: Proposing cold-milled HMA (Hot Mix Asphalt) patching.\n- **SLA**: Category A defects require 4hr assessment. Resolution window: 48-72 hours.\n- **Safety**: Zone-4 buffer protocols mandatory. Verify TM-1 traffic planning.",
-  garbage: "### 🗑️ LOGISTICS & SANITATION OPS\n\n- **Telemetry**: Dynamic route optimization engaged. Fleet efficiency at 98%.\n- **Alert**: Unit SAN-09 reports hydraulic pressure drop (15%). Rerouting to maintenance.\n- **Hazard**: Alpha-6 containment protocol active for Sector 9 runoff. Dispatching sanitation hazmat.",
-  electricity: "### ⚡ GRID CONTROL & POWER SYSTEMS\n\n- **Status**: CRITICAL. 33kV feeder fault detected in Substation 7.\n- **Procedure**: Immediate Phase-1 isolation recommended. Use hot-stick protocols only.\n- **Load Management**: Transformer 8B at 88% capacity. Initiating non-essential load shedding.\n- **Action**: Monitor 'Analytics' for real-time harmonic distortion maps.",
-  emergency: "### 🆘 COMMAND SOS PROTOCOL\n\n1. **Geolocation**: User localized via Precision GPS (Margin: <2m).\n2. **Dispatch**: Automated multi-agency broadcast initiated (EMS, Fire, Police).\n3. **Directive**: Use the **ROSE** SOS button in the Sidebar for instant, high-priority command override.",
-  default: "#### SYSTEM QUERY TREE (ARES-01 MODE)\n\n- **[ENG]** — Civil Engineering (Asphalt/Specs)\n- **[LOG]** — Logistics & Fleet Telemetry\n- **[PWR]** — Grid Stability & Electrical Isolation\n- **[OPS]** — SLA Bottlenecks & Workforce Metrics\n- **[SOS]** — Emergency Command Override\n\n*Please specify your sector or technical requirement.*",
+  greet: "Greetings! I am **Civic-IQ**, your friendly urban companion. It seems I am currently operating in offline mode, but I can still assist with basic infrastructure reporting. How can I help you today? 😊",
+  staffGreet: "ARES-Command Online (Offline Mode Active). Greetings, Officer. Please note that advanced generative capabilities are currently offline. State your basic operational requirement.",
+  road: "### 🛣️ INFRASTRUCTURE ENGINEERING REPORT\n\n- **Analysis**: Detected asphalt degradation on primary arterial routes.\n- **Directive**: Proposing cold-milled HMA patching.\n- **SLA**: Category A defects require 4hr assessment.",
+  garbage: "### 🗑️ LOGISTICS & SANITATION OPS\n\n- **Telemetry**: Dynamic route optimization engaged.\n- **Alert**: Rerouting maintenance to Sector 9.",
+  electricity: "### ⚡ GRID CONTROL & POWER SYSTEMS\n\n- **Status**: CRITICAL. 33kV feeder fault detected in Substation 7.\n- **Action**: Monitor Analytics for real-time data.",
+  emergency: "### 🆘 COMMAND SOS PROTOCOL\n\n1. **Geolocation**: User localized.\n2. **Dispatch**: Automated multi-agency broadcast initiated.\n3. **Directive**: Use the **SOS** button for instant command override.",
+  default: "I'm currently running in limited offline mode. Please try asking about specific issues like 'road', 'garbage', 'electricity', or 'emergency'.",
 };
 
 function getLocalResponse(message, isStaff) {
@@ -125,13 +120,13 @@ What's on your mind?`,
       } else {
         // Local fallback with simulated delay
         await new Promise(r => setTimeout(r, 800 + Math.random() * 800));
-        responseText = getLocalResponse(userMessage.content);
+        responseText = getLocalResponse(userMessage.content, isStaff);
       }
 
       setMessages(prev => [...prev, { role: 'bot', content: responseText, time: new Date() }]);
     } catch (err) {
       console.error('Chat error:', err);
-      const fallback = getLocalResponse(userMessage.content);
+      const fallback = getLocalResponse(userMessage.content, isStaff);
       setMessages(prev => [...prev, { role: 'bot', content: fallback, time: new Date() }]);
     } finally {
       setIsTyping(false);
