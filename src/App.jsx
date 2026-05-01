@@ -47,6 +47,10 @@ function AppShell() {
   };
 
   const handleBack = () => {
+    if (location.pathname === '/dashboard') {
+      localStorage.removeItem('staff_authorized_user');
+    }
+
     if (window.history.length <= 1 || location.pathname === '/login') {
       navigate('/');
     } else {

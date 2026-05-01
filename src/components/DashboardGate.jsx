@@ -131,8 +131,8 @@ export function DashboardGate({ children }) {
 
   return (
     <div className="gate-container bg-[#02040a] flex items-center justify-center min-h-screen">
-      <div className="gate-card-wrapper w-full max-w-xl p-4">
-        <div className="professional-surface p-10 rounded-2xl border border-white/5 shadow-2xl relative overflow-hidden bg-slate-900/40 backdrop-blur-md">
+      <div className="gate-card-wrapper w-full max-w-2xl p-4">
+        <div className="professional-surface p-12 rounded-2xl border border-white/5 shadow-2xl relative overflow-hidden bg-slate-900/40 backdrop-blur-md">
           <button 
             onClick={() => isResetMode ? setIsResetMode(false) : window.history.back()} 
             className="absolute top-8 left-8 text-blue-500/40 hover:text-blue-500 transition-colors z-10"
