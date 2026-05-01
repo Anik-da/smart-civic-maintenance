@@ -140,7 +140,9 @@ export function DashboardGate({ children }) {
           >
             <ArrowLeft className="w-6 h-6" />
           </button>
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 via-blue-400 to-blue-600"></div>
+          
+          {/* Top Edge Highlight */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-[2px] bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-80"></div>
           
           <div className="flex flex-col items-center mb-8">
             <div className="w-20 h-20 rounded-xl bg-blue-600/10 flex items-center justify-center mb-6 border border-blue-500/20 shadow-inner">

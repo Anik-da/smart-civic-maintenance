@@ -49,6 +49,9 @@ function AppShell() {
   const handleBack = () => {
     if (location.pathname === '/dashboard') {
       localStorage.removeItem('staff_authorized_user');
+      handleLogout(); // Explicitly clear the user session as requested
+      navigate('/');
+      return;
     }
 
     if (window.history.length <= 1 || location.pathname === '/login') {

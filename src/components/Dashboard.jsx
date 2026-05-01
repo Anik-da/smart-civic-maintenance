@@ -1,10 +1,9 @@
-import { useState, useEffect, cloneElement } from 'react';
 import { db } from '../lib/firebase';
 import { collection, query, orderBy, onSnapshot, addDoc, deleteDoc, doc } from 'firebase/firestore';
 import { ComplaintModal } from './ComplaintModal';
 import { DashboardMap } from './DashboardMap';
 import { AIChatBot } from './AIChatBot';
-import { 
+import {
   Trash2,
   ShieldCheck,
   Plus,
@@ -143,7 +142,7 @@ export function Dashboard({ user, onLogout }) {
 
       const updateMerged = () => {
         if (!isSubscribed) return;
-        
+
         // Merge and Sort manually to handle missing timestamps gracefully
         const merged = [...currentComplaints, ...currentEmergencies].sort((a, b) => {
           const timeA = a.createdAt?.seconds || a.createdAt?.toDate?.()?.getTime() || 0;
@@ -175,11 +174,11 @@ export function Dashboard({ user, onLogout }) {
 
       const qE = collection(db, 'emergencies');
       unsubscribeEmergencies = onSnapshot(qE, (snapshot) => {
-        currentEmergencies = snapshot.docs.map(doc => ({ 
-          id: doc.id, 
-          ...doc.data(), 
-          category: doc.data().type || 'Emergency SOS', 
-          description: `Emergency signal received from ${doc.data().phone || 'unknown user'}. Immediate attention required.` 
+        currentEmergencies = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          category: doc.data().type || 'Emergency SOS',
+          description: `Emergency signal received from ${doc.data().phone || 'unknown user'}. Immediate attention required.`
         }));
         updateMerged();
       }, (error) => {
@@ -210,7 +209,7 @@ export function Dashboard({ user, onLogout }) {
   const handleAddStaff = async (e) => {
     e.preventDefault();
     if (!newStaff.name || !newStaff.passcode) return;
-    
+
     try {
       await addDoc(collection(db, 'staff'), {
         ...newStaff,
@@ -237,13 +236,13 @@ export function Dashboard({ user, onLogout }) {
 
   const filteredComplaints = (complaints || []).filter(c => {
     const matchesSearch = !searchTerm || (
-      c.category?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      c.description?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      c.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      c.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       c.status?.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    
+
     const matchesStatus = statusFilter === 'All' || c.status?.toLowerCase() === statusFilter.toLowerCase();
-    
+
     const matchesRole = user?.role === 'ADMIN' || c.assignedTo === user?.department;
 
     return matchesSearch && matchesStatus && matchesRole;
@@ -266,18 +265,18 @@ export function Dashboard({ user, onLogout }) {
 
   return (
     <div className="main-container">
-      <ControlCenterSidebar 
-        activeTab={activeTab} 
-        setActiveTab={setActiveTab} 
-        user={user} 
-        onLogout={onLogout} 
+      <ControlCenterSidebar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        user={user}
+        onLogout={onLogout}
       />
 
       {/* Main Content Area */}
       <main className="content-area custom-scrollbar">
         {activeTab === 'incidents' ? (
           <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-700">
-            <div className="flex justify-between items-end">
+            <div className="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-4 flex-wrap w-full">
               <div>
                 <span className="hero__kicker text-blue-500">Smart City Infrastructure</span>
                 <h1 className="text-4xl font-display tracking-tight mb-2 text-blue-400">Operations Center</h1>
@@ -326,9 +325,9 @@ export function Dashboard({ user, onLogout }) {
                   </div>
                 </div>
                 <div className="professional-surface p-1 h-[600px] rounded-2xl overflow-hidden relative shadow-xl">
-                  <DashboardMap 
-                    complaints={filteredComplaints} 
-                    onComplaintClick={(c) => setSelectedComplaint(c)} 
+                  <DashboardMap
+                    complaints={filteredComplaints}
+                    onComplaintClick={(c) => setSelectedComplaint(c)}
                   />
                 </div>
               </div>
@@ -344,78 +343,78 @@ export function Dashboard({ user, onLogout }) {
                     {filteredComplaints.length} Records
                   </span>
                 </div>
-                
+
                 <div className="professional-surface flex flex-col h-[600px] p-0 rounded-2xl overflow-hidden">
-                   <div className="p-5 bg-white/5 border-b border-white/5">
-                      <div className="relative">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-30" />
-                        <input 
-                          type="text" 
-                          placeholder="Search incidents or locations..." 
-                          value={searchTerm}
-                          onChange={(e) => setSearchTerm(e.target.value)}
-                          className="w-full bg-black/40 border border-white/10 rounded-xl py-3.5 pl-12 pr-4 text-xs outline-none focus:border-blue-400/40 transition-all placeholder:opacity-30 font-medium" 
-                        />
+                  <div className="p-5 bg-white/5 border-b border-white/5">
+                    <div className="relative">
+                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-30" />
+                      <input
+                        type="text"
+                        placeholder="Search incidents or locations..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full bg-black/40 border border-white/10 rounded-xl py-3.5 pl-12 pr-4 text-xs outline-none focus:border-blue-400/40 transition-all placeholder:opacity-30 font-medium"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-black/20">
+                    {filteredComplaints.length === 0 ? (
+                      <div className="h-full flex flex-col items-center justify-center opacity-20 italic text-xs gap-3">
+                        <Search className="w-10 h-10" />
+                        <span className="uppercase tracking-widest font-black">No active records match your query</span>
                       </div>
-                   </div>
-                   
-                   <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-black/20">
-                      {filteredComplaints.length === 0 ? (
-                        <div className="h-full flex flex-col items-center justify-center opacity-20 italic text-xs gap-3">
-                          <Search className="w-10 h-10" />
-                          <span className="uppercase tracking-widest font-black">No active records match your query</span>
-                        </div>
-                      ) : (
-                        filteredComplaints.map((c) => (
-                          <div 
-                            key={c.id} 
-                            onClick={() => setSelectedComplaint(c)}
-                            className={`professional-surface p-5 border-white/5 hover:border-blue-400/30 hover:bg-blue-400/5 cursor-pointer transition-all duration-500 group relative overflow-hidden ${c.status?.toLowerCase() === 'resolved' ? 'opacity-60 grayscale-[0.5]' : ''}`}
-                          >
-                            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-aqua/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            
-                            <div className="flex justify-between items-start mb-4">
-                              <span className={`glass-badge glass-badge--${getStatusColor(c.status)} px-3 py-1 font-black`}>{c.status || 'Pending'}</span>
-                              <div className="flex flex-col items-end">
-                                <span className="text-[9px] opacity-40 font-bold uppercase tracking-widest mb-1">Incident ID</span>
-                                <span className="text-[10px] font-mono font-bold opacity-20 group-hover:opacity-100 transition-opacity">#{c.id.slice(-6).toUpperCase()}</span>
-                              </div>
-                            </div>
+                    ) : (
+                      filteredComplaints.map((c) => (
+                        <div
+                          key={c.id}
+                          onClick={() => setSelectedComplaint(c)}
+                          className={`professional-surface p-5 border-white/5 hover:border-blue-400/30 hover:bg-blue-400/5 cursor-pointer transition-all duration-500 group relative overflow-hidden ${c.status?.toLowerCase() === 'resolved' ? 'opacity-60 grayscale-[0.5]' : ''}`}
+                        >
+                          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-aqua/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
 
-                            <h4 className="text-sm font-black uppercase tracking-wide group-hover:text-aqua transition-colors mb-2">{c.category || 'Maintenance Issue'}</h4>
-                            <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity">{c.description}</p>
-                            
-                            <div className="mt-5 pt-5 border-t border-white/5 flex items-center justify-between">
-                              <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-aqua">
-                                  <Users className="w-3.5 h-3.5" />
-                                </div>
-                                <div className="flex flex-col">
-                                  <span className="text-[8px] opacity-40 font-bold uppercase">Assigned Unit</span>
-                                  <span className="text-[10px] font-black text-white/80">{c.assignedTo || 'UNASSIGNED'}</span>
-                                </div>
-                              </div>
-                              <div className="text-right">
-                                <span className="text-[8px] opacity-40 font-bold uppercase block mb-1">Est. Completion</span>
-                                <span className="text-[10px] font-black text-violet">
-                                  {c.estimatedEndDate ? new Date(c.estimatedEndDate).toLocaleDateString([], {month: 'short', day: 'numeric', year: '2-digit'}) : 'PENDING'}
-                                </span>
-                              </div>
-                            </div>
-
-                            <div className="mt-4 flex items-center justify-between">
-                               <div className="flex items-center gap-2">
-                                 <div className={`w-1.5 h-1.5 rounded-full ${c.priority === 'High' ? 'bg-rose shadow-[0_0_8px_#f43f5e]' : c.priority === 'Medium' ? 'bg-amber shadow-[0_0_8px_#fbbf24]' : 'bg-aqua shadow-[0_0_8px_#5ee7df]'}`}></div>
-                                 <span className={`text-[9px] font-black uppercase tracking-[0.2em] ${c.priority === 'High' ? 'text-rose' : c.priority === 'Medium' ? 'text-amber' : 'text-aqua'}`}>
-                                  {c.priority} Priority
-                                </span>
-                               </div>
-                               <ChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all text-aqua" />
+                          <div className="flex justify-between items-start mb-4">
+                            <span className={`glass-badge glass-badge--${getStatusColor(c.status)} px-3 py-1 font-black`}>{c.status || 'Pending'}</span>
+                            <div className="flex flex-col items-end">
+                              <span className="text-[9px] opacity-40 font-bold uppercase tracking-widest mb-1">Incident ID</span>
+                              <span className="text-[10px] font-mono font-bold opacity-20 group-hover:opacity-100 transition-opacity">#{c.id.slice(-6).toUpperCase()}</span>
                             </div>
                           </div>
-                        ))
-                      )}
-                   </div>
+
+                          <h4 className="text-sm font-black uppercase tracking-wide group-hover:text-aqua transition-colors mb-2">{c.category || 'Maintenance Issue'}</h4>
+                          <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity">{c.description}</p>
+
+                          <div className="mt-5 pt-5 border-t border-white/5 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-aqua">
+                                <Users className="w-3.5 h-3.5" />
+                              </div>
+                              <div className="flex flex-col">
+                                <span className="text-[8px] opacity-40 font-bold uppercase">Assigned Unit</span>
+                                <span className="text-[10px] font-black text-white/80">{c.assignedTo || 'UNASSIGNED'}</span>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <span className="text-[8px] opacity-40 font-bold uppercase block mb-1">Est. Completion</span>
+                              <span className="text-[10px] font-black text-violet">
+                                {c.estimatedEndDate ? new Date(c.estimatedEndDate).toLocaleDateString([], { month: 'short', day: 'numeric', year: '2-digit' }) : 'PENDING'}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="mt-4 flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div className={`w-1.5 h-1.5 rounded-full ${c.priority === 'High' ? 'bg-rose shadow-[0_0_8px_#f43f5e]' : c.priority === 'Medium' ? 'bg-amber shadow-[0_0_8px_#fbbf24]' : 'bg-aqua shadow-[0_0_8px_#5ee7df]'}`}></div>
+                              <span className={`text-[9px] font-black uppercase tracking-[0.2em] ${c.priority === 'High' ? 'text-rose' : c.priority === 'Medium' ? 'text-amber' : 'text-aqua'}`}>
+                                {c.priority} Priority
+                              </span>
+                            </div>
+                            <ChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all text-aqua" />
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -428,7 +427,7 @@ export function Dashboard({ user, onLogout }) {
                 <h1 className="text-4xl font-display tracking-tight mb-2">Staff Hub</h1>
                 <p className="text-slate-400 text-sm max-w-lg">Managing authorized personnel, department allocations, and secure access credentials.</p>
               </div>
-              <button 
+              <button
                 onClick={() => setShowAddStaff(true)}
                 className="professional-surface px-8 py-4 bg-blue-600/10 border-blue-500/30 hover:bg-blue-600/20 transition-all flex items-center gap-3 text-[11px] font-black tracking-[0.2em] uppercase shadow-lg shadow-blue-500/5"
               >
@@ -438,15 +437,15 @@ export function Dashboard({ user, onLogout }) {
 
             <div className="staff-grid">
               {staff.length === 0 ? (
-                 <div className="col-span-full h-64 flex flex-col items-center justify-center opacity-20 italic gap-4">
-                    <Users className="w-16 h-16" />
-                    <span className="text-lg font-display uppercase tracking-widest">No personnel records found in database</span>
-                 </div>
+                <div className="col-span-full h-64 flex flex-col items-center justify-center opacity-20 italic gap-4">
+                  <Users className="w-16 h-16" />
+                  <span className="text-lg font-display uppercase tracking-widest">No personnel records found in database</span>
+                </div>
               ) : (
                 staff.map((member) => (
                   <div key={member.id} className="premium-card p-6 border-white/5 hover:border-violet/30 transition-all group relative">
                     <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button 
+                      <button
                         onClick={() => handleRemoveStaff(member.id)}
                         className="p-2.5 bg-rose/10 text-rose rounded-xl hover:bg-rose/20 transition-all hover:scale-110"
                         title="Remove Staff"
@@ -454,7 +453,7 @@ export function Dashboard({ user, onLogout }) {
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
-                    
+
                     <div className="flex items-center gap-4 mb-6">
                       <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-2xl font-black text-violet border border-white/5 shadow-inner">
                         {member.name?.[0] || '?'}
@@ -485,7 +484,7 @@ export function Dashboard({ user, onLogout }) {
                         <code className="text-sm font-mono font-bold tracking-[0.3em] text-white/90 block text-center pt-1">{member.passcode}</code>
                       </div>
                     </div>
-                    
+
                     <div className="mt-6 pt-6 border-t border-white/5 flex items-center justify-between opacity-30 group-hover:opacity-100 transition-opacity">
                       <div className="flex items-center gap-1.5">
                         <div className="w-1.5 h-1.5 rounded-full bg-lime"></div>
@@ -507,128 +506,128 @@ export function Dashboard({ user, onLogout }) {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-               <div className="lg:col-span-2 space-y-8">
+              <div className="lg:col-span-2 space-y-8">
+                <div className="premium-card p-8">
+                  <div className="flex justify-between items-center mb-8">
+                    <h3 className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
+                      <TrendingUp className="w-4 h-4 text-aqua" />
+                      Incident Resolution Trend
+                    </h3>
+                    <div className="flex gap-2">
+                      <span className="glass px-2 py-1 rounded text-[8px] font-bold uppercase tracking-tighter border-aqua/30 text-aqua">Last 7 Days</span>
+                    </div>
+                  </div>
+                  <div className="chart-container">
+                    <div className="chart-bar-wrap">
+                      <div className="chart-bar h-[40%]" style={{ '--progress': '40%' }}></div>
+                      <span className="chart-label">Mon</span>
+                    </div>
+                    <div className="chart-bar-wrap">
+                      <div className="chart-bar h-[65%]" style={{ '--progress': '65%' }}></div>
+                      <span className="chart-label">Tue</span>
+                    </div>
+                    <div className="chart-bar-wrap">
+                      <div className="chart-bar h-[90%]" style={{ '--progress': '90%' }}></div>
+                      <span className="chart-label">Wed</span>
+                    </div>
+                    <div className="chart-bar-wrap">
+                      <div className="chart-bar h-[55%]" style={{ '--progress': '55%' }}></div>
+                      <span className="chart-label">Thu</span>
+                    </div>
+                    <div className="chart-bar-wrap">
+                      <div className="chart-bar h-[75%]" style={{ '--progress': '75%' }}></div>
+                      <span className="chart-label">Fri</span>
+                    </div>
+                    <div className="chart-bar-wrap">
+                      <div className="chart-bar h-[30%]" style={{ '--progress': '30%' }}></div>
+                      <span className="chart-label">Sat</span>
+                    </div>
+                    <div className="chart-bar-wrap">
+                      <div className="chart-bar h-[20%]" style={{ '--progress': '20%' }}></div>
+                      <span className="chart-label">Sun</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="premium-card p-8">
-                    <div className="flex justify-between items-center mb-8">
-                       <h3 className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
-                          <TrendingUp className="w-4 h-4 text-aqua" />
-                          Incident Resolution Trend
-                       </h3>
-                       <div className="flex gap-2">
-                          <span className="glass px-2 py-1 rounded text-[8px] font-bold uppercase tracking-tighter border-aqua/30 text-aqua">Last 7 Days</span>
-                       </div>
-                    </div>
-                    <div className="chart-container">
-                       <div className="chart-bar-wrap">
-                          <div className="chart-bar h-[40%]" style={{'--progress': '40%'}}></div>
-                          <span className="chart-label">Mon</span>
-                       </div>
-                       <div className="chart-bar-wrap">
-                          <div className="chart-bar h-[65%]" style={{'--progress': '65%'}}></div>
-                          <span className="chart-label">Tue</span>
-                       </div>
-                       <div className="chart-bar-wrap">
-                          <div className="chart-bar h-[90%]" style={{'--progress': '90%'}}></div>
-                          <span className="chart-label">Wed</span>
-                       </div>
-                       <div className="chart-bar-wrap">
-                          <div className="chart-bar h-[55%]" style={{'--progress': '55%'}}></div>
-                          <span className="chart-label">Thu</span>
-                       </div>
-                       <div className="chart-bar-wrap">
-                          <div className="chart-bar h-[75%]" style={{'--progress': '75%'}}></div>
-                          <span className="chart-label">Fri</span>
-                       </div>
-                       <div className="chart-bar-wrap">
-                          <div className="chart-bar h-[30%]" style={{'--progress': '30%'}}></div>
-                          <span className="chart-label">Sat</span>
-                       </div>
-                       <div className="chart-bar-wrap">
-                          <div className="chart-bar h-[20%]" style={{'--progress': '20%'}}></div>
-                          <span className="chart-label">Sun</span>
-                       </div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                     <div className="premium-card p-8">
-                        <h3 className="text-sm font-black uppercase tracking-widest mb-6 text-violet">Top Hotspots</h3>
-                        <div className="space-y-6">
-                           {[
-                             { loc: 'MG Road', count: 12, trend: '+2' },
-                             { loc: 'Jayanagar', count: 8, trend: '-1' },
-                             { loc: 'Indiranagar', count: 5, trend: '0' }
-                           ].map((hotspot, i) => (
-                             <div key={i} className="flex justify-between items-center">
-                                <div className="flex items-center gap-3">
-                                   <div className="w-8 h-8 rounded-lg bg-violet/10 flex items-center justify-center text-[10px] font-bold text-violet">{i+1}</div>
-                                   <span className="text-xs font-bold">{hotspot.loc}</span>
-                                </div>
-                                <div className="text-right">
-                                   <div className="text-xs font-black">{hotspot.count} cases</div>
-                                   <div className={`text-[8px] font-bold ${hotspot.trend.startsWith('+') ? 'text-rose' : 'text-lime'}`}>{hotspot.trend} this week</div>
-                                </div>
-                             </div>
-                           ))}
-                        </div>
-                     </div>
-                     <div className="premium-card p-8">
-                        <h3 className="text-sm font-black uppercase tracking-widest mb-6 text-amber">Priority Shift</h3>
-                        <div className="flex justify-center py-4">
-                           <div className="gauge-ring" style={{'--progress': '72%'}}>
-                              <div className="gauge-value text-amber">72%</div>
-                           </div>
-                        </div>
-                        <p className="text-[10px] text-center opacity-40 font-bold uppercase tracking-widest mt-4">High Priority Clearance Rate</p>
-                     </div>
-                  </div>
-               </div>
-
-               <div className="space-y-8">
-                  <div className="premium-card p-8 bg-aqua/5 border-aqua/20">
-                     <h3 className="text-sm font-black uppercase tracking-widest mb-6">SLA Compliance</h3>
-                     <div className="space-y-6">
-                        {[
-                          { dept: 'ROADS', perf: 92 },
-                          { dept: 'ELECTRIC', perf: 88 },
-                          { dept: 'WATER', perf: 74 },
-                          { dept: 'SANITATION', perf: 95 }
-                        ].map((d, i) => (
-                          <div key={i} className="space-y-2">
-                             <div className="flex justify-between text-[10px] font-black tracking-widest uppercase">
-                                <span>{d.dept}</span>
-                                <span className={d.perf > 85 ? 'text-lime' : 'text-amber'}>{d.perf}%</span>
-                             </div>
-                             <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                                <div className="h-full bg-gradient-to-right from-aqua to-violet transition-all duration-1000" style={{width: `${d.perf}%`}}></div>
-                             </div>
+                    <h3 className="text-sm font-black uppercase tracking-widest mb-6 text-violet">Top Hotspots</h3>
+                    <div className="space-y-6">
+                      {[
+                        { loc: 'MG Road', count: 12, trend: '+2' },
+                        { loc: 'Jayanagar', count: 8, trend: '-1' },
+                        { loc: 'Indiranagar', count: 5, trend: '0' }
+                      ].map((hotspot, i) => (
+                        <div key={i} className="flex justify-between items-center">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-violet/10 flex items-center justify-center text-[10px] font-bold text-violet">{i + 1}</div>
+                            <span className="text-xs font-bold">{hotspot.loc}</span>
                           </div>
-                        ))}
-                     </div>
-                  </div>
-
-                  <div className="premium-card p-8">
-                     <h3 className="text-sm font-black uppercase tracking-widest mb-4">Resource Allocation</h3>
-                     <div className="p-4 bg-black/40 rounded-2xl border border-white/5">
-                        <div className="flex justify-between items-center mb-1">
-                           <span className="text-[9px] opacity-40 font-bold uppercase">Active Units</span>
-                           <span className="text-lg font-display text-aqua">24 / 30</span>
+                          <div className="text-right">
+                            <div className="text-xs font-black">{hotspot.count} cases</div>
+                            <div className={`text-[8px] font-bold ${hotspot.trend.startsWith('+') ? 'text-rose' : 'text-lime'}`}>{hotspot.trend} this week</div>
+                          </div>
                         </div>
-                        <div className="text-[8px] font-black text-lime uppercase tracking-widest">Optimal Capacity</div>
-                     </div>
+                      ))}
+                    </div>
                   </div>
-               </div>
+                  <div className="premium-card p-8">
+                    <h3 className="text-sm font-black uppercase tracking-widest mb-6 text-amber">Priority Shift</h3>
+                    <div className="flex justify-center py-4">
+                      <div className="gauge-ring" style={{ '--progress': '72%' }}>
+                        <div className="gauge-value text-amber">72%</div>
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-center opacity-40 font-bold uppercase tracking-widest mt-4">High Priority Clearance Rate</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-8">
+                <div className="premium-card p-8 bg-aqua/5 border-aqua/20">
+                  <h3 className="text-sm font-black uppercase tracking-widest mb-6">SLA Compliance</h3>
+                  <div className="space-y-6">
+                    {[
+                      { dept: 'ROADS', perf: 92 },
+                      { dept: 'ELECTRIC', perf: 88 },
+                      { dept: 'WATER', perf: 74 },
+                      { dept: 'SANITATION', perf: 95 }
+                    ].map((d, i) => (
+                      <div key={i} className="space-y-2">
+                        <div className="flex justify-between text-[10px] font-black tracking-widest uppercase">
+                          <span>{d.dept}</span>
+                          <span className={d.perf > 85 ? 'text-lime' : 'text-amber'}>{d.perf}%</span>
+                        </div>
+                        <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                          <div className="h-full bg-gradient-to-right from-aqua to-violet transition-all duration-1000" style={{ width: `${d.perf}%` }}></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="premium-card p-8">
+                  <h3 className="text-sm font-black uppercase tracking-widest mb-4">Resource Allocation</h3>
+                  <div className="p-4 bg-black/40 rounded-2xl border border-white/5">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-[9px] opacity-40 font-bold uppercase">Active Units</span>
+                      <span className="text-lg font-display text-aqua">24 / 30</span>
+                    </div>
+                    <div className="text-[8px] font-black text-lime uppercase tracking-widest">Optimal Capacity</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         ) : activeTab === 'notifications' ? (
           <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-700">
-             <div className="flex justify-between items-end">
+            <div className="flex justify-between items-end">
               <div>
                 <span className="hero__kicker">Communication Center</span>
                 <h1 className="text-4xl font-display tracking-tight mb-2">Command Feed</h1>
                 <p className="text-slate-400 text-sm max-w-lg">Real-time log of system events, emergency broadcasts, and operational updates.</p>
               </div>
-              <button 
+              <button
                 onClick={() => setNotifications([])}
                 className="glass px-6 py-3 rounded-xl border-white/10 hover:bg-white/5 transition-all text-[10px] font-black tracking-widest uppercase opacity-40 hover:opacity-100"
               >
@@ -637,28 +636,28 @@ export function Dashboard({ user, onLogout }) {
             </div>
 
             <div className="max-w-3xl">
-               <div className="timeline-container">
-                  {notifications.length === 0 ? (
-                    <div className="py-20 text-center opacity-20 italic">
-                       <Bell className="w-12 h-12 mx-auto mb-4" />
-                       <p className="uppercase tracking-[0.3em] font-black">No active notifications</p>
-                    </div>
-                  ) : (
-                    notifications.map((n) => (
-                      <div key={n.id} className="timeline-item group">
-                         <div className={`timeline-dot ${n.type === 'warning' ? 'timeline-dot--warning' : n.type === 'critical' ? 'timeline-dot--critical' : ''}`}></div>
-                         <div className="timeline-content">
-                            <span className="timeline-time">{n.time}</span>
-                            <p className="timeline-text">{n.text}</p>
-                            <div className="mt-4 flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                               <button className="text-[9px] font-black uppercase text-aqua tracking-widest hover:underline">Acknowledge</button>
-                               <button className="text-[9px] font-black uppercase text-violet tracking-widest hover:underline">View Details</button>
-                            </div>
-                         </div>
+              <div className="timeline-container">
+                {notifications.length === 0 ? (
+                  <div className="py-20 text-center opacity-20 italic">
+                    <Bell className="w-12 h-12 mx-auto mb-4" />
+                    <p className="uppercase tracking-[0.3em] font-black">No active notifications</p>
+                  </div>
+                ) : (
+                  notifications.map((n) => (
+                    <div key={n.id} className="timeline-item group">
+                      <div className={`timeline-dot ${n.type === 'warning' ? 'timeline-dot--warning' : n.type === 'critical' ? 'timeline-dot--critical' : ''}`}></div>
+                      <div className="timeline-content">
+                        <span className="timeline-time">{n.time}</span>
+                        <p className="timeline-text">{n.text}</p>
+                        <div className="mt-4 flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button className="text-[9px] font-black uppercase text-aqua tracking-widest hover:underline">Acknowledge</button>
+                          <button className="text-[9px] font-black uppercase text-violet tracking-widest hover:underline">View Details</button>
+                        </div>
                       </div>
-                    ))
-                  )}
-               </div>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
           </div>
         ) : activeTab === 'ai-assistant' ? (
@@ -686,12 +685,12 @@ export function Dashboard({ user, onLogout }) {
             <form onSubmit={handleAddStaff} className="space-y-6">
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Full Name</label>
-                <input 
+                <input
                   autoFocus
                   required
-                  type="text" 
+                  type="text"
                   value={newStaff.name}
-                  onChange={(e) => setNewStaff({...newStaff, name: e.target.value})}
+                  onChange={(e) => setNewStaff({ ...newStaff, name: e.target.value })}
                   placeholder="e.g. John Doe"
                   className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm outline-none focus:border-violet/40 focus:bg-violet/5 transition-all"
                 />
@@ -700,9 +699,9 @@ export function Dashboard({ user, onLogout }) {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Department</label>
-                  <select 
+                  <select
                     value={newStaff.department}
-                    onChange={(e) => setNewStaff({...newStaff, department: e.target.value})}
+                    onChange={(e) => setNewStaff({ ...newStaff, department: e.target.value })}
                     className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm outline-none focus:border-violet/40 appearance-none"
                   >
                     <option value="ROADS">ROADS</option>
@@ -714,9 +713,9 @@ export function Dashboard({ user, onLogout }) {
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Role</label>
-                  <select 
+                  <select
                     value={newStaff.role}
-                    onChange={(e) => setNewStaff({...newStaff, role: e.target.value})}
+                    onChange={(e) => setNewStaff({ ...newStaff, role: e.target.value })}
                     className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm outline-none focus:border-violet/40 appearance-none"
                   >
                     <option value="WORKER">WORKER</option>
@@ -728,11 +727,11 @@ export function Dashboard({ user, onLogout }) {
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Access Passcode</label>
                 <div className="relative">
-                  <input 
+                  <input
                     required
-                    type="text" 
+                    type="text"
                     value={newStaff.passcode}
-                    onChange={(e) => setNewStaff({...newStaff, passcode: e.target.value.toUpperCase()})}
+                    onChange={(e) => setNewStaff({ ...newStaff, passcode: e.target.value.toUpperCase() })}
                     placeholder="e.g. WORKER_2026"
                     className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm font-mono tracking-widest outline-none focus:border-violet/40 focus:bg-violet/5 transition-all"
                   />
@@ -740,7 +739,7 @@ export function Dashboard({ user, onLogout }) {
                 </div>
               </div>
 
-              <button 
+              <button
                 type="submit"
                 className="w-full py-4 bg-violet/20 border border-violet/30 rounded-2xl text-[11px] font-black tracking-[0.2em] uppercase hover:bg-violet/30 transition-all mt-4 flex items-center justify-center gap-2"
               >
@@ -753,9 +752,9 @@ export function Dashboard({ user, onLogout }) {
 
 
       {selectedComplaint && (
-        <ComplaintModal 
-          complaint={selectedComplaint} 
-          onClose={() => setSelectedComplaint(null)} 
+        <ComplaintModal
+          complaint={selectedComplaint}
+          onClose={() => setSelectedComplaint(null)}
           staff={staff}
           userRole={user?.role}
         />

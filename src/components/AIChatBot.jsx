@@ -129,7 +129,7 @@ export function AIChatBot({ user }) {
             {GEMINI_API_KEY ? '✨ Powered by Gemini 1.5 Flash' : 'Ask me anything about civic maintenance.'}
           </p>
         </div>
-        <div className="glass px-4 py-2 rounded-2xl flex items-center gap-2">
+        <div className="glass px-4 py-2 rounded-md flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-lime animate-pulse shadow-[0_0_10px_#a8f08a]"></div>
           <span className="text-[10px] font-bold tracking-widest uppercase opacity-60">Online</span>
         </div>
@@ -156,11 +156,11 @@ export function AIChatBot({ user }) {
           <div className="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar mb-4">
             {messages.map((msg, i) => (
               <div key={i} className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                <div className={`w-8 h-8 rounded-xl flex-shrink-0 flex items-center justify-center ${msg.role === 'bot' ? 'bg-aqua/10 border border-aqua/20' : 'bg-violet/10 border border-violet/20'}`}>
+                <div className={`w-8 h-8 rounded-md flex-shrink-0 flex items-center justify-center ${msg.role === 'bot' ? 'bg-aqua/10 border border-aqua/20' : 'bg-violet/10 border border-violet/20'}`}>
                   {msg.role === 'bot' ? <Bot className="w-4 h-4 text-aqua" /> : <User className="w-4 h-4 text-violet" />}
                 </div>
                 <div className={`max-w-[80%] ${msg.role === 'user' ? 'text-right' : ''}`}>
-                  <div className={`glass p-4 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${msg.role === 'user' ? 'bg-violet/10 border-violet/20 rounded-tr-md' : 'bg-white/5 border-white/5 rounded-tl-md'}`}>
+                  <div className={`glass p-4 rounded-md text-sm leading-relaxed whitespace-pre-wrap ${msg.role === 'user' ? 'bg-violet/10 border-violet/20' : 'bg-white/5 border-white/5'}`}>
                     {msg.content}
                   </div>
                   <span className="text-[9px] opacity-30 font-bold mt-1 inline-block px-2">
@@ -172,10 +172,10 @@ export function AIChatBot({ user }) {
 
             {isTyping && (
               <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-xl flex-shrink-0 flex items-center justify-center bg-aqua/10 border border-aqua/20">
+                <div className="w-8 h-8 rounded-md flex-shrink-0 flex items-center justify-center bg-aqua/10 border border-aqua/20">
                   <Bot className="w-4 h-4 text-aqua" />
                 </div>
-                <div className="glass p-4 rounded-2xl rounded-tl-md bg-white/5 border-white/5">
+                <div className="glass p-4 rounded-md bg-white/5 border-white/5">
                   <div className="flex gap-1">
                     <div className="w-2 h-2 rounded-full bg-aqua/50 animate-bounce" style={{ animationDelay: '0ms' }}></div>
                     <div className="w-2 h-2 rounded-full bg-aqua/50 animate-bounce" style={{ animationDelay: '150ms' }}></div>
