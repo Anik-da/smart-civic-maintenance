@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Shield, FileText, LayoutDashboard, ArrowRight, Search } from 'lucide-react';
+import { Shield, FileText, LayoutDashboard, ArrowRight, Search, Bot } from 'lucide-react';
 
 export function Landing() {
   return (
