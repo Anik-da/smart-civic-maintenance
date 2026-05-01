@@ -97,9 +97,10 @@ export function Dashboard({ user, onLogout }) {
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [stats, setStats] = useState({ total: 0, pending: 0, inProgress: 0, resolved: 0 });
   const [searchTerm, setSearchTerm] = useState('');
-  const [usingDemo, setUsingDemo] = useState(false);
+  const [usingDemoIncidents, setUsingDemoIncidents] = useState(false);
+  const [usingDemoNotifications, setUsingDemoNotifications] = useState(false);
   const [activeTab, setActiveTab] = useState('incidents'); // 'incidents', 'staff', 'analytics', 'notifications'
-  const [notifications, setNotifications] = useState(DEMO_NOTIFICATIONS);
+  const [notifications, setNotifications] = useState([]); // Initialize empty for real-time
   const [staff, setStaff] = useState([]);
   const [newStaff, setNewStaff] = useState({ name: '', department: 'ROADS', role: 'WORKER', passcode: '' });
   const [showAddStaff, setShowAddStaff] = useState(false);
@@ -119,23 +120,44 @@ export function Dashboard({ user, onLogout }) {
     let unsubscribeComplaints;
     let unsubscribeEmergencies;
     let unsubscribeStaff;
+    let unsubscribeNotifications;
     let timeoutId;
     let isSubscribed = true;
 
-    const activateFallback = () => {
+    const dataReceived = {
+      complaints: false,
+      emergencies: false,
+      notifications: false
+    };
+
+    const activateIncidentFallback = () => {
       if (!isSubscribed) return;
-      console.log('Using Dashboard Demo Data Fallback');
+      if (dataReceived.complaints || dataReceived.emergencies) return; // Don't fallback if we got live data
+      console.log('Using Dashboard Incident Demo Data Fallback');
       setComplaints(DEMO_COMPLAINTS);
       setStats(calculateStats(DEMO_COMPLAINTS));
-      setUsingDemo(true);
+      setUsingDemoIncidents(true);
       setLoading(false);
     };
 
+    const activateNotificationFallback = () => {
+      if (!isSubscribed) return;
+      if (dataReceived.notifications) return; // Don't fallback if we got live data
+      console.log('Using Dashboard Notification Demo Data Fallback');
+      setNotifications(DEMO_NOTIFICATIONS);
+      setUsingDemoNotifications(true);
+    };
+
     timeoutId = setTimeout(() => {
-      if (loading) {
-        activateFallback();
+      if (isSubscribed) {
+        if (!dataReceived.complaints && !dataReceived.emergencies) {
+          activateIncidentFallback();
+        }
+        if (!dataReceived.notifications) {
+          activateNotificationFallback();
+        }
       }
-    }, 3000);
+    }, 4000); // Increased to 4s for slower connections
 
     try {
       let currentComplaints = [];
@@ -143,39 +165,44 @@ export function Dashboard({ user, onLogout }) {
 
       const updateMerged = () => {
         if (!isSubscribed) return;
-        console.log('[Dashboard] Updating merged records...');
-
+        
         // Merge and Sort manually to handle missing timestamps gracefully
         const merged = [...currentComplaints, ...currentEmergencies].sort((a, b) => {
-          const timeA = a.createdAt?.seconds || a.createdAt?.toDate?.()?.getTime() || 0;
-          const timeB = b.createdAt?.seconds || b.createdAt?.toDate?.()?.getTime() || 0;
+          // Use Date.now() as fallback for serverTimestamp() which is null initially
+          const timeA = a.createdAt?.seconds ? a.createdAt.seconds * 1000 : 
+                        a.createdAt?.toDate ? a.createdAt.toDate().getTime() : 
+                        a.createdAt instanceof Date ? a.createdAt.getTime() : Date.now();
+          
+          const timeB = b.createdAt?.seconds ? b.createdAt.seconds * 1000 : 
+                        b.createdAt?.toDate ? b.createdAt.toDate().getTime() : 
+                        b.createdAt instanceof Date ? b.createdAt.getTime() : Date.now();
+          
           return timeB - timeA;
         });
 
         if (merged.length > 0) {
           setComplaints(merged);
           setStats(calculateStats(merged));
-          setUsingDemo(false);
-        } else {
-          activateFallback();
+          setUsingDemoIncidents(false);
+          setLoading(false);
+        } else if (!loading && !usingDemoIncidents) {
+           activateIncidentFallback();
         }
-        setLoading(false);
       };
 
       // Removed orderBy from query to prevent excluding documents missing the field
-      const qC = collection(db, 'complaints');
       unsubscribeComplaints = onSnapshot(qC, (snapshot) => {
-        clearTimeout(timeoutId);
+        dataReceived.complaints = true;
         currentComplaints = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         updateMerged();
       }, (error) => {
         console.warn('Firestore Complaints Error:', error.message);
-        clearTimeout(timeoutId);
-        activateFallback();
+        activateIncidentFallback();
       });
 
       const qE = collection(db, 'emergencies');
       unsubscribeEmergencies = onSnapshot(qE, (snapshot) => {
+        dataReceived.emergencies = true;
         currentEmergencies = snapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data(),
@@ -193,10 +220,47 @@ export function Dashboard({ user, onLogout }) {
           setStaff(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
         });
       }
+
+      // Live Notifications Listener
+      unsubscribeNotifications = onSnapshot(qN, (snapshot) => {
+        dataReceived.notifications = true;
+        const liveNotes = snapshot.docs.map(doc => {
+          const data = doc.data();
+          let timeStr = 'Just now';
+          if (data.createdAt) {
+            const date = data.createdAt.toDate ? data.createdAt.toDate() : new Date(data.createdAt);
+            const diffMs = Date.now() - date.getTime();
+            const diffMins = Math.floor(diffMs / 60000);
+            if (diffMins < 1) timeStr = 'Just now';
+            else if (diffMins < 60) timeStr = `${diffMins} mins ago`;
+            else if (diffMins < 1440) timeStr = `${Math.floor(diffMins / 60)} hrs ago`;
+            else timeStr = date.toLocaleDateString();
+          }
+          return { id: doc.id, ...data, time: timeStr };
+        }).sort((a, b) => {
+          const timeA = a.createdAt?.seconds ? a.createdAt.seconds * 1000 : 
+                        a.createdAt?.toDate ? a.createdAt.toDate().getTime() : 
+                        a.createdAt instanceof Date ? a.createdAt.getTime() : Date.now();
+          
+          const timeB = b.createdAt?.seconds ? b.createdAt.seconds * 1000 : 
+                        b.createdAt?.toDate ? b.createdAt.toDate().getTime() : 
+                        b.createdAt instanceof Date ? b.createdAt.getTime() : Date.now();
+          
+          return timeB - timeA;
+        });
+
+        if (liveNotes.length > 0) {
+          setNotifications(liveNotes);
+          setUsingDemoNotifications(false);
+        } else if (!usingDemoNotifications) {
+          setNotifications([]);
+        }
+      });
     } catch (err) {
       console.warn('Sync Firestore Error:', err);
       clearTimeout(timeoutId);
-      activateFallback();
+      activateIncidentFallback();
+      activateNotificationFallback();
     }
 
     return () => {
@@ -204,6 +268,7 @@ export function Dashboard({ user, onLogout }) {
       if (unsubscribeComplaints) unsubscribeComplaints();
       if (unsubscribeEmergencies) unsubscribeEmergencies();
       if (unsubscribeStaff) unsubscribeStaff();
+      if (unsubscribeNotifications) unsubscribeNotifications();
       clearTimeout(timeoutId);
     };
   }, [user?.role]); // Run on mount and if role changes
@@ -342,7 +407,7 @@ export function Dashboard({ user, onLogout }) {
                     <h3 className="font-display text-lg uppercase tracking-wider">Operational Feed</h3>
                   </div>
                   <span className="glass px-2 py-0.5 rounded text-[9px] font-black opacity-40 uppercase tracking-tighter">
-                    {filteredComplaints.length} Records
+                    {filteredComplaints.length} Records {usingDemoIncidents ? '(DEMO)' : '(LIVE)'}
                   </span>
                 </div>
 
@@ -645,19 +710,23 @@ export function Dashboard({ user, onLogout }) {
                     <p className="uppercase tracking-[0.3em] font-black">No active notifications</p>
                   </div>
                 ) : (
-                  notifications.map((n) => (
-                    <div key={n.id} className="timeline-item group">
-                      <div className={`timeline-dot ${n.type === 'warning' ? 'timeline-dot--warning' : n.type === 'critical' ? 'timeline-dot--critical' : ''}`}></div>
-                      <div className="timeline-content">
-                        <span className="timeline-time">{n.time}</span>
-                        <p className="timeline-text">{n.text}</p>
-                        <div className="mt-4 flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button className="text-[9px] font-black uppercase text-aqua tracking-widest hover:underline">Acknowledge</button>
-                          <button className="text-[9px] font-black uppercase text-violet tracking-widest hover:underline">View Details</button>
+                  notifications.map((n) => {
+                    const normalizedType = (n.type || '').toLowerCase();
+                    return (
+                      <div key={n.id} className="timeline-item group">
+                        <div className={`timeline-dot ${normalizedType === 'warning' ? 'timeline-dot--warning' : normalizedType === 'critical' ? 'timeline-dot--critical' : ''}`}></div>
+                        <div className="timeline-content">
+                          <span className="timeline-time">{n.time}</span>
+                          {n.title && <h5 className="text-[11px] font-black uppercase tracking-widest text-white/90 mb-1">{n.title}</h5>}
+                          <p className="timeline-text">{n.text || n.message}</p>
+                          <div className="mt-4 flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button className="text-[9px] font-black uppercase text-aqua tracking-widest hover:underline">Acknowledge</button>
+                            <button className="text-[9px] font-black uppercase text-violet tracking-widest hover:underline">View Details</button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             </div>

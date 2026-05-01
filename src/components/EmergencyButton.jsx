@@ -40,6 +40,16 @@ export function EmergencyButton({ user, variant = 'floating' }) {
 
             await addDoc(collection(db, 'emergencies'), emergencyDoc);
             
+            // Create a real-time notification for the dashboard
+            await addDoc(collection(db, 'notifications'), {
+              title: '🚨 CRITICAL SOS SIGNAL',
+              message: `Immediate assistance requested at ${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`,
+              type: 'Critical',
+              status: 'Unread',
+              createdAt: serverTimestamp(),
+              userId: user?.uid || 'anonymous'
+            });
+            
             // Create a local notification/alert
             alert('🚨 EMERGENCY ALERT BROADCAST! Emergency services have been notified of your precise location. Please stay where you are.');
           } catch (error) {

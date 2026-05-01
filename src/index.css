@@ -1111,3 +1111,48 @@ main:not(.dashboard-main) {
   line-height: 1.5;
   color: rgba(255, 255, 255, 0.8);
 }
+
+/* ── Markdown Content Styling ── */
+.markdown-content {
+  word-break: break-word;
+}
+
+.markdown-content p {
+  margin-bottom: 0.75rem;
+}
+
+.markdown-content p:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-content strong {
+  color: #fff;
+  font-weight: 700;
+}
+
+.markdown-content ul, .markdown-content ol {
+  margin-bottom: 0.75rem;
+  padding-left: 1.25rem;
+}
+
+.markdown-content li {
+  margin-bottom: 0.25rem;
+}
+
+.markdown-content h1, .markdown-content h2, .markdown-content h3 {
+  color: #fff;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.markdown-content h3 { font-size: 1.1rem; }
+
+.markdown-content code {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+}

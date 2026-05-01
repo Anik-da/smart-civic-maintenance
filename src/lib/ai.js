@@ -8,7 +8,9 @@ let model = null;
 function getModel() {
   if (!GEMINI_API_KEY) return null;
   if (!genAI) {
+    console.log("Initializing Gemini AI with key:", GEMINI_API_KEY ? "Present (Starts with AIza...)" : "MISSING");
     genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+    // Using gemini-1.5-flash for standard compatibility
     model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
   }
   return model;

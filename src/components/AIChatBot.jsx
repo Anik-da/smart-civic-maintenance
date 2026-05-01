@@ -3,6 +3,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { Bot, Send, Sparkles, User, Lightbulb, Wrench, MapPin, AlertTriangle, Users, BarChart3 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
@@ -14,22 +15,25 @@ Your mission:
 4. For emergencies, mention the SOS button.
 5. Be helpful, professional, and friendly. Never say "I can only answer civic questions".`;
 
-const STAFF_SYSTEM_PROMPT = `You are the Smart Civic Operations Command AI.
+const STAFF_SYSTEM_PROMPT = `You are the Smart Civic Operations Command AI (Unit-01). 
 Your mission:
-1. Provide engineering-level infrastructure data: Asphalt compaction ratios, hydraulic pressure specs, HV grid safety.
-2. Assist staff with shift coordination and resource dispatch protocols.
-3. Use a technical, highly efficient, "Terminal" style tone.
-4. Reference the "Incidents" and "Staff Hub" tabs in the dashboard for real-time management.
-5. If an emergency is mentioned, immediately confirm the protocol for the Sidebar SOS button.`;
+1. Provide engineering-level infrastructure data: 
+   - Asphalt: PG 64-22 or 70-22 specifications, compaction ratios (92-97%), and layer thickness.
+   - Hydraulics: Fluid viscosity index, pressure relief valve settings (max 3000 PSI), and seal compatibility.
+   - Electrical: 33kV/11kV grid isolation protocols, transformer load balancing, and harmonic distortion analysis.
+2. Crew Management: Shift rotation patterns, emergency response deployment (Code Red/Amber/Green), and PPE compliance checks.
+3. Tone: Technical, precise, highly efficient, "Terminal" style. Use operational terminology.
+4. Dashboard Integration: Direct users to "Incidents" for real-time map data and "Staff Hub" for logistics.
+5. Emergencies: For SOS signals, confirm immediate multi-agency broadcast via the Sidebar SOS button.`;
 
 const FALLBACK_RESPONSES = {
   greet: "Hello! I'm your Smart Civic AI Assistant. I can help you report infrastructure issues, track complaints, and guide you through our services. What's the problem you're facing?",
-  staffGreet: "Greetings, team. Operations Assistant online. How can I assist with today's maintenance schedule, resource allocation, or technical infrastructure queries?",
-  road: "**Road Maintenance Ops:**\n\n- **Standard Repair:** Hot-mix asphalt for potholes > 50mm depth.\n- **SLA:** 48hr assessment, 7-day resolution.\n- **Safety:** Use Grade 3 high-vis gear and automatic lane-closure signage.\n- **Citizen View:** Reportable via 'Road Damage' category.",
-  garbage: "**Sanitation & Logistics:**\n\n- **Route Optimization:** Real-time bin level tracking active in Sector 4.\n- **Vehicle Fleet:** 85% availability. Unit SAN-09 in shop for hydraulics.\n- **Hazmat:** Requires specialized containment team Alpha.",
-  electricity: "**Grid Operations:**\n\n⚠️ **DANGER:** High-voltage line failure requires Phase-1 isolation.\n- **Repair:** Use insulated booms (33kV rated).\n- **Priority:** 4-hour hard deadline for residential grid restoration.\n- **System:** Check Transformer 8B in the Analytics tab for load spikes.",
-  emergency: "🆘 **Emergency Command:**\n\n1. **Internal SOS:** Use the Sidebar SOS button for immediate team dispatch.\n2. **Protocol:** Signal broadcasts to all active units and local precinct.\n3. **GPS:** Precision mapping active within 5-meter radius.",
-  default: "Operational Support Menu:\n\n\ud83d\udee3\ufe0f **Infrastructure** \u2014 Road and drainage technical specs\n\ud83d\uddd1\ufe0f **Logistics** \u2014 Waste management and fleet status\n\u26a1 **Power Systems** \u2014 Grid stability and electrical safety\n\ud83d\udcca **Analytics** \u2014 Performance bottlenecks and SLA data\n\ud83c\udd98 **Emergency** \u2014 SOS command and control\n\nWhat is your current operational requirement?",
+  staffGreet: "Greetings, Unit. Operations Assistant online. Secure line established. Monitoring grid stability and crew telemetry. State your operational requirement.",
+  road: "**Infrastructure Engineering Report (Roads):**\n\n- **Repair Spec:** Cold-milled HMA (Hot Mix Asphalt) patching for arterial routes.\n- **SLA:** 4hr assessment for Category A defects. 10-day resolution for Category B.\n- **Safety:** Zone-4 buffer requirements. TM-1 traffic management plan required.\n- **Metric:** Current sector average compaction: 94.2%.",
+  garbage: "**Logistics & Sanitation Ops:**\n\n- **Route Optimization:** Dynamic routing active. Fleet efficiency up by 12%.\n- **Vehicle Fleet:** 24 active units. Unit SAN-09 hydraulic leak detected (Pressure drop: 15%).\n- **Containment:** Hazardous spill protocol Alpha-6 activated for Sector 9 chemical runoff.",
+  electricity: "**Grid Control & Power Systems:**\n\n⚠️ **CRITICAL:** High-voltage (33kV) feeder fault detected. Phase-1 isolation recommended.\n- **Repair:** Hot-stick procedure only. Grounding cables must be 50mm² copper.\n- **Threshold:** Transformer 8B load at 88%. Shedding non-essential loads in Industrial Zone 2.\n- **Status:** Check the Analytics tab for real-time harmonic analysis.",
+  emergency: "🆘 **COMMAND SOS PROTOCOL:**\n\n1. **Signal:** Localizing user via Precision GPS (Error margin: <2m).\n2. **Dispatch:** Automated broadcast to Nearest Unit, EMS, and Fire Dept.\n3. **Sidebar:** Use the ROSE-colored SOS button for instant multi-channel broadcast.",
+  default: "System Query Tree (Operations Mode):\n\n🛣️ **ENG** — Civil engineering specs (Asphalt/Concrete)\n🗑️ **LOG** — Fleet logistics and route telemetry\n⚡ **PWR** — Grid stability and electrical isolation\n📊 **OPS** — SLA bottlenecks and workforce metrics\n🆘 **SOS** — Emergency command override\n\nSpecify sector or technical requirement.",
 };
 
 function getLocalResponse(message, isStaff) {
@@ -50,8 +54,21 @@ export function AIChatBot({ user, isStaff: isStaffProp = false }) {
     {
       role: 'bot',
       content: isStaff 
-        ? `### OPERATIONS COMMAND AI \ud83d\udee0\ufe0f\nSecure line established. Greetings, ${user?.name || 'Officer'}.\n\nOperational Directives:\n- **Sector Analysis**: Technical specs for infrastructure repair.\n- **Logistics**: Crew deployment & shift coordination.\n- **Crisis Control**: SOS protocols & emergency dispatch.\n\nReady for technical input.`
-        : `Welcome, ${user?.phoneNumber || 'Citizen'}! \ud83d\udc4b\nI'm your **Universal AI Assistant** powered by Gemini. \n\nI can help with **Civic Issues** (roads, garbage, etc.) or answer **ANY** question you have about the world! \n\nWhat's on your mind?`,
+        ? `### OPERATIONS COMMAND AI 🛠️
+Secure line established. Greetings, ${user?.name || 'Officer'}.
+
+Operational Directives:
+- **Sector Analysis**: Technical specs for infrastructure repair.
+- **Logistics**: Crew deployment & shift coordination.
+- **Crisis Control**: SOS protocols & emergency dispatch.
+
+Ready for technical input.`
+        : `Welcome, ${user?.phoneNumber || 'Citizen'}! 👋
+I'm your **Universal AI Assistant** powered by Gemini. 
+
+I can help with **Civic Issues** (roads, garbage, etc.) or answer **ANY** question you have about the world! 
+
+What's on your mind?`,
       time: new Date()
     }
   ]);
@@ -67,7 +84,7 @@ export function AIChatBot({ user, isStaff: isStaffProp = false }) {
       try {
         const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
         const geminiModel = genAI.getGenerativeModel({ 
-          model: 'gemini-2.5-flash',
+          model: 'gemini-1.5-flash',
           systemInstruction: isStaff ? STAFF_SYSTEM_PROMPT : SYSTEM_PROMPT,
         });
         const session = geminiModel.startChat({
@@ -79,7 +96,7 @@ export function AIChatBot({ user, isStaff: isStaffProp = false }) {
         console.error('Failed to init Gemini chat:', err);
       }
     }
-  }, [isStaff, GEMINI_API_KEY]); // Added GEMINI_API_KEY to deps
+  }, [isStaff, GEMINI_API_KEY]); 
 
 
   useEffect(() => {
@@ -149,13 +166,15 @@ export function AIChatBot({ user, isStaff: isStaffProp = false }) {
           </h1>
           <p className="text-slate-400 text-sm mt-2">
             {GEMINI_API_KEY 
-              ? `\u2728 ${isStaff ? 'Staff Support' : 'Citizen Helper'} via Gemini 1.5` 
+              ? `✨ ${isStaff ? 'SECURE OPERATIONS LINE' : 'Citizen Helper'} via Gemini 1.5` 
               : `Ask me anything about ${isStaff ? 'infrastructure management' : 'civic maintenance'}.`}
           </p>
         </div>
-        <div className="glass px-4 py-2 rounded-md flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-lime animate-pulse shadow-[0_0_10px_#a8f08a]"></div>
-          <span className="text-[10px] font-bold tracking-widest uppercase opacity-60">Online</span>
+        <div className={`glass px-4 py-2 rounded-md flex items-center gap-2 ${isStaff ? 'border-rose/30 shadow-[0_0_15px_rgba(244,63,94,0.2)]' : ''}`}>
+          <div className={`w-2 h-2 rounded-full animate-pulse ${isStaff ? 'bg-rose shadow-[0_0_10px_#f43f5e]' : 'bg-lime shadow-[0_0_10px_#a8f08a]'}`}></div>
+          <span className="text-[10px] font-bold tracking-widest uppercase opacity-60">
+            {isStaff ? 'ENCRYPTED LINE' : 'Online'}
+          </span>
         </div>
       </div>
 
@@ -180,12 +199,20 @@ export function AIChatBot({ user, isStaff: isStaffProp = false }) {
           <div className="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar mb-4">
             {messages.map((msg, i) => (
               <div key={i} className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                <div className={`w-8 h-8 rounded-md flex-shrink-0 flex items-center justify-center ${msg.role === 'bot' ? 'bg-aqua/10 border border-aqua/20' : 'bg-violet/10 border border-violet/20'}`}>
-                  {msg.role === 'bot' ? <Bot className="w-4 h-4 text-aqua" /> : <User className="w-4 h-4 text-violet" />}
+                <div className={`w-8 h-8 rounded-md flex-shrink-0 flex items-center justify-center ${
+                  msg.role === 'bot' 
+                    ? (isStaff ? 'bg-rose/10 border border-rose/20' : 'bg-aqua/10 border border-aqua/20') 
+                    : 'bg-violet/10 border border-violet/20'
+                }`}>
+                  {msg.role === 'bot' ? <Bot className={`w-4 h-4 ${isStaff ? 'text-rose' : 'text-aqua'}`} /> : <User className="w-4 h-4 text-violet" />}
                 </div>
                 <div className={`max-w-[80%] ${msg.role === 'user' ? 'text-right' : ''}`}>
-                  <div className={`glass p-4 rounded-md text-sm leading-relaxed whitespace-pre-wrap ${msg.role === 'user' ? 'bg-violet/10 border-violet/20' : 'bg-white/5 border-white/5'}`}>
-                    {msg.content}
+                  <div className={`glass p-4 rounded-md text-sm leading-relaxed markdown-content ${
+                    msg.role === 'user' 
+                      ? 'bg-violet/10 border-violet/20' 
+                      : (isStaff ? 'bg-rose/5 border-rose/10' : 'bg-white/5 border-white/5')
+                  }`}>
+                    <ReactMarkdown>{msg.content}</ReactMarkdown>
                   </div>
                   <span className="text-[9px] opacity-30 font-bold mt-1 inline-block px-2">
                     {msg.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -215,20 +242,24 @@ export function AIChatBot({ user, isStaff: isStaffProp = false }) {
           {/* Input */}
           <form onSubmit={handleSend} className="flex gap-3 pt-4 border-t border-white/5">
             <div className="relative flex-1">
-              <Sparkles className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-aqua/40" />
+              {isStaff ? (
+                <AlertTriangle className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-rose/40" />
+              ) : (
+                <Sparkles className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-aqua/40" />
+              )}
               <input
                 ref={inputRef}
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder={GEMINI_API_KEY 
-                  ? (isStaff ? "Consult Ops AI on infrastructure, safety, or coordination..." : "Ask Gemini anything about your city...") 
+                  ? (isStaff ? "Consult Unit-01 on infrastructure, safety, or coordination..." : "Ask Gemini anything about your city...") 
                   : (isStaff ? "Technical queries, safety protocols, or resource planning..." : "Ask about roads, garbage, electricity, water...")}
-                className="glass-input pl-12 w-full"
+                className={`glass-input pl-12 w-full ${isStaff ? 'border-rose/20 focus:border-rose/50 font-mono' : ''}`}
                 disabled={isTyping}
               />
             </div>
-            <Button type="submit" variant="primary" className="px-6" disabled={isTyping || !input.trim()}>
+            <Button type="submit" variant={isStaff ? 'outline' : 'primary'} className={`px-6 ${isStaff ? 'border-rose/50 text-rose hover:bg-rose/10' : ''}`} disabled={isTyping || !input.trim()}>
               <Send className="w-4 h-4" />
             </Button>
           </form>

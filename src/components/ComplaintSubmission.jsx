@@ -116,8 +116,10 @@ export function ComplaintSubmission({ user }) {
       uploadTask.on('state_changed',
         (snapshot) => setProgress((snapshot.bytesTransferred / snapshot.totalBytes) * 100),
         (error) => { 
-          console.warn("Upload error, simulating success locally:", error); 
-          setTimeout(resetForm, 1000);
+          console.error("Upload error:", error);
+          alert(`Upload failed: ${error.message}. Please check your connection and try again.`);
+          setIsSubmitting(false);
+          setProgress(0);
         },
         async () => {
           try {
@@ -135,16 +137,29 @@ export function ComplaintSubmission({ user }) {
               estimatedEndDate: endDate.toISOString(),
               createdAt: serverTimestamp()
             });
+
+            // Create a real-time notification for the dashboard
+            await addDoc(collection(db, 'notifications'), {
+              title: 'New Complaint Filed',
+              message: `${category || 'General'}: ${description.substring(0, 50)}${description.length > 50 ? '...' : ''}`,
+              type: 'Info',
+              status: 'Unread',
+              createdAt: serverTimestamp(),
+              userId: user.uid
+            });
+
             resetForm();
           } catch (err) {
-            console.warn("Firestore error after upload, simulating success:", err);
-            resetForm();
+            console.error("Firestore error after upload:", err);
+            alert(`Report logged but failed to sync: ${err.message}. Please contact support.`);
+            setIsSubmitting(false);
           }
         }
       );
     } catch (error) {
-      console.warn("Submission error, simulating success:", error);
-      setTimeout(resetForm, 1000);
+      console.error("Submission error:", error);
+      alert(`Submission failed: ${error.message}`);
+      setIsSubmitting(false);
     }
   };
 
