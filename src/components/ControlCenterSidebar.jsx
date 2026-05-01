@@ -36,12 +36,6 @@ export function ControlCenterSidebar({ activeTab, setActiveTab, user, onLogout }
       label: 'Notifications', 
       subtitle: 'System Alerts', 
       icon: <Bell className="w-5 h-5" /> 
-    },
-    { 
-      id: 'ai-assistant', 
-      label: 'AI Assistant', 
-      subtitle: 'Smart Chatbot', 
-      icon: <Bot className="w-5 h-5" /> 
     }
   ];
 
