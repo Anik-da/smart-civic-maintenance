@@ -7,14 +7,19 @@ import ReactMarkdown from 'react-markdown';
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
-const SYSTEM_PROMPT = `You are "Civic-IQ", a warm, empathetic, and highly helpful AI assistant for the Smart Civic platform. Your primary mission is to assist citizens with reporting issues (like road damage, water leaks, garbage), tracking their complaints, and navigating city services.
+const SYSTEM_PROMPT = `You are the "Smart Civic Assistant", a helpful and intelligent AI designed to assist citizens with the Smart Civic Maintenance platform.
 
-Writing Style & Rules:
-1. **Friendly & Conversational**: Always be extremely polite, warm, and conversational. Use simple language and short paragraphs.
-2. **Helpful & Proactive**: Don't just answer; guide them. If they report a pothole, tell them it will be assigned to the Road Department and they can track it.
-3. **Emojis**: Sparingly use emojis 😊 to make your responses feel approachable and human.
-4. **Scope**: Focus entirely on assisting the citizen with their civic needs. If they ask unrelated questions, gently bring the topic back to how you can help them with city services.
-5. **Safety**: If they mention an emergency, direct them to use the SOS button immediately!`;
+Your primary responsibilities are:
+1. HELP USERS REPORT ISSUES: Explain how to use the "Report" section to file complaints about roads, water, electricity, garbage, etc.
+2. TRACK STATUS: Help users understand how to check their complaint status in the "Track" section using their phone number.
+3. EMERGENCY GUIDANCE: Direct users to the SOS button for urgent life-threatening situations.
+4. GENERAL INQUIRIES: Answer questions about city maintenance, infrastructure, and how the platform works.
+
+Style Guidelines:
+- Be helpful, polite, and professional.
+- Use clear Markdown formatting.
+- If a user asks a non-civic question, answer briefly if possible, then gently guide them back to civic services.
+- Provide accurate and direct answers. Don't be overly restrictive if the question is relevant to city life.`;
 
 const FALLBACK_RESPONSES = {
   greet: "Greetings! I am **Civic-IQ**, your friendly urban companion. It seems I am currently operating in offline mode, but I can still assist with basic infrastructure reporting. How can I help you today? 😊",
@@ -39,12 +44,9 @@ export function AIChatBot({ user }) {
   const [messages, setMessages] = useState([
     {
       role: 'bot',
-      content: `Welcome, ${user?.phoneNumber || 'Citizen'}! 👋
-I'm your **Universal AI Assistant** powered by Gemini. 
+      content: `Hello! I am your AI Assistant. I can help you report issues, track your complaints, or answer questions about our city services.
 
-I can help with **Civic Issues** (roads, garbage, etc.) or answer **ANY** question you have about the world! 
-
-What's on your mind?`,
+How can I help you today?`,
       time: new Date()
     }
   ]);
@@ -128,12 +130,12 @@ What's on your mind?`,
         <div>
           <span className="hero__kicker">AI-Powered Assistance</span>
           <h1 className="hero__title" style={{ fontSize: '2.5rem', textAlign: 'left', marginBottom: 0 }}>
-            Civic-IQ Assistant
+            AI Answer
           </h1>
           <p className="text-slate-400 text-sm mt-2">
             {GEMINI_API_KEY
-              ? `✨ Citizen Helper via Gemini 1.5`
-              : `Ask AI to answer your questions.`}
+              ? `✨ Official Civic Assistant`
+              : `Ask me about report status or city services.`}
           </p>
         </div>
         <div className="glass px-4 py-2 rounded-md flex items-center gap-2">
@@ -144,19 +146,7 @@ What's on your mind?`,
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="flex flex-wrap gap-2 mb-4">
-        {quickActions.map((action, i) => (
-          <button
-            key={i}
-            onClick={() => handleQuickAction(action.msg)}
-            className="glass glass-btn glass-btn--ghost text-xs px-3 py-2 flex items-center gap-2 hover:border-aqua/30 transition-colors"
-          >
-            {action.icon}
-            {action.label}
-          </button>
-        ))}
-      </div>
+      {/* Removed Quick Actions as requested */}
 
       {/* Chat Window */}
       <Card className="w-full" title="AI ANSWER">

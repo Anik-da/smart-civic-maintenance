@@ -22,58 +22,55 @@ export function Landing({ user }) {
         The official infrastructure management & emergency response portal for the Smart City Initiative. Secure, efficient, and real-time.
       </p>
 
-      <div className={`grid grid-cols-1 ${user ? 'lg:grid-cols-3' : 'md:grid-cols-2'} gap-8 w-full max-w-7xl px-4 animate-in fade-in slide-in-from-bottom-16 duration-1000 delay-600`}>
-        {/* Card 1: Report */}
-        <div className="group relative">
-          <div className="relative professional-surface p-10 border-white/10 hover:border-blue-500/30 transition-all duration-500 h-full flex flex-col items-center text-center rounded-2xl group">
-            <div className="w-16 h-16 rounded-xl bg-blue-500/5 flex items-center justify-center mb-6 text-blue-500 group-hover:scale-110 group-hover:bg-blue-500/10 transition-all duration-500">
-              <FileText className="w-8 h-8" />
-            </div>
-            <h3 className="font-bold text-2xl mb-3 text-blue-400 group-hover:text-blue-300 transition-colors">Report System</h3>
-            <p className="text-sm text-blue-200/60 mb-8 flex-1 leading-relaxed">
-              {user ? 'File a new infrastructure report or emergency SOS signal.' : 'Citizen access for infrastructure issues, real-time tracking, and emergency SOS services.'}
-            </p>
-            
-            <Link to="/report" className="glass glass-btn glass-btn--primary py-4 px-8 w-full flex items-center justify-between group/btn shadow-[0_0_30px_rgba(59,130,246,0.2)]">
-              <span className="text-[10px] font-black uppercase tracking-widest">{user ? 'NEW REPORT' : 'ACCESS PORTAL'}</span>
-              <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+      {/* Unified Citizen Portal Card */}
+      <div className="w-full max-w-xl px-4 animate-in fade-in slide-in-from-bottom-16 duration-1000 delay-600">
+        <div className="relative professional-surface p-8 md:p-12 border-white/10 rounded-[2.5rem] flex flex-col items-center group overflow-hidden">
+          {/* Decorative background glow */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-blue-500/10 blur-[80px] rounded-full -z-10 group-hover:bg-blue-500/20 transition-all duration-1000"></div>
+          
+          <div className="w-20 h-20 rounded-2xl bg-blue-500/5 border border-white/5 flex items-center justify-center mb-8 text-blue-500 group-hover:scale-110 group-hover:bg-blue-500/10 transition-all duration-700 shadow-xl">
+            <FileText className="w-10 h-10" />
+          </div>
+          
+          <h2 className="text-4xl md:text-5xl font-black text-white mb-4 tracking-tight">Citizen Portal</h2>
+          <p className="text-sm md:text-base text-blue-100/40 mb-12 leading-relaxed max-w-sm">
+            Report infrastructure issues, track your existing complaints, or get instant answers from our AI Assistant.
+          </p>
+          
+          {/* Primary Action */}
+          <Link 
+            to="/report" 
+            className="w-full glass glass-btn glass-btn--primary py-6 px-10 flex items-center justify-center gap-4 mb-6 rounded-2xl shadow-[0_10px_40px_rgba(59,130,246,0.2)] hover:shadow-[0_15px_50px_rgba(59,130,246,0.3)] transition-all active:scale-[0.98]"
+          >
+            <span className="text-[14px] font-black uppercase tracking-[0.2em] ml-2">FILE A REPORT</span>
+            <ArrowRight className="w-6 h-6" />
+          </Link>
+          
+          {/* Secondary Actions */}
+          <div className="grid grid-cols-2 gap-4 w-full">
+            <Link 
+              to="/track" 
+              className="glass glass-btn glass-btn--ghost py-5 flex items-center justify-center gap-3 rounded-2xl border-white/5 hover:border-blue-400/30 hover:bg-white/5 transition-all group/btn"
+            >
+              <Search className="w-5 h-5 text-blue-400 group-hover/btn:scale-110 transition-transform" />
+              <span className="text-[11px] font-black uppercase tracking-widest text-white/80">TRACK</span>
+            </Link>
+            <Link 
+              to="/ai-bot" 
+              className="glass glass-btn glass-btn--ghost py-5 flex items-center justify-center gap-3 rounded-2xl border-white/5 hover:border-blue-500/30 hover:bg-white/5 transition-all group/btn"
+            >
+              <Bot className="w-5 h-5 text-blue-500 group-hover/btn:scale-110 transition-transform" />
+              <span className="text-[11px] font-black uppercase tracking-widest text-white/80">AI ANSWER</span>
             </Link>
           </div>
         </div>
 
-        {/* Card 2: Tracking (Only if logged in) */}
-        {user && (
-          <div className="group relative">
-            <div className="relative professional-surface p-10 border-white/10 hover:border-blue-400/30 transition-all duration-500 h-full flex flex-col items-center text-center rounded-2xl group">
-              <div className="w-16 h-16 rounded-xl bg-blue-400/5 flex items-center justify-center mb-6 text-blue-400 group-hover:scale-110 group-hover:bg-blue-400/10 transition-all duration-500">
-                <Search className="w-8 h-8" />
-              </div>
-              <h3 className="font-bold text-2xl mb-3 text-blue-300">Track Status</h3>
-              <p className="text-sm text-blue-200/60 mb-8 flex-1 leading-relaxed">
-                Monitor the real-time status and deployment progress of your reported incidents.
-              </p>
-              
-              <Link to="/track" className="glass glass-btn glass-btn--ghost py-4 px-8 w-full flex items-center justify-between group/btn hover:bg-blue-400/10 hover:border-blue-400/30">
-                <span className="text-[10px] font-black uppercase tracking-widest">MY REPORTS</span>
-                <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-              </Link>
-            </div>
-          </div>
-        )}
-
-        {/* Card 3: Staff/Dashboard */}
-        <Link to="/dashboard" className="group relative">
-          <div className="relative professional-surface p-10 border-white/10 hover:border-blue-600/30 transition-all duration-500 h-full flex flex-col items-center text-center rounded-2xl group">
-            <div className="w-16 h-16 rounded-xl bg-blue-600/5 flex items-center justify-center mb-6 text-blue-600 group-hover:scale-110 group-hover:bg-blue-600/10 transition-all duration-500">
-              <LayoutDashboard className="w-8 h-8" />
-            </div>
-            <h3 className="font-bold text-2xl mb-3 text-blue-400 group-hover:text-blue-300 transition-colors">Staff Console</h3>
-            <p className="text-sm text-blue-200/60 mb-8 flex-1 leading-relaxed">Administrative dashboard for crew dispatch and city-wide analytics.</p>
-            <div className="flex items-center gap-3 text-blue-500 text-[11px] font-black tracking-[0.2em] uppercase mt-auto group-hover:text-blue-400 transition-colors">
-              SECURE LOGIN <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
-            </div>
-          </div>
-        </Link>
+        {/* Subtle Staff Link */}
+        <div className="mt-12 opacity-40 hover:opacity-100 transition-opacity">
+          <Link to="/dashboard" className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-200/50 hover:text-blue-400 flex items-center justify-center gap-3">
+            <LayoutDashboard className="w-4 h-4" /> STAFF CONSOLE
+          </Link>
+        </div>
       </div>
     </div>
   );
