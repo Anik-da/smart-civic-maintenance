@@ -129,7 +129,7 @@ function AppShell() {
             <Route path="/report" element={user ? <ComplaintSubmission user={user} /> : <Navigate to="/login" />} />
             <Route path="/login" element={!user ? <PhoneAuth onLogin={handleLogin} /> : <Navigate to="/report" />} />
             <Route path="/dashboard" element={<DashboardGate onLogout={handleLogout}><Dashboard user={user} onLogout={handleLogout} /></DashboardGate>} />
-            <Route path="/ai-bot" element={<AIChatBot user={user} isStaff={user?.role === 'ADMIN' || user?.role === 'WORKER'} />} />
+            <Route path="/ai-bot" element={<AIChatBot user={user} />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </main>
