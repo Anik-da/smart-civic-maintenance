@@ -319,7 +319,10 @@ export function Dashboard({ user, onLogout }) {
 
     const matchesStatus = statusFilter === 'All' || c.status?.toLowerCase() === statusFilter.toLowerCase();
 
-    const matchesRole = user?.role === 'ADMIN' || c.assignedTo === user?.department;
+    const matchesRole = user?.role === 'ADMIN' || 
+                        c.assignedTo === user?.department || 
+                        c.assignedTo === 'ADMIN' || 
+                        !c.assignedTo;
 
     return matchesSearch && matchesStatus && matchesRole;
   });
