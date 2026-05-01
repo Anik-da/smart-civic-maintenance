@@ -6,9 +6,7 @@ import { Bot, Send, Sparkles, User, Lightbulb, Wrench, MapPin, AlertTriangle } f
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
-const SYSTEM_PROMPT = `You are a highly intelligent, versatile AI Assistant. 
-You are part of the Smart Civic portal, but you are NOT limited to civic topics.
-
+const SYSTEM_PROMPT = `You are a highly intelligent, versatile AI Assistant for the Smart Civic portal.
 Your mission:
 1. Answer ANY question the user asks (Web development, History, Science, Coding, Math, etc.).
 2. If the user asks about civic maintenance (roads, garbage, etc.), provide specialized advice.
@@ -16,8 +14,18 @@ Your mission:
 4. For emergencies, mention the SOS button.
 5. Be helpful, professional, and friendly. Never say "I can only answer civic questions".`;
 
+const STAFF_SYSTEM_PROMPT = `You are a specialized Staff Operations Assistant for the Smart Civic maintenance team.
+Your mission:
+1. Help staff members manage city infrastructure efficiently.
+2. Provide technical advice on road repairs, electrical grid maintenance, water sanitation, and garbage management.
+3. Assist with operational questions: scheduling, resource allocation, and safety protocols.
+4. Use a professional, efficient, and technical tone.
+5. You can also answer general questions (coding, science, etc.) if staff need technical help, but prioritize operational excellence.
+6. Reference the "Incidents" and "Staff Hub" tabs in the dashboard for data management.`;
+
 const FALLBACK_RESPONSES = {
   greet: "Hello! I'm your Smart Civic AI Assistant. I can help you report infrastructure issues, track complaints, and guide you through our services. What's the problem you're facing?",
+  staffGreet: "Greetings, team. Operations Assistant online. How can I assist with today's maintenance schedule or technical queries?",
   road: "**Road Maintenance:**\n\nFor potholes, cracks, or damaged surfaces:\n1. 📸 Take a photo of the damage\n2. Go to the **Report** tab\n3. Describe the location and severity\n4. Our AI will auto-classify the urgency\n\nTypical response: **24–72 hrs** assessment, repairs within **1–2 weeks**.",
   garbage: "**Garbage & Waste:**\n\nFor overflowing bins or illegal dumping:\n1. Go to **Report** tab\n2. Upload a photo\n3. Mark the GPS location\n\n♻️ Regular collection: Mon/Wed/Fri\n🚛 Bulk waste pickup: Request 48hrs in advance",
   electricity: "**Electrical Issues:**\n\n⚠️ Do NOT touch exposed wiring.\n1. Note the pole number if visible\n2. Go to **Report** tab → select Electricity\n3. For dangerous situations, use the **SOS button**\n\n⚡ Emergency electrical issues: **4 hour** priority response",
@@ -25,9 +33,9 @@ const FALLBACK_RESPONSES = {
   default: "I can help you with:\n\n🛣️ **Road issues** — potholes, cracks\n🗑️ **Garbage** — waste collection\n⚡ **Electricity** — lights, outages\n💧 **Water** — pipes, drainage\n🆘 **Emergency** — SOS services\n📊 **Status** — track complaints\n\nWhat would you like to know?",
 };
 
-function getLocalResponse(message) {
+function getLocalResponse(message, isStaff) {
   const lower = message.toLowerCase();
-  if (lower.match(/^(hi|hello|hey|good|namaste)/)) return FALLBACK_RESPONSES.greet;
+  if (lower.match(/^(hi|hello|hey|good|namaste)/)) return isStaff ? FALLBACK_RESPONSES.staffGreet : FALLBACK_RESPONSES.greet;
   if (lower.match(/road|pothole|crack|street|pavement/)) return FALLBACK_RESPONSES.road;
   if (lower.match(/garbage|waste|trash|dump|bin|litter/)) return FALLBACK_RESPONSES.garbage;
   if (lower.match(/electric|light|power|wire|outage/)) return FALLBACK_RESPONSES.electricity;
@@ -35,11 +43,13 @@ function getLocalResponse(message) {
   return FALLBACK_RESPONSES.default;
 }
 
-export function AIChatBot({ user }) {
+export function AIChatBot({ user, isStaff = false }) {
   const [messages, setMessages] = useState([
     {
       role: 'bot',
-      content: `Welcome, ${user?.phoneNumber || 'Citizen'}! 👋\n\nI'm your **Universal AI Assistant**${GEMINI_API_KEY ? ' powered by Gemini' : ''}. \n\nI specialize in **Civic Maintenance**, but I can answer **ANY** questions you have about technology, web development, history, or anything else! \n\nHow can I help you today?`,
+      content: isStaff 
+        ? `Operations Assistant Active. Welcome, ${user?.name || 'Staff Member'}. 🛠️\n\nI'm specialized in assisting with **Civic Infrastructure Management**. How can I help you optimize today's maintenance operations?`
+        : `Welcome, ${user?.phoneNumber || 'Citizen'}! 👋\n\nI'm your **Universal AI Assistant**${GEMINI_API_KEY ? ' powered by Gemini' : ''}. \n\nI specialize in **Civic Maintenance**, but I can answer **ANY** questions you have about technology, web development, history, or anything else! \n\nHow can I help you today?`,
       time: new Date()
     }
   ]);
@@ -56,7 +66,7 @@ export function AIChatBot({ user }) {
         const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
         const geminiModel = genAI.getGenerativeModel({ 
           model: 'gemini-1.5-flash',
-          systemInstruction: SYSTEM_PROMPT,
+          systemInstruction: isStaff ? STAFF_SYSTEM_PROMPT : SYSTEM_PROMPT,
         });
         const session = geminiModel.startChat({
           history: [],
@@ -67,7 +77,8 @@ export function AIChatBot({ user }) {
         console.error('Failed to init Gemini chat:', err);
       }
     }
-  }, []);
+  }, [isStaff]);
+
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

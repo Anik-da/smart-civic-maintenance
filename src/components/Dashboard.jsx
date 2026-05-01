@@ -143,6 +143,7 @@ export function Dashboard({ user, onLogout }) {
 
       const updateMerged = () => {
         if (!isSubscribed) return;
+        console.log('[Dashboard] Updating merged records...');
 
         // Merge and Sort manually to handle missing timestamps gracefully
         const merged = [...currentComplaints, ...currentEmergencies].sort((a, b) => {
@@ -283,7 +284,7 @@ export function Dashboard({ user, onLogout }) {
                 <h1 className="text-4xl font-display tracking-tight mb-2 text-blue-400">Operations Center</h1>
                 <p className="text-blue-100/60 text-sm max-w-lg">Monitoring {user?.department} operations across the metropolitan area.</p>
               </div>
-              <div className="flex items-center gap-4 bg-blue-500/5 p-2 rounded-xl border border-blue-500/10">
+              <div className="flex items-center gap-4 bg-blue-500/5 p-2 rounded-md border border-blue-500/10">
                 <div className="text-right">
                   <div className="text-[10px] font-black text-blue-400 uppercase tracking-widest">{user?.department}</div>
                   <div className="text-[8px] text-blue-100/40 font-bold uppercase">Active Sector</div>
@@ -325,7 +326,7 @@ export function Dashboard({ user, onLogout }) {
                     <div className="w-1.5 h-1.5 rounded-full bg-aqua"></div>
                   </div>
                 </div>
-                <div className="professional-surface p-1 h-[600px] rounded-2xl overflow-hidden relative shadow-xl">
+                <div className="professional-surface p-1 h-[600px] rounded-md overflow-hidden relative shadow-xl">
                   <DashboardMap
                     complaints={filteredComplaints}
                     onComplaintClick={(c) => setSelectedComplaint(c)}
@@ -345,7 +346,7 @@ export function Dashboard({ user, onLogout }) {
                   </span>
                 </div>
 
-                <div className="professional-surface flex flex-col h-[600px] p-0 rounded-2xl overflow-hidden">
+                <div className="professional-surface flex flex-col h-[600px] p-0 rounded-md overflow-hidden">
                   <div className="p-5 bg-white/5 border-b border-white/5">
                     <div className="relative">
                       <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-30" />
@@ -354,7 +355,7 @@ export function Dashboard({ user, onLogout }) {
                         placeholder="Search incidents or locations..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full bg-black/40 border border-white/10 rounded-xl py-3.5 pl-12 pr-4 text-xs outline-none focus:border-blue-400/40 transition-all placeholder:opacity-30 font-medium"
+                        className="w-full bg-black/40 border border-white/10 rounded-md py-3.5 pl-12 pr-4 text-xs outline-none focus:border-blue-400/40 transition-all placeholder:opacity-30 font-medium"
                       />
                     </div>
                   </div>
@@ -448,7 +449,7 @@ export function Dashboard({ user, onLogout }) {
                     <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
                         onClick={() => handleRemoveStaff(member.id)}
-                        className="p-2.5 bg-rose/10 text-rose rounded-xl hover:bg-rose/20 transition-all hover:scale-110"
+                        className="p-2.5 bg-rose/10 text-rose rounded-md hover:bg-rose/20 transition-all hover:scale-110"
                         title="Remove Staff"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -456,7 +457,7 @@ export function Dashboard({ user, onLogout }) {
                     </div>
 
                     <div className="flex items-center gap-4 mb-6">
-                      <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-2xl font-black text-violet border border-white/5 shadow-inner">
+                      <div className="w-14 h-14 rounded-md bg-white/5 flex items-center justify-center text-2xl font-black text-violet border border-white/5 shadow-inner">
                         {member.name?.[0] || '?'}
                       </div>
                       <div>
@@ -474,7 +475,7 @@ export function Dashboard({ user, onLogout }) {
                         <span className="text-[9px] opacity-40 font-bold uppercase tracking-wider">Operational Unit</span>
                         <span className="text-[10px] font-black text-aqua uppercase">{member.department}</span>
                       </div>
-                      <div className="p-4 bg-black/40 rounded-2xl border border-white/5 group-hover:border-violet/20 transition-colors">
+                      <div className="p-4 bg-black/40 rounded-md border border-white/5 group-hover:border-violet/20 transition-colors">
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2">
                             <ShieldCheck className="w-3.5 h-3.5 text-lime" />
@@ -609,7 +610,7 @@ export function Dashboard({ user, onLogout }) {
 
                 <div className="premium-card p-8">
                   <h3 className="text-sm font-black uppercase tracking-widest mb-4">Resource Allocation</h3>
-                  <div className="p-4 bg-black/40 rounded-2xl border border-white/5">
+                  <div className="p-4 bg-black/40 rounded-md border border-white/5">
                     <div className="flex justify-between items-center mb-1">
                       <span className="text-[9px] opacity-40 font-bold uppercase">Active Units</span>
                       <span className="text-lg font-display text-aqua">24 / 30</span>
@@ -630,7 +631,7 @@ export function Dashboard({ user, onLogout }) {
               </div>
               <button
                 onClick={() => setNotifications([])}
-                className="glass px-6 py-3 rounded-xl border-white/10 hover:bg-white/5 transition-all text-[10px] font-black tracking-widest uppercase opacity-40 hover:opacity-100"
+                className="glass px-6 py-3 rounded-md border-white/10 hover:bg-white/5 transition-all text-[10px] font-black tracking-widest uppercase opacity-40 hover:opacity-100"
               >
                 Clear History
               </button>
@@ -663,17 +664,17 @@ export function Dashboard({ user, onLogout }) {
           </div>
         ) : activeTab === 'ai-assistant' ? (
           <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-700">
-            <AIChatBot user={user} />
+            <AIChatBot user={user} isStaff={true} />
           </div>
         ) : null}
       </main>
 
       {showAddStaff && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="glass-card w-full max-w-md p-8 rounded-[2rem] border-violet/20 shadow-2xl animate-in zoom-in-95 duration-300">
+          <div className="glass-card w-full max-w-md p-8 rounded-md border-violet/20 shadow-2xl animate-in zoom-in-95 duration-300">
             <div className="flex justify-between items-center mb-8">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-violet/20 rounded-xl">
+                <div className="p-2 bg-violet/20 rounded-md">
                   <UserPlus className="w-5 h-5 text-violet" />
                 </div>
                 <h3 className="text-xl font-display uppercase tracking-widest">Add New Staff</h3>
@@ -693,7 +694,7 @@ export function Dashboard({ user, onLogout }) {
                   value={newStaff.name}
                   onChange={(e) => setNewStaff({ ...newStaff, name: e.target.value })}
                   placeholder="e.g. John Doe"
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm outline-none focus:border-violet/40 focus:bg-violet/5 transition-all"
+                  className="w-full bg-white/5 border border-white/10 rounded-md p-4 text-sm outline-none focus:border-violet/40 focus:bg-violet/5 transition-all"
                 />
               </div>
 
@@ -703,7 +704,7 @@ export function Dashboard({ user, onLogout }) {
                   <select
                     value={newStaff.department}
                     onChange={(e) => setNewStaff({ ...newStaff, department: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm outline-none focus:border-violet/40 appearance-none"
+                    className="w-full bg-white/5 border border-white/10 rounded-md p-4 text-sm outline-none focus:border-violet/40 appearance-none"
                   >
                     <option value="ROADS">ROADS</option>
                     <option value="ELECTRICITY">ELECTRICITY</option>
@@ -717,7 +718,7 @@ export function Dashboard({ user, onLogout }) {
                   <select
                     value={newStaff.role}
                     onChange={(e) => setNewStaff({ ...newStaff, role: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm outline-none focus:border-violet/40 appearance-none"
+                    className="w-full bg-white/5 border border-white/10 rounded-md p-4 text-sm outline-none focus:border-violet/40 appearance-none"
                   >
                     <option value="WORKER">WORKER</option>
                     <option value="ADMIN">ADMINISTRATOR</option>
@@ -734,7 +735,7 @@ export function Dashboard({ user, onLogout }) {
                     value={newStaff.passcode}
                     onChange={(e) => setNewStaff({ ...newStaff, passcode: e.target.value.toUpperCase() })}
                     placeholder="e.g. WORKER_2026"
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm font-mono tracking-widest outline-none focus:border-violet/40 focus:bg-violet/5 transition-all"
+                    className="w-full bg-white/5 border border-white/10 rounded-md p-4 text-sm font-mono tracking-widest outline-none focus:border-violet/40 focus:bg-violet/5 transition-all"
                   />
                   <ShieldCheck className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-20" />
                 </div>
@@ -742,7 +743,7 @@ export function Dashboard({ user, onLogout }) {
 
               <button
                 type="submit"
-                className="w-full py-4 bg-violet/20 border border-violet/30 rounded-2xl text-[11px] font-black tracking-[0.2em] uppercase hover:bg-violet/30 transition-all mt-4 flex items-center justify-center gap-2"
+                className="w-full py-4 bg-violet/20 border border-violet/30 rounded-md text-[11px] font-black tracking-[0.2em] uppercase hover:bg-violet/30 transition-all mt-4 flex items-center justify-center gap-2"
               >
                 <Plus className="w-4 h-4" /> Register Staff Member
               </button>
@@ -780,7 +781,7 @@ function StatCard({ label, value, icon, color, subtitle, active }) {
   };
 
   return (
-    <div className={`professional-surface p-6 bg-gradient-to-br ${themes[color]} ${active ? activeBorders[color] : 'border-white/5'} flex flex-col justify-between hover:translate-y-[-4px] transition-all duration-500 rounded-2xl`}>
+    <div className={`professional-surface p-6 bg-gradient-to-br ${themes[color]} ${active ? activeBorders[color] : 'border-white/5'} flex flex-col justify-between hover:translate-y-[-4px] transition-all duration-500 rounded-md`}>
       <div className="flex justify-between items-center">
         <div className={active ? 'opacity-100 text-white' : 'opacity-40 text-blue-400'}>{cloneElement(icon, { size: 18 })}</div>
         <div className={`w-8 h-1 rounded-full ${active ? 'bg-white/20' : 'bg-white/5'}`}></div>

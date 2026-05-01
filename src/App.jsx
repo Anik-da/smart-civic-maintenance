@@ -134,13 +134,13 @@ function AppShell() {
           </Routes>
         </main>
 
-        {/* Global Emergency Controls */}
-        {user && (
-          <div className="fixed bottom-8 right-8 z-[150] flex flex-col gap-4 items-end">
-            <EmergencyTracking user={user} />
+        {/* Global Emergency Controls - Always show SOS button, Tracking only if user exists */}
+        <div className="fixed bottom-8 right-8 z-[150] flex flex-col gap-4 items-end pointer-events-none">
+          <div className="pointer-events-auto">
+            {user && <EmergencyTracking user={user} />}
             <EmergencyButton user={user} />
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

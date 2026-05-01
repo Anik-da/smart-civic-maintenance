@@ -24,6 +24,7 @@ export function DashboardGate({ children }) {
 
   // Persistence check
   useEffect(() => {
+    console.log('[DashboardGate] Checking for saved session...');
     const saved = localStorage.getItem('staff_authorized_user');
     if (saved) {
       try {
@@ -35,6 +36,7 @@ export function DashboardGate({ children }) {
   }, []);
 
   const authorizeUser = (userData) => {
+    console.log('[DashboardGate] Authorizing user:', userData.name, userData.role);
     setAuthorizedUser(userData);
     localStorage.setItem('staff_authorized_user', JSON.stringify(userData));
     setLoading(false);
@@ -61,6 +63,7 @@ export function DashboardGate({ children }) {
     setError(false);
     
     const input = code.trim().toUpperCase();
+    console.log('[DashboardGate] Validating passcode:', input ? '***' : 'EMPTY');
     
     try {
       const staffRef = collection(db, 'staff');
@@ -124,15 +127,21 @@ export function DashboardGate({ children }) {
   };
 
   if (authorizedUser) {
+    console.log('[DashboardGate] Rendering Dashboard for:', authorizedUser.name);
     const child = Array.isArray(children) ? children[0] : children;
-    if (!child) return null;
+    if (!child) {
+      console.error('[DashboardGate] No child element provided!');
+      return null;
+    }
     return cloneElement(child, { user: authorizedUser, onLogout: handleLogout });
   }
+
+  console.log('[DashboardGate] Rendering Login Gate...');
 
   return (
     <div className="gate-container bg-[#02040a] flex items-center justify-center min-h-screen">
       <div className="gate-card-wrapper w-full max-w-2xl p-4">
-        <div className="professional-surface p-12 rounded-2xl border border-white/5 shadow-2xl relative overflow-hidden bg-slate-900/40 backdrop-blur-md">
+        <div className="professional-surface p-12 rounded-md border border-white/5 shadow-2xl relative overflow-hidden bg-slate-900/40 backdrop-blur-md">
           <button 
             onClick={() => isResetMode ? setIsResetMode(false) : window.history.back()} 
             className="absolute top-8 left-8 text-blue-500/40 hover:text-blue-500 transition-colors z-10"
@@ -145,7 +154,7 @@ export function DashboardGate({ children }) {
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-[2px] bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-80"></div>
           
           <div className="flex flex-col items-center mb-8">
-            <div className="w-20 h-20 rounded-xl bg-blue-600/10 flex items-center justify-center mb-6 border border-blue-500/20 shadow-inner">
+            <div className="w-20 h-20 rounded-md bg-blue-600/10 flex items-center justify-center mb-6 border border-blue-500/20 shadow-inner">
               <Shield className="w-10 h-10 text-blue-500" />
             </div>
             <h2 className="text-3xl font-black uppercase tracking-tight text-blue-100 mb-2">
@@ -172,7 +181,7 @@ export function DashboardGate({ children }) {
                     setPasscode(e.target.value);
                     setError(false);
                   }}
-                  className={`w-full bg-black/40 border ${error ? 'border-red-500/50' : 'border-white/10'} rounded-xl p-5 text-lg font-mono tracking-wider outline-none focus:border-blue-500/40 transition-all text-blue-100 placeholder:text-blue-900/30 pr-14`}
+                  className={`w-full bg-black/40 border ${error ? 'border-red-500/50' : 'border-white/10'} rounded-md p-5 text-lg font-mono tracking-wider outline-none focus:border-blue-500/40 transition-all text-blue-100 placeholder:text-blue-900/30 pr-14`}
                   autoFocus
                 />
                 <button
@@ -191,7 +200,7 @@ export function DashboardGate({ children }) {
                   <select 
                     value={customRole}
                     onChange={(e) => setCustomRole(e.target.value)}
-                    className="w-full bg-black/40 border border-white/10 rounded-xl p-5 text-blue-100 outline-none focus:border-blue-500/40 transition-all appearance-none cursor-pointer"
+                    className="w-full bg-black/40 border border-white/10 rounded-md p-5 text-blue-100 outline-none focus:border-blue-500/40 transition-all appearance-none cursor-pointer"
                   >
                     <option value="ADMIN" className="bg-slate-900 text-white">Login as Admin</option>
                     <option value="WORKER" className="bg-slate-900 text-white">Login as Worker</option>
@@ -210,7 +219,7 @@ export function DashboardGate({ children }) {
               <button 
                 type="submit"
                 disabled={loading}
-                className="w-full py-5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-black tracking-[0.2em] uppercase transition-all shadow-lg shadow-blue-600/20 flex items-center justify-center gap-3 active:scale-[0.98]"
+                className="w-full py-5 bg-blue-600 hover:bg-blue-500 text-white rounded-md text-sm font-black tracking-[0.2em] uppercase transition-all shadow-lg shadow-blue-600/20 flex items-center justify-center gap-3 active:scale-[0.98]"
               >
                 {loading ? (
                   <>AUTHORIZING <Loader2 className="w-4 h-4 animate-spin" /></>
