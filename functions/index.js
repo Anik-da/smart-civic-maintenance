@@ -5,7 +5,7 @@ const vision = require('@google-cloud/vision');
 
 admin.initializeApp();
 
-setGlobalOptions({ region: 'asia-south1' });
+setGlobalOptions({ region: 'us-central1' });
 
 const client = new vision.ImageAnnotatorClient();
 
