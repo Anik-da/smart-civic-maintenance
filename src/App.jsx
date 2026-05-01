@@ -40,6 +40,9 @@ function AppShell() {
     const newUser = { uid: `user-${Date.now()}`, phoneNumber };
     localStorage.setItem('civic_user', JSON.stringify(newUser));
     setUser(newUser);
+    // Navigate to the page the user was trying to reach before login
+    const destination = location.state?.from || '/report';
+    navigate(destination, { replace: true });
   };
 
   const handleLogout = () => {
@@ -130,11 +133,11 @@ function AppShell() {
         <main className={`flex-1 w-full ${isDashboard ? 'dashboard-main p-0' : isLogin ? 'p-0 flex flex-col items-center justify-center min-h-screen' : isFullScreen ? 'p-0 flex flex-col items-center' : 'px-4 py-6 max-w-7xl mx-auto flex flex-col items-center'}`}>
           <Routes>
             <Route path="/" element={<Landing user={user} />} />
-            <Route path="/report" element={user ? <ComplaintSubmission user={user} /> : <Navigate to="/login" />} />
-            <Route path="/login" element={!user ? <PhoneAuth onLogin={handleLogin} /> : <Navigate to="/" />} />
+            <Route path="/report" element={user ? <ComplaintSubmission user={user} /> : <Navigate to="/login" state={{ from: '/report' }} />} />
+            <Route path="/login" element={!user ? <PhoneAuth onLogin={handleLogin} /> : <Navigate to={location.state?.from || '/report'} replace />} />
             <Route path="/dashboard" element={<DashboardGate onLogout={handleLogout}><Dashboard user={user} onLogout={handleLogout} /></DashboardGate>} />
             <Route path="/ai-bot" element={<AIChatBot user={user} />} />
-            <Route path="/track" element={user ? <CitizenTracker user={user} /> : <Navigate to="/login" />} />
+            <Route path="/track" element={user ? <CitizenTracker user={user} /> : <Navigate to="/login" state={{ from: '/track' }} />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </main>

@@ -185,8 +185,7 @@ export function ComplaintModal({ complaint, onClose, staff = [], userRole }) {
                       <button
                         key={s.id}
                         type="button"
-                        onMouseDown={(e) => {
-                          // Prevent input onBlur from closing dropdown before click
+                        onClick={(e) => {
                           e.preventDefault();
                           setAssignedTo(s.name || '');
                           setSelectedDept(s.department || '');

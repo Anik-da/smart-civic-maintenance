@@ -105,6 +105,11 @@
   /* ── Typography ── */
   --font-display: "DM Sans", sans-serif;
   --font-body: "DM Sans", sans-serif;
+
+  /* ── Durations ── */
+  --dur-fast: 0.2s;
+  --dur-mid: 0.4s;
+  --dur-slow: 0.8s;
 }
 
 /* ── Base Reset ── */
