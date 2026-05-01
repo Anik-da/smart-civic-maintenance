@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Shield, FileText, LayoutDashboard, ArrowRight } from 'lucide-react';
+import { Shield, FileText, LayoutDashboard, ArrowRight, Search } from 'lucide-react';
 
 export function Landing() {
   return (
@@ -22,16 +22,29 @@ export function Landing() {
         The official infrastructure management & emergency response portal for the Smart City Initiative. Secure, efficient, and real-time.
       </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl px-4 animate-in fade-in slide-in-from-bottom-16 duration-1000 delay-600">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl px-4 animate-in fade-in slide-in-from-bottom-16 duration-1000 delay-600">
         <Link to="/report" className="group relative">
           <div className="relative professional-surface p-10 border-white/10 hover:border-blue-500/30 transition-all duration-500 h-full flex flex-col items-center text-center rounded-2xl">
             <div className="w-16 h-16 rounded-xl bg-blue-500/5 flex items-center justify-center mb-6 text-blue-500 group-hover:scale-105 transition-all duration-500">
               <FileText className="w-8 h-8" />
             </div>
             <h3 className="font-bold text-2xl mb-3 text-blue-400">Report System</h3>
-            <p className="text-sm text-blue-200/60 mb-8 flex-1 leading-relaxed">Citizen access for infrastructure issues, real-time tracking, and emergency SOS services.</p>
+            <p className="text-sm text-blue-200/60 mb-8 flex-1 leading-relaxed">Citizen access for infrastructure issues and emergency SOS services.</p>
             <div className="flex items-center gap-3 text-blue-500 text-[11px] font-black tracking-[0.2em] uppercase">
               Access Portal <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
+            </div>
+          </div>
+        </Link>
+
+        <Link to="/track" className="group relative">
+          <div className="relative professional-surface p-10 border-white/10 hover:border-blue-400/30 transition-all duration-500 h-full flex flex-col items-center text-center rounded-2xl">
+            <div className="w-16 h-16 rounded-xl bg-blue-400/5 flex items-center justify-center mb-6 text-blue-400 group-hover:scale-105 transition-all duration-500">
+              <Search className="w-8 h-8" />
+            </div>
+            <h3 className="font-bold text-2xl mb-3 text-blue-400">Track Status</h3>
+            <p className="text-sm text-blue-200/60 mb-8 flex-1 leading-relaxed">Monitor your reported complaints and emergency deployments in real-time.</p>
+            <div className="flex items-center gap-3 text-blue-400 text-[11px] font-black tracking-[0.2em] uppercase">
+              Check Status <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
             </div>
           </div>
         </Link>
@@ -42,7 +55,7 @@ export function Landing() {
               <LayoutDashboard className="w-8 h-8" />
             </div>
             <h3 className="font-bold text-2xl mb-3 text-blue-400">Staff Console</h3>
-            <p className="text-sm text-blue-200/60 mb-8 flex-1 leading-relaxed">Administrative dashboard for incident management, crew dispatch, and city-wide analytics.</p>
+            <p className="text-sm text-blue-200/60 mb-8 flex-1 leading-relaxed">Administrative dashboard for crew dispatch and city-wide analytics.</p>
             <div className="flex items-center gap-3 text-blue-600 text-[11px] font-black tracking-[0.2em] uppercase">
               Secure Login <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
             </div>

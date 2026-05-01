@@ -11,6 +11,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { Landing } from './components/Landing';
 import { DashboardGate } from './components/DashboardGate';
 import { AIChatBot } from './components/AIChatBot';
+import { CitizenTracker } from './components/CitizenTracker';
 
 function AppShell() {
   const [user, setUser] = useState(null);
@@ -130,6 +131,7 @@ function AppShell() {
             <Route path="/login" element={!user ? <PhoneAuth onLogin={handleLogin} /> : <Navigate to="/report" />} />
             <Route path="/dashboard" element={<DashboardGate onLogout={handleLogout}><Dashboard user={user} onLogout={handleLogout} /></DashboardGate>} />
             <Route path="/ai-bot" element={<AIChatBot user={user} />} />
+            <Route path="/track" element={user ? <CitizenTracker user={user} /> : <Navigate to="/login" />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </main>

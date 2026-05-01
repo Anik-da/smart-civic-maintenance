@@ -36,7 +36,8 @@ export function ComplaintModal({ complaint, onClose, staff = [], userRole }) {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const complaintRef = doc(db, 'complaints', complaint.id);
+      const collectionName = complaint.collectionName || 'complaints';
+      const complaintRef = doc(db, collectionName, complaint.id);
       await updateDoc(complaintRef, {
         status, 
         assignedTo, 

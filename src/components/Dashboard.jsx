@@ -200,7 +200,7 @@ export function Dashboard({ user, onLogout }) {
       // Removed orderBy from query to prevent excluding documents missing the field
       unsubscribeComplaints = onSnapshot(qC, (snapshot) => {
         dataReceived.complaints = true;
-        currentComplaints = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        currentComplaints = snapshot.docs.map(doc => ({ id: doc.id, collectionName: 'complaints', ...doc.data() }));
         updateMerged();
       }, (error) => {
         console.warn('Firestore Complaints Error:', error.message);
@@ -212,6 +212,7 @@ export function Dashboard({ user, onLogout }) {
         dataReceived.emergencies = true;
         currentEmergencies = snapshot.docs.map(doc => ({
           id: doc.id,
+          collectionName: 'emergencies',
           ...doc.data(),
           category: doc.data().type || 'Emergency SOS',
           description: `Emergency signal received from ${doc.data().phone || 'unknown user'}. Immediate attention required.`
