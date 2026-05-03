@@ -102,7 +102,7 @@ export function Dashboard({ user, onLogout }) {
   const [activeTab, setActiveTab] = useState('incidents'); // 'incidents', 'staff', 'analytics', 'notifications'
   const [notifications, setNotifications] = useState([]); // Initialize empty for real-time
   const [staff, setStaff] = useState([]);
-  const [newStaff, setNewStaff] = useState({ name: '', department: 'ROADS', role: 'WORKER', passcode: '', avatarUrl: '' });
+  const [newStaff, setNewStaff] = useState({ name: '', department: 'ROADS', role: 'WORKER', passcode: '' });
   const [showAddStaff, setShowAddStaff] = useState(false);
 
   const calculateStats = (data) => {
@@ -293,7 +293,7 @@ export function Dashboard({ user, onLogout }) {
         ...newStaff,
         createdAt: new Date()
       });
-      setNewStaff({ name: '', department: 'ROADS', role: 'WORKER', passcode: '', avatarUrl: '' });
+      setNewStaff({ name: '', department: 'ROADS', role: 'WORKER', passcode: '' });
       setShowAddStaff(false);
     } catch (err) {
       console.error('Failed to add staff:', err);
@@ -463,17 +463,6 @@ export function Dashboard({ user, onLogout }) {
                             </div>
                           </div>
 
-                          {c.imageUrl && (
-                            <div className="mb-4 rounded-lg overflow-hidden border border-white/10 aspect-video relative group/img">
-                              <img 
-                                src={c.imageUrl} 
-                                alt={c.category} 
-                                className="w-full h-full object-cover transition-transform duration-700 group-hover/img:scale-110"
-                              />
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover/img:opacity-100 transition-opacity"></div>
-                            </div>
-                          )}
-
                           <h4 className="text-sm font-black uppercase tracking-wide group-hover:text-aqua transition-colors mb-2">{c.category || 'Maintenance Issue'}</h4>
                           <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity">{c.description}</p>
 
@@ -569,17 +558,11 @@ export function Dashboard({ user, onLogout }) {
                     </div>
 
                     <div className="flex items-center gap-4 mb-6">
-                      <div className="w-14 h-14 rounded-md bg-white/5 flex items-center justify-center overflow-hidden border border-white/5 shadow-inner">
-                        {member.avatarUrl ? (
-                          <img src={member.avatarUrl} alt={member.name} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="text-2xl font-black text-violet">
-                            {(member.name || 'S')[0]}
-                          </div>
-                        )}
+                      <div className="w-14 h-14 rounded-md bg-white/5 flex items-center justify-center text-2xl font-black text-violet border border-white/5 shadow-inner">
+                        {member.name?.[0] || '?'}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-bold text-sm uppercase tracking-wide text-blue-400 truncate">{member.name || 'Staff Member'}</h4>
+                      <div>
+                        <h4 className="font-bold text-sm uppercase tracking-wide text-blue-400">{member.name}</h4>
                         <div className="flex items-center gap-2 mt-1">
                           <span className="text-[8px] px-2 py-0.5 bg-violet/10 text-violet rounded-md font-black uppercase tracking-widest border border-violet/20">
                             {member.role}
@@ -873,17 +856,6 @@ export function Dashboard({ user, onLogout }) {
                     <option value="ADMIN">ADMINISTRATOR</option>
                   </select>
                 </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-1">Avatar Image URL (Optional)</label>
-                <input
-                  type="url"
-                  value={newStaff.avatarUrl}
-                  onChange={(e) => setNewStaff({ ...newStaff, avatarUrl: e.target.value })}
-                  placeholder="https://example.com/avatar.jpg"
-                  className="w-full bg-white/5 border border-white/10 rounded-md p-4 text-sm outline-none focus:border-violet/40 focus:bg-violet/5 transition-all"
-                />
               </div>
 
               <div className="space-y-2">
