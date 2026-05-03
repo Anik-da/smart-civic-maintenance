@@ -5,12 +5,12 @@ import { collection, getDocs, query, where } from 'firebase/firestore';
 
 // Local fallback credentials - used when Firestore is unreachable
 const LOCAL_STAFF = [
-  { name: 'Admin', role: 'ADMIN', department: 'ADMIN', passcode: 'ADMIN2026' },
-  { name: 'Staff Member', role: 'WORKER', department: 'GENERAL', passcode: 'STAFF2026' },
-  { name: 'Road Worker', role: 'WORKER', department: 'ROADS', passcode: 'ROAD_WORK' },
-  { name: 'Power Staff', role: 'WORKER', department: 'ELECTRICITY', passcode: 'POWER_STAFF' },
-  { name: 'Water Dept', role: 'WORKER', department: 'WATER', passcode: 'AQUA_DEPT' },
-  { name: 'Sanitation', role: 'WORKER', department: 'SANITATION', passcode: 'CLEAN_CITY' },
+  { name: 'Arjun Sharma', role: 'ADMIN', department: 'ADMIN', passcode: 'ADMIN2026', avatarUrl: 'https://i.pravatar.cc/150?u=arjun' },
+  { name: 'Sarah Chen', role: 'WORKER', department: 'GENERAL', passcode: 'STAFF2026', avatarUrl: 'https://i.pravatar.cc/150?u=sarah' },
+  { name: 'Rajesh Kumar', role: 'WORKER', department: 'ROADS', passcode: 'ROAD_WORK', avatarUrl: 'https://i.pravatar.cc/150?u=rajesh' },
+  { name: 'Priya Patel', role: 'WORKER', department: 'ELECTRICITY', passcode: 'POWER_STAFF', avatarUrl: 'https://i.pravatar.cc/150?u=priya' },
+  { name: 'Vikram Singh', role: 'WORKER', department: 'WATER', passcode: 'AQUA_DEPT', avatarUrl: 'https://i.pravatar.cc/150?u=vikram' },
+  { name: 'Anjali Gupta', role: 'WORKER', department: 'SANITATION', passcode: 'CLEAN_CITY', avatarUrl: 'https://i.pravatar.cc/150?u=anjali' },
 ];
 
 export function DashboardGate({ children }) {
